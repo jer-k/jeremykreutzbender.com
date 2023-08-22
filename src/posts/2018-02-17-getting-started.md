@@ -1,0 +1,16 @@
+---
+title: Getting Started - Another Attempt at Blogging
+date: "2018-02-17"
+template: "post"
+draft: false
+slug: "getting-started"
+category: "Thoughts"
+description: "A new year, a new attempt at blogging!"
+socialImage: 
+---
+
+A new year, a new attempt at blogging! A few years ago I spun up www.jeremykreutzbender.com and dropped a [Ghost](https://ghost.org/) blog on it in my first attempt to blog. I wanted to cross my personal thoughts with programming oriented blogs and to be frank I didn't get too far. I made a few posts but found it hard find things to talk about or put together coherent and meaningful thoughts. I also found that the ever-changing nature of Ghost, because its actively being worked on, and self-hosting meant that every six months or so I had to remember how to log into my DigitalOcean and apply the updates and ensure that didn't break my theme; overall it just became a hassle that I didn't feel was worth the time. 
+
+So here I am, trying a different platform, with a new-found hope for success. I don't really forsee my Github account ever going away and that makes it a perfect place to house a technical blog. However, writing technical posts is going to be the real the challenge. In the past I've tried too hard to write step-by-step tutorial type posts, which I think are great if you're trying to introduce someone to a new technology, but most of the time that isn't the topic I'm trying to cover. Instead, I believe I need to focus on giving context on the problem I'm trying to solve, through words instead of large amounts of code examples, and then code examples for the resolution. I'm hoping this will cut down on much of the boilerplate I felt I was writing and subsequently wondering why would anyone else want to slog through all of that before finding the interesting part of the article at the bottom.
+
+We'll see how it goes!
