@@ -3,20 +3,27 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 6000",
+    "dev": "next dev -p 6001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@fec/remark-a11y-emoji": "^3.1.0",
     "@types/node": "20.5.1",
     "@types/react": "18.2.20",
     "@types/react-dom": "18.2.7",
+    "bright": "^0.8.4",
     "eslint": "8.47.0",
     "eslint-config-next": "13.4.19",
+    "gray-matter": "^4.0.3",
     "next": "13.4.19",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "rehype-autolink-headings": "^6.1.1",
+    "rehype-slug": "^5.1.0",
+    "remark-gfm": "^3.0.1",
+    "remark-toc": "^8.0.1",
     "typescript": "5.1.6"
   }
 }
