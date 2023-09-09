@@ -25,8 +25,8 @@ export const metadata: Metadata = {
     // Note that an official `app/` solution is coming soon.
     images: [
       {
-        url: `https://maxleiter.com/api/og?title=${encodeURIComponent(
-            "Max Leiter's site"
+        url: `https://jeremykreutzbender.com/api/og?title=${encodeURIComponent(
+            "Jeremy Kreutzbender's site"
         )}`,
         width: 1200,
         height: 630,
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     creator: '@j_kreutzbender',
   },
   icons: {
-    shortcut: 'https://maxleiter.com/favicons/favicon.ico',
+    shortcut: 'https://jeremykreutzbender.com/favicons/favicon.ico',
   },
   alternates: {
     types: {
