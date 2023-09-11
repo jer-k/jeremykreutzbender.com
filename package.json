@@ -6,7 +6,9 @@
     "dev": "next dev -p 6001",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prepare": "husky install",
+    "precommit": "lint-staged"
   },
   "dependencies": {
     "@fec/remark-a11y-emoji": "^3.1.0",
@@ -14,8 +16,8 @@
     "@types/react": "18.2.20",
     "@types/react-dom": "18.2.7",
     "bright": "^0.8.4",
-    "eslint": "8.47.0",
-    "eslint-config-next": "13.4.19",
+    "eslint": "^8.49.0",
+    "eslint-config-next": "^13.4.19",
     "gray-matter": "^4.0.3",
     "next": "13.4.19",
     "react": "18.2.0",
@@ -25,5 +27,13 @@
     "remark-gfm": "^3.0.1",
     "remark-toc": "^8.0.1",
     "typescript": "5.1.6"
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
+    "prettier": "^3.0.3"
   }
 }
