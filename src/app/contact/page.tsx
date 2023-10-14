@@ -1,9 +1,8 @@
 import Image from "next/image";
-import styles from "../page.module.css";
 
 export default function Contact() {
   return (
-    <main className={styles.main}>
+    <main>
       <p>
         My social links are located in the footer below or feel free to reach
         out at{" "}
