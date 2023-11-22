@@ -62,5 +62,10 @@
     "tailwindcss": "^3",
     "typescript": "^5"
   },
-  "packageManager": "yarn@4.0.2"
+  "packageManager": "yarn@4.0.2",
+  "resolutions": {
+    "string-width": "^4",
+    "jackspeak": "^2",
+    "strip-ansi": "^6"
+  }
 }
