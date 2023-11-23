@@ -1,5 +1,6 @@
 {
   "name": "jeremykreutzbender.com",
+  "license": "MIT",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,9 +11,11 @@
     "prepare": "husky install",
     "precommit": "lint-staged",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test": "jest"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.3.2",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
@@ -20,7 +23,8 @@
     "@radix-ui/react-menubar": "^1.0.4",
     "@radix-ui/react-progress": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
-    "add": "^2.0.6",
+    "@radix-ui/react-toast": "^1.1.5",
+    "@react-email/components": "^0.0.11",
     "bright": "^0.8.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
@@ -31,9 +35,12 @@
     "next-themes": "^0.2.1",
     "react": "^18",
     "react-dom": "^18",
+    "react-hook-form": "^7.48.2",
+    "resend": "^2.0.0",
     "shadcn-ui": "^0.4.1",
     "tailwind-merge": "^1.14.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^7.5.3",
@@ -44,6 +51,8 @@
     "@storybook/nextjs": "^7.5.3",
     "@storybook/react": "^7.5.3",
     "@storybook/testing-library": "^0.2.2",
+    "@testing-library/jest-dom": "^6.1.4",
+    "@types/jest": "^29.5.10",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -55,6 +64,8 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-storybook": "^0.6.15",
     "husky": "^8.0.3",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "lint-staged": "^14.0.1",
     "postcss": "^8",
     "prettier": "^3.0.3",

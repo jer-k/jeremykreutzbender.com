@@ -41,3 +41,11 @@ next-env.d.ts
 .tool-versions
 
 /storybook-static
+
+# yarn pnp stuff
+yarn-error.log
+.pnp.*
+**/.yarn/*
+!**/.yarn/patches
+!**/.yarn/plugins
+!**/.yarn/releases
