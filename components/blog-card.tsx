@@ -1,8 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function BlogCard() {
-  <article className="p-4 bg-white rounded shadow">
-    <img
+  return (
+    <article className="p-4 bg-white rounded shadow">
+    <Image
       alt="Post Image 5"
       className="w-full h-auto rounded-md"
       height="200"
@@ -18,5 +20,5 @@ export function BlogCard() {
     <Link className="text-blue-500 hover:underline" href="#">
       Read More
     </Link>
-  </article>;
+  </article>)
 }

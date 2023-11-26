@@ -2,13 +2,13 @@
  * v0 by Vercel.
  * @see https://v0.dev/t/vNBBWWdOW8w
  */
-
+import Image from 'next/image'
 import Link from "next/link";
 
+import { ContactForm } from "@/components/contact-form";
+
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+
 
 export default function Component() {
   return (
@@ -17,7 +17,8 @@ export default function Component() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid gap-12 lg:grid-cols-3 lg:gap-20">
             <div className="space-y-8 lg:pr-8">
-              <img
+              <Image
+                priority
                 alt="Contact Image"
                 className="aspect-content rounded-lg object-cover object-center"
                 height="400"
@@ -32,32 +33,7 @@ export default function Component() {
               <p>You can also find me on various social sites, linked below.</p>
             </div>
             <div className="lg:col-span-2">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input id="name" placeholder="Enter your name" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    placeholder="Enter your email"
-                    type="email"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="message">Message</Label>
-                  <Textarea
-                    className="min-h-[100px]"
-                    id="message"
-                    placeholder="Enter your message"
-                  />
-                </div>
-                <Button disabled type="submit">
-                  Send
-                </Button>
-                <span>sorry, need to figure how to set this up :)</span>
-              </div>
+              <ContactForm />
             </div>
           </div>
           <div className="flex space-x-4">

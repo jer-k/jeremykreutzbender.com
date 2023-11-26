@@ -31,7 +31,7 @@
     "cmdk": "^0.2.0",
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.287.0",
-    "next": "^14.0.4-canary.10",
+    "next": "^14.0.4-canary.17",
     "next-themes": "^0.2.1",
     "react": "^18",
     "react-dom": "^18",
