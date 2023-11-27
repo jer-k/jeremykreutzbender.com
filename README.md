@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# jeremykreutzbender.com
 
-## Getting Started
+Hello and welcome to the repository for my personal website. In 2022 I started using Next.js professionally and as the
+Vercel team has been adding new features (functionality with React Server Components, Server Actions, etc) to Next.js
+I wanted a place to play around and experiment with them. My old website was primarily a blog on a Gatsby template where
+I didn't know how much of anything was working; it worked well for dropping in .mdx files to post content but beyond that
+I struggled to make changes or upgrade packages on it. Thus I decided I wanted to rebuild my personal site from the ground
+up using Next.js while giving myself a chance to learn about the new features in Next.js and React as well as Typescript.
+Below is list of the libraries I've been using, pages I've built, and what I've been working on with those pages.
 
-First, run the development server:
+## Technologies / Libraries
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- [Next.js](https://github.com/vercel/next.js)
+  - [App Router](https://nextjs.org/docs/app)
+  - [Server Actions](https://nextjs.org/docs/app/api-reference/functions/server-actions)
+- [React](https://github.com/facebook/react)
+- [Typescript](https://www.typescriptlang.org/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [resend](https://resend.com/overview)
+  - [react email](https://react.email/)
+- [react-hook-form](https://react-hook-form.com/)
+- [zod](https://zod.dev/)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Pages
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### [Contact](https://jeremykreutzbender.com/contact)
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+The Contact page was the first page I built out using a lot of the libraries listed above. While I was familiar with
+`react-hook-form` from work, I decided to use `zod` instead of `yup` as a chance to look into a different library and
+learn something new. I ended up finding a little helper function in some Github issues, `nonempty`, which seemed to be
+something that existed in earlier versions of `zod` and added that as well.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+This was my first Server Action that I wrote as well, `sendEmail`. Which handled all the needed pieces for using `resend`
+to send the emails. It was a fun experience to set up `jest` to write all the tests. Coming from primarily writing Ruby on Rails
+and the ability to churn out [rspec](https://rspec.info/) tests without thinking, being able to write tests for Server Actions
+feels very close to home.
