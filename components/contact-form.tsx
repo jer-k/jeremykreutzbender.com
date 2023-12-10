@@ -1,8 +1,7 @@
-"use client"
+"use client";
 
-import {useForm, SubmitHandler} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod"
-import * as zod from "zod"
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
   Form,
@@ -11,57 +10,88 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import {Input} from "@/components/ui/input";
-import {Textarea} from "@/components/ui/textarea";
-import {Button} from "@/components/ui/button";
-import {useToast} from "@/components/ui/use-toast"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
-import {sendEmail} from "@/app/actions/contact";
-import {contactSchema} from "@/lib/schemas/contact-form-schema";
-
-type ContactSchemaValues = zod.infer<typeof contactSchema>
+import { processContactForm } from "@/app/actions/contact";
+import {
+  ContactSchemaValues,
+  contactSchema,
+} from "@/lib/schemas/contact-form-schema";
 
 export function ContactForm() {
-  const {toast} = useToast()
+  const { toast } = useToast();
 
   const form = useForm<ContactSchemaValues>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
-      name: "",
+      fullName: "",
       emailAddress: "",
-      message: ""
+      message: "",
     },
-  })
-  const {control, handleSubmit, reset, formState: {isSubmitting}} = form;
+  });
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { isSubmitting },
+  } = form;
 
-  const onSubmit: SubmitHandler<ContactSchemaValues> = async (data: ContactSchemaValues) => {
-    const result = await sendEmail(data);
-    if (!result.error) {
+  const onSubmit: SubmitHandler<ContactSchemaValues> = async (
+    data: ContactSchemaValues,
+  ) => {
+    const result = await processContactForm(data);
+    if (!(result.emailError || result.formErrors)) {
       toast({
         description: "Email sent to Jeremy!",
-      })
+      });
       reset();
     } else {
+      if (result.formErrors) {
+        const keys = Object.keys(result.formErrors) as Array<
+          keyof typeof result.formErrors
+        >;
+        keys.forEach((key) => {
+          const message = result.formErrors?.[key];
+          if (message) {
+            setError(key, { message: message });
+          }
+        });
+      }
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
         description: "There was a problem sending your email.",
-      })
+      });
     }
-  }
+  };
 
   return (
     <Form {...form}>
-      <form id="contact-form" className="w-2/3 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        id="contact-form"
+        className="w-2/3 space-y-6"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <FormField
           control={control}
-          name="name"
+          name="fullName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="name" aria-required={true}>Name</FormLabel>
+              <FormLabel htmlFor="fullName" aria-required={true}>
+                Name
+              </FormLabel>
               <FormControl>
-                <Input required id="name" placeholder="Enter your name" {...field}/>
+                <Input
+                  required
+                  id="fullName"
+                  placeholder="Enter your name"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -72,7 +102,9 @@ export function ContactForm() {
           name="emailAddress"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="email" aria-required={true}>Email</FormLabel>
+              <FormLabel htmlFor="email" aria-required={true}>
+                Email
+              </FormLabel>
               <FormControl>
                 <Input
                   required
@@ -91,7 +123,9 @@ export function ContactForm() {
           name="message"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="message" aria-required={true}>Message</FormLabel>
+              <FormLabel htmlFor="message" aria-required={true}>
+                Message
+              </FormLabel>
               <FormControl>
                 <Textarea
                   required
@@ -110,6 +144,5 @@ export function ContactForm() {
         </Button>
       </form>
     </Form>
-
-  )
+  );
 }
