@@ -36,7 +36,7 @@
     "gray-matter": "^4.0.3",
     "lodash": "^4.17.21",
     "lucide-react": "^0.287.0",
-    "next": "^14.0.4-canary.18",
+    "next": "^14.0.4",
     "next-themes": "^0.2.1",
     "react": "^18",
     "react-dom": "^18",
@@ -83,11 +83,5 @@
     "ts-node": "^10.9.1",
     "tsx": "^4.6.1",
     "typescript": "^5"
-  },
-  "packageManager": "yarn@4.0.2",
-  "resolutions": {
-    "string-width": "^4",
-    "jackspeak": "^2",
-    "strip-ansi": "^6"
   }
 }
