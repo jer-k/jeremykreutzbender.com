@@ -1,7 +1,9 @@
 export function Footer() {
   return (
-    <footer className="flex items-center justify-center py-6 text-white">
-      <p>© 2023 Jeremy Kreutzbender</p>
+    <footer className="flex items-center justify-center py-6">
+      <p>© {new Date().getFullYear()} Jeremy Kreutzbender</p>
     </footer>
   );
 }
+
+// --primary: 184 58% 14%;

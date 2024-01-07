@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="px-16 pt-4">
+        <div className="flex flex-col h-screen justify-between px-16 pt-4">
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
