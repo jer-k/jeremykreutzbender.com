@@ -3,6 +3,8 @@
  * @see https://v0.dev/t/sO96mj8LWN6
  */
 import { Suspense } from "react";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 
 import Link from "next/link";
 
@@ -10,7 +12,8 @@ import { BlogCardSkeleton } from "@/components/skeletons/blog-card-skeleton";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col h-screen justify-between px-16 pt-4">
+      <Header />
       <main className="flex-1">
         <section className="w-full">
           <div className="container px-4 md:px-6">
@@ -50,6 +53,7 @@ export default function HomePage() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   );
 }

@@ -2,13 +2,12 @@
  * v0 by Vercel.
  * @see https://v0.dev/t/vNBBWWdOW8w
  */
-import Image from 'next/image'
+import Image from "next/image";
 import Link from "next/link";
 
 import { ContactForm } from "@/components/contact-form";
 
 import { Button } from "@/components/ui/button";
-
 
 export default function Component() {
   return (
