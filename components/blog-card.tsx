@@ -1,9 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
 
-export function BlogCard() {
-  return (
-    <article className="p-4 bg-white rounded shadow">
+import { Post } from "@/types/types";
+
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+  CardContent,
+} from "@/components/ui/card";
+
+type BlogCardProps = {
+  post: Post;
+};
+
+/*
     <Image
       alt="Post Image 5"
       className="w-full h-auto rounded-md"
@@ -15,10 +28,22 @@ export function BlogCard() {
       }}
       width="300"
     />
-    <h3 className="text-xl font-bold mt-4">Post Title 5</h3>
-    <p className="text-gray-500">Post Excerpt 5...</p>
-    <Link className="text-blue-500 hover:underline" href="#">
-      Read More
-    </Link>
-  </article>)
+ */
+export function BlogCard({ post }: BlogCardProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{post.title}</CardTitle>
+        <CardDescription>{post.description}</CardDescription>
+      </CardHeader>
+      <CardFooter>
+        <Link
+          className="text-blue-500 hover:underline"
+          href={`/blog/${post.slug}`}
+        >
+          Read More
+        </Link>
+      </CardFooter>
+    </Card>
+  );
 }

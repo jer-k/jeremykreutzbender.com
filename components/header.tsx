@@ -29,6 +29,17 @@ export function Header() {
             <ModeToggle />
           </div>
         </div>
+        <div className="md:hidden flex items-center">
+          <button className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none focus:text-gray-600 dark:focus:text-gray-400">
+            <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24">
+              <path
+                clipRule="evenodd"
+                d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z"
+                fillRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </header>
   );
