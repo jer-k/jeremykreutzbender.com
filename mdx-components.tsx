@@ -6,6 +6,7 @@ import { PublishedOnReleaseBlog } from "@/components/mdx/published-on-release-bl
 Code.theme = {
   dark: "github-dark",
   light: "github-light",
+  lightSelector: "html.dark", // invert it so the code is easy to read
 };
 
 export const mdxComponents: MDXComponents = {
