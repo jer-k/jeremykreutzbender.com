@@ -1,6 +1,9 @@
-import { lazy, Suspense } from "react";
+import { MDXRemote } from "next-mdx-remote/rsc";
 import { fetchPost } from "@/lib/fetchPosts";
 import { notFound } from "next/navigation";
+import { mdxComponents } from "@/mdx-components";
+import remarkGfm from "remark-gfm";
+import remarkFrontmatter from "remark-frontmatter";
 
 type BlogPostPageParams = {
   params: {
@@ -14,13 +17,16 @@ export default async function BlogPost({
 
   if (!post) return notFound();
 
-  const MdxComponent = lazy(
-    () => import(`@/posts/${post.date}-${post.slug}.mdx`),
-  );
-
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <MdxComponent />
-    </Suspense>
+    <MDXRemote
+      source={post.content}
+      options={{
+        parseFrontmatter: true,
+        mdxOptions: {
+          remarkPlugins: [remarkGfm, remarkFrontmatter],
+        },
+      }}
+      components={mdxComponents}
+    />
   );
 }

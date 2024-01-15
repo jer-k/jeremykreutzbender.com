@@ -17,7 +17,7 @@ export const fetchPosts = cache(async () => {
         return null;
       }
 
-      return data as Post;
+      return { ...data, content: postContent } as Post;
     }),
   );
 
