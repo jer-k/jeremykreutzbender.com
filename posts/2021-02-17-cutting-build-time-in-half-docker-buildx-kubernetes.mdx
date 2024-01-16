@@ -28,7 +28,7 @@ The title of the article already spoiled the solution, and the alternative ‘Re
 
 Let’s start off with a diagram of what our original infrastructure looked like.
 
-![release-builder-architecture](media/release-builder-architecture.png)
+![release-builder-architecture](/post_images/release-builder-architecture.png)
 
 As you can see, the requests for builds would flow into our main Rails application and then divvied out to the different builder instances through Sidekiq. The `builder` container is Ruby code that would authenticate to Github, clone the repository, check out the correct SHA, and then execute the `docker build`. Due to the way we built the authentication to pull the code from Github, a single `builder` container could only clone one repository at a time. Which meant that the container could only do a single build request at a time. We added threading in the Ruby code to be able to execute multiple `docker build` commands at a time, but the number of builder containers we had spun up limited our concurrent builds. While it’s not hard to horizontally scale with Kubernetes, we saw this authentication setup as a major bottleneck.
 
@@ -38,7 +38,7 @@ Release Applications can contain many docker images and one of our favorite exam
 
 _NOTE_ I forked the `awesome-release` repo to my own Github, `jer-k` for the following results.
 
-![uncached-release](media/release-build-uncached.png)
+![uncached-release](/post_images/release-build-uncached.png)
 
 We can see that this brand new build with no cache hits took two minutes and 15 seconds to complete. Next, we want to make a few changes to ensure that each Docker image needs to be rebuilt. The changes are listed below.
 
@@ -55,7 +55,7 @@ Changes to be committed:
 
 For the purpose of this blog post, I ensured the following build ran on the same builder as the first and that we will have cache hits. As noted before, this wasn’t always the case in our production environment.
 
-![cached-release](media/release-build-cached.png)
+![cached-release](/post_images/release-build-cached.png)
 
 The caching helps and cuts 45 seconds off the build! The uncached build took almost twice as long as the second build with caching, but our assumption was that we could do a lot better (cached and uncached) with some new technology.
 
@@ -136,11 +136,11 @@ The default `sticky` means that the builds should always end up on the same serv
 
 Using the same example-voting-app repository as before, I created a new branch `buildx_builders` and pointed the code to the buildx servers.
 
-![uncached-buildx](media/release-buildx-uncached.png)
+![uncached-buildx](/post_images/release-buildx-uncached.png)
 
 What we see is that this uncached build was more than twice as fast as the other uncached build and even faster than the cached build on the old infrastructure! But uncached builds should be a thing of the past with the sticky load balancing, so let’s make the same changes as the previous branch and see the results.
 
-![cached-buildx](media/release-buildx-cached.png)
+![cached-buildx](/post_images/release-buildx-cached.png)
 
 This build finished three times faster than the previous cached build! These types of speed increases are the reason we set out to redo our build infrastructure. The faster the builds complete, the faster we can create environments and help our customers deliver their products.
 

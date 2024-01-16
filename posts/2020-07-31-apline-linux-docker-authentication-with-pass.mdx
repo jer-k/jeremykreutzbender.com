@@ -24,7 +24,7 @@ import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
 
 _Published on {frontmatter.date}_
 
-![insecure docker login](media/insecure_docker_login.png)
+![insecure docker login](/post_images/insecure_docker_login.png)
 
 If you've ever encountered the above message when logging into Docker and thought to yourself "Well it’s unencrypted but it works... I'll deal with it another day" then we've got something in common. That day finally came when I was working on another blog post but realized that without a secure way to do a `docker login` I was never going to achieve a good working example to write about. I came across [docker-credential-helpers](https://github.com/docker/docker-credential-helpers) which looked like exactly what I needed. One of the recommended ways to store the encrypted passwords is with [pass](https://www.passwordstore.org/). However, once I started looking at `pass`, I wasn't really sure where to start on getting everything working. Apparently I was not alone because after some googling I came across an issue on the `docker-credential-helpers` Github titled [Document how to initialize docker-credentials-pass](https://github.com/docker/docker-credential-helpers/issues/102). After reading through all of the discussion I felt like I understood enough to set out and figure out once and for all how to get rid of the pesky Docker warning.
 

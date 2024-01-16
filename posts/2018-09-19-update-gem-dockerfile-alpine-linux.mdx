@@ -64,7 +64,7 @@ COPY .. .
 
 And let's dive into the changes as seen in the [commit](https://github.com/jer-k/gem_with_database/commit/c08c2903310db2acb1bc7e0afda5e69c4e7605ec) where I made this conversion.
 
-![gem_with_database_git_diff](media/gem_with_database_alpine_changes.png)
+![gem_with_database_git_diff](/post_images/gem_with_database_alpine_changes.png)
 
 To start I changed the image to `ruby:2.5.0-alpine` to use the Ruby Alpine image. Next, I'm using [apk](https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management) to run `apk --update add --no-cache --virtual run-dependencies`. Let's break down the flags I passed to this command.
 
