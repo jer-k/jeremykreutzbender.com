@@ -9,8 +9,12 @@ import { Footer } from "@/components/footer";
 import Link from "next/link";
 
 import { BlogCardSkeleton } from "@/components/skeletons/blog-card-skeleton";
+import fetchPosts from "@/lib/fetchPosts";
+import { BlogCard } from "@/components/blog-card";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const posts = await fetchPosts();
+
   return (
     <div className="flex flex-col h-screen justify-between px-16 pt-4">
       <Header />
@@ -43,11 +47,9 @@ export default function HomePage() {
                   </div>
                 }
               >
-                <div className="flex flex-col items-center space-y-4">
-                  <BlogCardSkeleton />
-                  <BlogCardSkeleton />
-                  <BlogCardSkeleton />
-                </div>
+                {posts.slice(0, 5).map((post) => (
+                  <BlogCard key={post.slug} post={post} />
+                ))}
               </Suspense>
             </div>
           </div>

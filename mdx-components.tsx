@@ -4,9 +4,9 @@ import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
 import { PublishedOnReleaseBlog } from "@/components/mdx/published-on-release-blog";
 
 Code.theme = {
-  dark: "github-dark",
-  light: "github-light",
-  lightSelector: "html.dark", // invert it so the code is easy to read
+  dark: "solarized-dark",
+  light: "solarized-light",
+  lightSelector: "html.light",
 };
 
 export const mdxComponents: MDXComponents = {

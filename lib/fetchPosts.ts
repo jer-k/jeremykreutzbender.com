@@ -5,39 +5,27 @@ import { Post } from "@/types/types";
 import fs from "fs/promises";
 
 export const fetchPosts = cache(async () => {
-  const posts = await fs.readdir("posts/");
+  const filePaths = await fs.readdir("posts/");
 
-  return Promise.all(
-    posts.map(async (file) => {
-      const filePath = `./posts/${file}`;
-      const postContent = await fs.readFile(filePath, "utf8");
-      const { data, content } = matter(postContent);
+  const postsData = [];
 
-      if (data.published === false) {
-        return null;
-      }
+  for (const filePath of filePaths) {
+    const postFilePath = `posts/${filePath}`;
+    const postContent = await fs.readFile(postFilePath, "utf8");
+    const { data } = matter(postContent);
 
-      return { ...data, content: postContent } as Post;
-    }),
-  );
+    if (!data.draft) {
+      const postData = { ...data, content: postContent } as Post;
+      postsData.unshift(postData);
+    }
+  }
 
-  // return posts.reduce<Post[]>(async (array, file) => {
-  //   const filePath = `posts/${file}`;
-  //   const postContent = await fs.readFile(filePath, "utf8");
-  //   const { data } = matter(postContent);
-  //
-  //   if (data.draft === true) {
-  //     return array;
-  //   }
-  //
-  //   const postData = data as Post;
-  //   return [postData, ...array]
-  // }, []);
+  return postsData;
 });
 
 export async function fetchPost(slug: string) {
   const posts = await fetchPosts();
-  return posts.find((post) => post?.slug === slug);
+  return posts.find((post) => post.slug === slug);
 }
 
 export default fetchPosts;
