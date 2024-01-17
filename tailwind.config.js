@@ -50,6 +50,46 @@ module.exports = {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
+        midnight: {
+          DEFAULT: "hsl(var(--midnight))",
+          foreground: "hsl(var(--midnight-foreground))",
+        },
+        twilight: {
+          DEFAULT: "hsl(var(--twilight))",
+          foreground: "hsl(var(--twilight-foreground))",
+        },
+        dusk: {
+          DEFAULT: "hsl(var(--dusk))",
+          foreground: "hsl(var(--dusk-foreground))",
+        },
+        cloud: {
+          DEFAULT: "hsl(var(--cloud))",
+          foreground: "hsl(var(--cloud-foreground))",
+        },
+        fog: {
+          DEFAULT: "hsl(var(--fog))",
+          foreground: "hsl(var(--fog-foreground))",
+        },
+        radiance: {
+          DEFAULT: "hsl(var(--radiance))",
+          foreground: "hsl(var(--radiance-foreground))",
+        },
+        warmth: {
+          DEFAULT: "hsl(var(--warmth))",
+          foreground: "hsl(var(--warmth-foreground))",
+        },
+        shine: {
+          DEFAULT: "hsl(var(--shine))",
+          foreground: "hsl(var(--shine-foreground))",
+        },
+        gleam: {
+          DEFAULT: "hsl(var(--gleam))",
+          foreground: "hsl(var(--gleam-foreground))",
+        },
+        bright: {
+          DEFAULT: "hsl(var(--bright))",
+          foreground: "hsl(var(--bright-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
