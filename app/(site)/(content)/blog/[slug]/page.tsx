@@ -5,12 +5,10 @@ import { mdxComponents } from "@/mdx-components";
 import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
 
-// export async function generateStaticParams() {
-//   const posts = await fetchPosts();
-//   return posts.map((post) => ({ slug: post.slug }));
-// }
-
-export const dynamicParams = true;
+export async function generateStaticParams() {
+  const posts = await fetchPosts();
+  return posts.map((post) => ({ slug: post.slug }));
+}
 
 type BlogPostPageParams = {
   params: {
