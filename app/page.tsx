@@ -44,7 +44,7 @@ export default async function HomePage() {
               <h2 className="text-3xl font-bold tracking-tighter text-center sm:text-4xl">
                 Latest Blog Posts
               </h2>
-              <div className="mt-8 space-y-6">
+              <div className="flex flex-col mt-8 space-y-6">
                 <Suspense
                   fallback={
                     <div className="flex items-center">
