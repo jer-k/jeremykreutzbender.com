@@ -1,9 +1,14 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { fetchPost } from "@/lib/fetchPosts";
+import { fetchPost, fetchPosts } from "@/lib/fetchPosts";
 import { notFound } from "next/navigation";
 import { mdxComponents } from "@/mdx-components";
 import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
+
+export async function generateStaticParams() {
+  const posts = await fetchPosts();
+  return posts.map((post) => ({ slug: post.slug }));
+}
 
 type BlogPostPageParams = {
   params: {
