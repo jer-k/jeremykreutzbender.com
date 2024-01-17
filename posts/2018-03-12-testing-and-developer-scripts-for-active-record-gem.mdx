@@ -29,7 +29,9 @@ import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
 
 _Published on {frontmatter.date}_
 
-Continuing to work on our [gem with active_record rake tasks](https://jer-k.github.io/add-active-record-rake-tasks-to-gem/), we still need to set up a testing environment that can be run locally and in a repeatable fashion for continuous integration; we'll accomplish the latter using a simple Dockerfile. But first let's make it easier for someone to start using the gem by enhancing the scripts in `bin/`.
+Continuing to work on our [gem with active_record rake tasks](https://jer-k.github.io/add-active-record-rake-tasks-to-gem/), we still need to set up a testing environment that
+can be run locally and in a repeatable fashion for continuous integration; we'll accomplish the latter using a simple
+Dockerfile. But first let's make it easier for someone to start using the gem by enhancing the scripts in `bin/`.
 
 We'll start off by changing `bin/setup` to create the user and the database.
 
@@ -48,10 +50,16 @@ psql -tAc "SELECT 1 FROM pg_database WHERE datname='gem_with_database_developmen
 rake db:create db:migrate db:seed
 ```
 
-The first command queries the `pg_roles` table looking to see if there is a role named `gem_with_database` and returns 1 if so. The result is piped into `grep` looking for the 1, if it is found we stop, otherwise we issue another command to create the `gem_with_database` role. If you're curious as to how this works, `grep` returns a non-zero exit code if it doesn't find something and a bash `||` only evaluates the right-hand side of the expression if the left-hand side has a non-zero value.
-We follow the same pattern in the second command and look to see if a database named `gem_with_database_development` exists; if it doesn't we create it and add our data.
+The first command queries the `pg_roles` table looking to see if there is a role named `gem_with_database` and returns
+1 if so. The result is piped into `grep` looking for the 1, if it is found we stop, otherwise we issue another command
+to create the `gem_with_database` role. If you're curious as to how this works, `grep` returns a non-zero exit code if
+it doesn't find something and a bash `||` only evaluates the right-hand side of the expression if the left-hand side
+has a non-zero value.
+We follow the same pattern in the second command and look to see if a database named `gem_with_database_development`
+exists; if it doesn't we create it and add our data.
 
-Once the database is created and has data in it, we want to start playing around with our models and we can ensure everything is ready by modifying `bin/console`.
+Once the database is created and has data in it, we want to start playing around with our models and we can ensure
+everything is ready by modifying `bin/console`.
 
 ```ruby
 #!/usr/bin/env ruby
@@ -71,7 +79,9 @@ ActiveRecord::Base.logger = Logger.new(STDOUT)
 Pry.start
 ```
 
-We simply require the needed gems to establish a connection to the database, setup logging so we can see the results of the queries, and my personal preference is to use a `Pry` console. With that a user can clone the repository, run `bin/setup` and then `bin/console` and be able to query data!
+We simply require the needed gems to establish a connection to the database, setup logging so we can see the results of
+the queries, and my personal preference is to use a `Pry` console. With that a user can clone the repository, run
+`bin/setup` and then `bin/console` and be able to query data!
 
 ```ruby
 [1] pry(main)> GemWithDatabase::Book.first
@@ -84,13 +94,15 @@ D, [2018-03-10T17:49:22.051607 #31929] DEBUG -- :   GemWithDatabase::Book Load (
  author_id: 1>
 ```
 
-Now that we have everyone up and running with a development environment, we need to setup our testing environment. The first thing we will do is add [FactoryBot](https://github.com/thoughtbot/factory_bot) so we can create mock data.
+Now that we have everyone up and running with a development environment, we need to setup our testing environment.
+The first thing we will do is add [FactoryBot](https://github.com/thoughtbot/factory_bot) so we can create mock data.
 
 ```ruby
 spec.add_dependency 'factory_bot', `~> 4`
 ```
 
-It is added as a normal dependency because we can actually export our factories so that anyone who uses the gem gets an added bonus of being able to create mock data right off the bat, instead of having to define their own.
+It is added as a normal dependency because we can actually export our factories so that anyone who uses the gem gets an
+added bonus of being able to create mock data right off the bat, instead of having to define their own.
 
 We'll create `lib/gem_with_database/factories/author.rb`.
 
@@ -105,7 +117,9 @@ FactoryBot.define do
 end
 ```
 
-The name of the factory is prefixed with the name of the gem to ensure that we aren't going to create a collision if someone has already defined a factory named `book` in their application. Now we need to expose the factory in `lib/gem_with_database.rb` and we can move onto setting up our test database.
+The name of the factory is prefixed with the name of the gem to ensure that we aren't going to create a collision if
+someone has already defined a factory named `book` in their application. Now we need to expose the factory in
+`lib/gem_with_database.rb` and we can move onto setting up our test database.
 
 ```
 require 'gem_with_database/factories/author'
@@ -125,7 +139,10 @@ Rake::Task['db:create'].invoke
 Rake::Task['db:schema:load'].invoke
 ```
 
-First and foremost we need to set the `ENV` to `test` to ensure that we're targeting only the test database; remember we set up the `DatabaseTasks.env` to read from `ENV['ENV']`. Then we load the needed files to invoke our rake tasks, stub out the `task :environment` like we did in the `Rakefile`, and create a new database with our schema. Let's write a test for our `Author` class at `spec/models/author_spec.rb` and try it out.
+First and foremost we need to set the `ENV` to `test` to ensure that we're targeting only the test database; remember
+we set up the `DatabaseTasks.env` to read from `ENV['ENV']`. Then we load the needed files to invoke our rake tasks,
+stub out the `task :environment` like we did in the `Rakefile`, and create a new database with our schema. Let's write
+a test for our `Author` class at `spec/models/author_spec.rb` and try it out.
 
 ```ruby
 require 'spec_helper'
@@ -161,7 +178,12 @@ Finished in 0.02844 seconds (files took 2.13 seconds to load)
 2 examples, 0 failures
 ```
 
-Success! We've created a re-usable database for the test environment and our tests are passing. The last thing we want to do is setup a way to run our tests in a continuous integration environment so that when the popularity of the gem has exploded and the number of contributors skyrockets, we're able to ensure no one is committing broken code. We'll do this by creating a `Dockerfile`, utilizing [Docker Compose](https://docs.docker.com/compose/), and a few helpful scripts. However, please bear with me, I am by no means an expert with Docker; I've was able to fumble my way through this and get it working so if my explanations aren't as thorough I apologize.
+Success! We've created a re-usable database for the test environment and our tests are passing. The last thing we want
+to do is setup a way to run our tests in a continuous integration environment so that when the popularity of the gem
+has exploded and the number of contributors skyrockets, we're able to ensure no one is committing broken code. We'll
+do this by creating a `Dockerfile`, utilizing [Docker Compose](https://docs.docker.com/compose/), and a few helpful scripts. However, please bear
+with me, I am by no means an expert with Docker; I've was able to fumble my way through this and get it working so if
+my explanations aren't as thorough I apologize.
 
 First, the [Dockerfile](https://github.com/jer-k/gem_with_database/blob/old_dockerfile/Dockerfile).
 
@@ -191,9 +213,15 @@ RUN apt-get update && apt-get -y install postgresql-client-9.6
 COPY . .
 ```
 
-The `ruby:2.5` image as it is the latest as of writing so we'll use that and we set the `WORKDIR` to `/usr/src/app`. Next we copy in the `.gemspec` file, the `Gemfile`, and the `version.rb` because it is referenced in the `.gemspec`. Then we run `bundle check || bundle install` which will check to see if we need to run `bundle install` or not, hopefully saving time and not requiring a full install of all the gems each time we use the container. Next, I want to install `postgresl-client` so that we have access to `psql` and can run the `wait_for_pg.sh` script below. I slightly modified the Docker instructions for installing [Postgresql](https://docs.docker.com/engine/examples/postgresql_service/). Finally, we copy in the entire contents of the gem.
+The `ruby:2.5` image as it is the latest as of writing so we'll use that and we set the `WORKDIR` to `/usr/src/app`.
+Next we copy in the `.gemspec` file, the `Gemfile`, and the `version.rb` because it is referenced in the `.gemspec`.
+Then we run `bundle check || bundle install` which will check to see if we need to run `bundle install` or not,
+hopefully saving time and not requiring a full install of all the gems each time we use the container. Next, I want
+to install `postgresl-client` so that we have access to `psql` and can run the `wait_for_pg.sh` script below. I slightly
+modified the Docker instructions for installing [Postgresql](https://docs.docker.com/engine/examples/postgresql_service/). Finally, we copy in the entire contents of the gem.
 
-The `docker-compose.yml` adds the [entrypoint](https://docs.docker.com/compose/compose-file/compose-file-v2/#entrypoint) which takes in a parameter, the name of the postgres database we defined, `db`. Otherwise we add the environment variables for postgres and builds the image.
+The `docker-compose.yml` adds the [entrypoint](https://docs.docker.com/compose/compose-file/compose-file-v2/#entrypoint) which takes in a parameter, the name of the postgres database we
+defined, `db`. Otherwise we add the environment variables for postgres and builds the image.
 
 ```yaml
 version: "2"
@@ -246,7 +274,9 @@ docker-compose run \
   app bundle exec rake spec
 ```
 
-We tell `docker-compose` to `build` our image and pass `--pull` to ensure it always pulls the most up to date base image. Then we tell `docker-compose` to `run` `app bundle exec rake spec`, using `-e` to pass an environment variable of `RAILS_ENV=test`. We can now run `bin/ci.sh` and we should see Docker build everything and run our tests!
+We tell `docker-compose` to `build` our image and pass `--pull` to ensure it always pulls the most up-to-date base image.
+Then we tell `docker-compose` to `run` `app bundle exec rake spec`, using `-e` to pass an environment variable of
+`RAILS_ENV=test`. We can now run `bin/ci.sh` and we should see Docker build everything and run our tests!
 
 ```bash
 $ bin/ci.sh
@@ -323,4 +353,6 @@ Finished in 0.03851 seconds (files took 2.74 seconds to load)
 2 examples, 0 failures
 ```
 
-We've successfully created our testing environment and got it running in Docker (I did run into some issues with needing to add specific versions of gems.) Hopefully this provides a good blueprint to follow for the next gem you create that might need access to a database and a testing environment.
+We've successfully created our testing environment and got it running in Docker (I did run into some issues with needing
+to add specific versions of gems.) Hopefully this provides a good blueprint to follow for the next gem you create that
+might need access to a database and a testing environment.
