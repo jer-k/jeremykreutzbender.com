@@ -4,7 +4,7 @@ import matter from "gray-matter";
 import { Post } from "@/types/types";
 import fs from "fs/promises";
 
-export const fetchPosts = cache(async () => {
+export const fetchPosts = async () => {
   const filePaths = await fs.readdir("posts/");
 
   const postsData = [];
@@ -21,7 +21,7 @@ export const fetchPosts = cache(async () => {
   }
 
   return postsData;
-});
+};
 
 export async function fetchPost(slug: string) {
   const posts = await fetchPosts();
