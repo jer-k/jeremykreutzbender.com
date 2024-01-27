@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { ExternalLinkIcon } from "@radix-ui/react-icons";
+
 import { Post } from "@/types/types";
 
 import {
@@ -7,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from "@/components/ui/card";
 
 type BlogCardProps = {
@@ -14,14 +17,38 @@ type BlogCardProps = {
 };
 
 export function BlogCard({ post }: BlogCardProps) {
-  return (
-    <Link href={`/blog/${post.slug}`}>
-      <Card>
-        <CardHeader>
-          <CardTitle>{post.title}</CardTitle>
-          <CardDescription>{post.description}</CardDescription>
-        </CardHeader>
-      </Card>
-    </Link>
+  let href;
+  let externalLink = false;
+  if (post.href) {
+    href = post.href;
+    externalLink = true;
+  } else {
+    href = `/blog/${post.slug}`;
+  }
+
+  const cardFooter = externalLink && (
+    <CardFooter className="pt-2 pb-6">
+      <div className="flex flex-row space-x-2 items-center">
+        <p>release.com</p>
+        <ExternalLinkIcon />
+      </div>
+    </CardFooter>
+  );
+  const card = (
+    <Card>
+      <CardHeader className={externalLink ? "pb-0" : "pb-6"}>
+        <CardTitle>{post.title}</CardTitle>
+        <CardDescription>{post.description}</CardDescription>
+      </CardHeader>
+      {cardFooter}
+    </Card>
+  );
+
+  return externalLink ? (
+    <a href={href} target="_blank">
+      {card}
+    </a>
+  ) : (
+    <Link href={href}>{card}</Link>
   );
 }
