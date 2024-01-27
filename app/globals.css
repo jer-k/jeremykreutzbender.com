@@ -56,31 +56,37 @@
 @layer base {
   :root {
     /* Colors from https://twitter.com/i/bookmarks?post_id=1732809863288213630 */
-    --midnight: 0 20% 5%;
-    --midnight-foreground: 0 0% 98%;
+    --midnight: 0 20% 4.9%;
+    --midnight-foreground: 0 0% 100%;
 
-    --twilight: 183 38% 9%;
-    --twilight-foreground: 0 0% 98%;
+    --twilight: 183 37.5% 9.4%;
+    --twilight-foreground: 0 0% 100%;
 
     /* primary */
-    --dusk: 184 58% 14%;
-    --dusk-foreground: 0 0% 98%;
+    --dusk: 184 57.7% 13.9%;
+    --dusk-foreground: 0 0% 100%;
 
-    --cloud: 180, 17%, 35%;
+    --cloud: 180 17% 34.5%;
+    --cloud-foreground: 0 0% 100%;
 
     /* secondary */
-    --fog: 173, 12%, 58%;
-    --fog-foreground: 0 0% 98%;
+    --fog: 173 12.1% 58%;
+    --fog-foreground: 0 0% 100%;
 
-    --radiance: 24, 100%, 50%;
+    --radiance: 24 100% 50%;
+    --radiance-foreground: 0 0% 100%;
 
-    --warmth: 34, 100%, 50%;
+    --warmth: 34 100% 50%;
+    --warmth-foreground: 0 0% 100%;
 
-    --shine: 45, 100%, 50%;
+    --shine: 45 100% 50%;
+    --shine-foreground: 0 0% 100%;
 
-    --gleam: 48, 89%, 74%;
+    --gleam: 46 88.3% 76.5%;
+    --gleam-foreground: 0 0% 0%;
 
-    --bright: 60, 50%, 96%;
+    --bright: 60 50% 96.1%;
+    --bright-foreground: 0 0% 0%;
 
     /* Other colors */
 
