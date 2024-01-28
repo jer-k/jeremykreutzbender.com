@@ -1,8 +1,15 @@
-import { GlobeIcon, MailIcon, PhoneIcon } from "lucide-react";
+import { GlobeIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "CV",
+  description: "My online CV",
+};
 
 export default function CvPage() {
   return (

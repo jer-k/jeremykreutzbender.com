@@ -5,6 +5,31 @@ import { mdxComponents } from "@/mdx-components";
 import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
 
+import { Metadata, ResolvingMetadata } from "next";
+
+type MetadataProps = {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export async function generateMetadata(
+  { params, searchParams }: MetadataProps,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const slug = params.id;
+
+  const post = await fetchPost(slug);
+
+  if (post) {
+    return {
+      title: post.title,
+      description: post.description,
+    };
+  } else {
+    return {};
+  }
+}
+
 export async function generateStaticParams() {
   const posts = await fetchPosts();
   return posts.map((post) => ({ slug: post.slug }));
