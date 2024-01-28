@@ -3,14 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import {
-  HomeIcon,
-  VideoIcon,
-  BookOpen,
-  Contact,
-  Sun,
-  Moon,
-} from "lucide-react";
+import { HomeIcon, VideoIcon, BookOpen, Contact } from "lucide-react";
 
 import { ModeToggle } from "@/components/mode-toggle";
 import {

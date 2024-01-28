@@ -5,18 +5,17 @@ import { mdxComponents } from "@/mdx-components";
 import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
 
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 
 type MetadataProps = {
-  params: { id: string };
+  params: { slug: string };
   searchParams: { [key: string]: string | string[] | undefined };
 };
 
-export async function generateMetadata(
-  { params, searchParams }: MetadataProps,
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
-  const slug = params.id;
+export async function generateMetadata({
+  params,
+}: MetadataProps): Promise<Metadata> {
+  const slug = params.slug;
 
   const post = await fetchPost(slug);
 
