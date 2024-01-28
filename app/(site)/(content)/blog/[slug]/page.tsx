@@ -5,16 +5,22 @@ import { mdxComponents } from "@/mdx-components";
 import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
 
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
-type MetadataProps = {
-  params: { slug: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+type BlogPostPageParams = {
+  params: {
+    slug: string;
+  };
 };
+
+export async function generateStaticParams() {
+  const posts = await fetchPosts();
+  return posts.map((post) => ({ slug: post.slug }));
+}
 
 export async function generateMetadata({
   params,
-}: MetadataProps): Promise<Metadata> {
+}: BlogPostPageParams): Promise<Metadata> {
   const slug = params.slug;
 
   const post = await fetchPost(slug);
@@ -29,16 +35,6 @@ export async function generateMetadata({
   }
 }
 
-export async function generateStaticParams() {
-  const posts = await fetchPosts();
-  return posts.map((post) => ({ slug: post.slug }));
-}
-
-type BlogPostPageParams = {
-  params: {
-    slug: string;
-  };
-};
 export default async function BlogPost({
   params: { slug },
 }: BlogPostPageParams) {
