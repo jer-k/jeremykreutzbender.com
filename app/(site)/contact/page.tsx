@@ -9,6 +9,13 @@ import { ContactForm } from "@/components/contact-form";
 
 import { Button } from "@/components/ui/button";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact Me",
+  description: "Contact Me",
+};
+
 export default function Component() {
   return (
     <div className="flex flex-col min-h-screen">

@@ -5,16 +5,36 @@ import { mdxComponents } from "@/mdx-components";
 import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
 
-export async function generateStaticParams() {
-  const posts = await fetchPosts();
-  return posts.map((post) => ({ slug: post.slug }));
-}
+import type { Metadata } from "next";
 
 type BlogPostPageParams = {
   params: {
     slug: string;
   };
 };
+
+export async function generateStaticParams() {
+  const posts = await fetchPosts();
+  return posts.map((post) => ({ slug: post.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: BlogPostPageParams): Promise<Metadata> {
+  const slug = params.slug;
+
+  const post = await fetchPost(slug);
+
+  if (post) {
+    return {
+      title: post.title,
+      description: post.description,
+    };
+  } else {
+    return {};
+  }
+}
+
 export default async function BlogPost({
   params: { slug },
 }: BlogPostPageParams) {

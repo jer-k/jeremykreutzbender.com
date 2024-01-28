@@ -3,7 +3,11 @@
 @tailwind utilities;
 
 /*
+  https://zippystarter.com/tools/shadcn-ui-theme-generator  to adjust colors
+  Colors from https://twitter.com/i/bookmarks?post_id=1732809863288213630
+
   Hex values for the colors
+
   #0F0A0A Midnight
   #0F2021 Twilight
   #0F3538 Dusk
@@ -16,46 +20,8 @@
   #FAFAF0 Bright
  */
 
-/*
-  Bright
-    "--color-surface-50": "254 254 253", // #fefefd
-    "--color-surface-100": "254 254 252", // #fefefc
-    "--color-surface-200": "254 254 251", // #fefefb
-    "--color-surface-300": "253 253 249", // #fdfdf9
-    "--color-surface-400": "252 252 245", // #fcfcf5
-    "--color-surface-500": "250 250 240", // #FAFAF0
-    "--color-surface-600": "225 225 216", // #e1e1d8
-    "--color-surface-700": "188 188 180", // #bcbcb4
-    "--color-surface-800": "150 150 144", // #969690
-    "--color-surface-900": "123 123 118", // #7b7b76
-
-  Dusk
-    "--color-primary-50": "219 225 225", // #dbe1e1
-    "--color-primary-100": "207 215 215", // #cfd7d7
-    "--color-primary-200": "195 205 205", // #c3cdcd
-    "--color-primary-300": "159 174 175", // #9faeaf
-    "--color-primary-400": "87 114 116", // #577274
-    "--color-primary-500": "15 53 56", // #0F3538
-    "--color-primary-600": "14 48 50", // #0e3032
-    "--color-primary-700": "11 40 42", // #0b282a
-    "--color-primary-800": "9 32 34", // #092022
-    "--color-primary-900": "7 26 27", // #071a1b
-
-  Fog
-    "--color-secondary-50": "237 241 240", // #edf1f0
-    "--color-secondary-100": "231 236 236", // #e7ecec
-    "--color-secondary-200": "225 232 231", // #e1e8e7
-    "--color-secondary-300": "207 217 216", // #cfd9d8
-    "--color-secondary-400": "171 189 187", // #abbdbb
-    "--color-secondary-500": "135 161 158", // #87A19E
-    "--color-secondary-600": "122 145 142", // #7a918e
-    "--color-secondary-700": "101 121 119", // #657977
-    "--color-secondary-800": "81 97 95", // #51615f
-    "--color-secondary-900": "66 79 77", // #424f4d
- */
 @layer base {
   :root {
-    /* Colors from https://twitter.com/i/bookmarks?post_id=1732809863288213630 */
     --midnight: 0 20% 4.9%;
     --midnight-foreground: 0 0% 100%;
 
@@ -99,8 +65,8 @@
     --background: 60, 50%, 96%;
     --foreground: 60 12% 5%;
 
-    --card: 60 50% 98%;
-    --card-foreground: 60 12% 5%;
+    --card: 60 50% 95%;
+    --card-foreground: 60 5% 15%;
 
     --popover: 60 54% 97%;
     --popover-foreground: 60 12% 5%;

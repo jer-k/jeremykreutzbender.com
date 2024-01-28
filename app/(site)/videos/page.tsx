@@ -1,5 +1,12 @@
 import { Progress } from "@/components/ui/progress";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Videos",
+  description: "My videos",
+};
+
 export default function Videos() {
   return (
     <div className="flex flex-col items-center justify-center space-y-2 py-4">
