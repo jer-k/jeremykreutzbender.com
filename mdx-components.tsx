@@ -1,6 +1,7 @@
 import Image, { ImageProps } from "next/image";
 
 import { Code } from "bright";
+import { Tweet } from "react-tweet";
 import type { MDXComponents } from "mdx/types";
 
 import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
@@ -24,6 +25,11 @@ export const mdxComponents: MDXComponents = {
       height={450}
       {...(props as ImageProps)}
     />
+  ),
+  Tweet: (props) => (
+    <div className="not-prose">
+      <Tweet {...props} />
+    </div>
   ),
 };
 
