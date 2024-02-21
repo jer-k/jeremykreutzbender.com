@@ -1,0 +1,108 @@
+---
+title: Building a new website with Next.js 14 and App Router
+date: "2024-02-04"
+template: "post"
+draft: false
+slug: "building-a-new-website-with-nextjs"
+description: "Detailing the process of rebuilding my website from Gatsby to Next.js."
+socialImage:
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+Nearly six years ago I published a similar post [Getting Started - Another Attempt at Blogging](https://jeremykreutzbender.com/blog/getting-started)
+detailing how moved off the old [jeremykreutzbender.com](https://jeremykreutzbender.com) and onto [jer-k.github.io](https://jer-k.github.io). In
+that post I went from having a self-hosted [Ghost](https://ghost.org/) blog to using a [Github Pages](https://pages.github.com/) site. Now I've
+come almost full circle except that this time I'm not self-hosting the website, instead using [Vercel](https://vercel.com) to do what it does best.
+
+## Motivation
+
+My primary motivation came down to two things: the first being that I wanted to spend time learning something new and secondly I wanted to be able to
+make changes to the site more efficiently.
+
+In terms of learning something new, at work we're in the process of migrating from [Create React App](https://create-react-app.dev/) to [Next.js](https://nextjs.org/).
+However, that effort is all being done on the [Pages Router](https://nextjs.org/docs/pages) because we started before the [App Router](https://nextjs.org/docs/app)
+had been announced. The premise of the App Router resonated with me because I've used [Rails](https://rubyonrails.org/) for so many years and being able
+to fetch data on the server and then render the HTML is not a foreign concept. While that statement is scratching the surface of what the App Router can do,
+I wanted to dive into a project where I had to freedom to tinker and try new things. Is there some new feature that is in a canary Next.js release? I can
+go ahead and bump the version I'm using to try it out
+([8a828e](https://github.com/jer-k/jeremykreutzbender.com/blob/8a828e3c727d53cf1ec4a070492c750061847fe9/package.json#L28))!
+Can I hook the site up to a database for no reason other than to learn what it's like to use
+[Drizzle](https://orm.drizzle.team/)? Already did that (https://github.com/jer-k/jeremykreutzbender.com/pull/7)!
+
+The want to be able to update the site in a more efficient manner stemmed from the old site being a [Gatsby](https://www.gatsbyjs.com/) starter template. While
+the template was great to get things up and running while looking good from the get go, I had no idea how any of it worked. I remember building out
+a separate tab from the main blog section called "Thinking"; it was meant to be a shorter, more free form content compared to technical blog posts and
+it took me so long to figure out how to piece everything together because I had no idea how any of the initial code in the starter template worked.
+It was frustrating and I don't think I really learned anything by doing it. Thus, I decided I wanted to build up everything on this site from scratch
+so that I know how it all works and if I need to make changes, I understand exactly where to
+go to be able to do it.
+
+## Results
+
+<Tweet id="1700554965000093833" />
+
+You can follow my journey in the tweet thread above but I'm extremely happy with where this site is at right now.
+Of course, I'll be continuing to build new pages and refine the look of the site, but for now I'm going to shift my focus back to some other projects.
+I have the capability to write and publish new blog posts and I am planning to continue to write more about what I continue to learn.
+The best part about this journey so far has been the resources I've found in the community. I definitely wouldn't have been able to do all of this myself
+and I'm hoping by writing about my experiences, maybe I'll be able to help others as well.
+
+Here is a quick recap of a few of the pages I built out so far.
+
+### Contact Page
+
+The first page I ended up building was the [Contact](https://jeremykreutzbender.com/contact) page. On my old site, the contact page was some text and my email address
+there was no way to even copy the address or open a mail client. Let's just say it was not the most user-friendly. I decided I wanted to build something a bit more
+interactive, but I really didn't know where to start. Then out the sky, the clouds separated and [v0](https://v0.dev) appeared. For someone that isn't a great designer
+and also had no experience at all using [Tailwind](https://tailwindcss.com/), v0 was the greatest thing to ever happen to my productivity building this site. I asked
+it to build "A 'Contact Me' page with an image, a paragraph, and social buttons" and [this is what I got](https://v0.dev/r/YNQiC8utdmQ).
+
+I took that design and iterated on it a bit. Eventually I landed on something that I liked and got to work building out the functionality. I found an amazing video
+[Using React Hook Form, Zod Validation and Server Actions in NextJs 13](https://www.youtube.com/watch?v=R_Pj593TH_Q) that went into detail about how to use
+[Server Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations) and used that as the starting point to get everything
+working. I wrote a small tidbit more in the README on GitHub https://github.com/jer-k/jeremykreutzbender.com?tab=readme-ov-file#contact.
+
+Shoot me an email from the form if you've enjoyed reading this so far!
+
+### CV
+
+<Tweet id="1739729525112439292" />
+
+[@rauchg](https://twitter.com/rauchg)'s tweet spread around Twitter with quite a few mixed reactions. A lot of people were commenting on the fact that using Next.js
+to build a CV was complete overkill. I am a big proponent of picking the right tool for the job. If your goal is to make a
+simple CV page as quickly as possible, spinning up a Next.js app **might** not be the best choice; but no one can **definitively**
+say it is the wrong choice because we do not know where each others skills lie. I agree with Bartozs' sentiment, especially
+the _no harm to the end user_ bit. If someone is viewing the CV, they won't care how it is built, only that it conveys
+the message it is intended to.
+
+On the technical side of things Bartozs' project is obviously using Next.js, but it is also using [shadcn/ui](https://ui.shadcn.com/). Because our projects have
+the same structure and component library I was able to lift Bartozs' work onto my site quite easily. Once the page was rendering,
+I was able to make minor changes as I saw fit. I also had to do a little adjusting to the layouts and in the process learned about
+[nested layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#nesting-layouts)
+and [route groups](https://nextjs.org/docs/app/building-your-application/routing/route-groups) that are available with
+the App Router.
+
+Now I have an online CV as well! You can check it out on the [CV](https://jeremykreutzbender.com/cv) page.
+
+### Blog
+
+I'll be writing a follow-up post with more details about building out the blog. There were numerous resources that I leveraged to
+make all the progress I did, primarily Max Leiter's [Building a blog with Next.js 14 and React Server Components](https://maxleiter.com/blog/build-a-blog-with-nextjs-13)
+and the Next.js docs for [Markdown and MDX](https://nextjs.org/docs/app/building-your-application/configuring/mdx). While I struggled
+with parts of building this out and still have some things I want to try out, I'm really happy with the result.
+
+The biggest change from my old blog is the ability to include blog posts from external sites, instead of just the mdx files that
+are a part of this repository. I haven't written a ton on this blog over the past few years, but I had written a handful of articles
+on the Release [blog](https://release.com/blog). Previously I wasn't very happy with the fact that my blog felt empty due to the large
+gaps in time between posts, but now those other posts are sprinkled in and it doesn't look so barren.
+
+Be on the lookout for more posts here and new posts on the Release blog, I've got some things in the works!
+
+### Conclusion
+
+I've thoroughly enjoyed the process of building this site and am extremely excited that this post is going live! Hopefully I can continue
+to find time to work on this site and write. I have a huge list of things I want to do as well as books I want to read so time management
+going forward is going to be one of my biggest priorities!

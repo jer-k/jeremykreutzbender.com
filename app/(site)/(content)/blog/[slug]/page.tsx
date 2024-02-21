@@ -1,9 +1,10 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
+import remarkFrontmatter from "remark-frontmatter";
+
 import { fetchPost, fetchPosts } from "@/lib/fetchPosts";
 import { notFound } from "next/navigation";
 import { mdxComponents } from "@/mdx-components";
-import remarkGfm from "remark-gfm";
-import remarkFrontmatter from "remark-frontmatter";
 
 import type { Metadata } from "next";
 
