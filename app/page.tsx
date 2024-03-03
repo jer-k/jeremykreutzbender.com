@@ -6,10 +6,8 @@ import { Suspense } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
-import Link from "next/link";
-
 import { BlogCardSkeleton } from "@/components/skeletons/blog-card-skeleton";
-import fetchPosts from "@/lib/fetchPosts";
+import { fetchPosts } from "@/lib/fetchPosts";
 import { BlogCard } from "@/components/blog-card";
 import { ThemeProvider } from "@/components/theme-provider";
 

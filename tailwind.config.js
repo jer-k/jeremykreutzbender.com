@@ -12,6 +12,9 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        mono: ["var(--font-geist-mono)"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

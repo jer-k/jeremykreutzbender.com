@@ -1,10 +1,6 @@
-import { MDXRemote } from "next-mdx-remote/rsc";
-import remarkGfm from "remark-gfm";
-import remarkFrontmatter from "remark-frontmatter";
-
-import { fetchPost, fetchPosts } from "@/lib/fetchPosts";
 import { notFound } from "next/navigation";
-import { mdxComponents } from "@/mdx-components";
+
+import { fetchPost, fetchPosts, postComponents } from "@/lib/fetchPosts";
 
 import type { Metadata } from "next";
 
@@ -16,6 +12,7 @@ type BlogPostPageParams = {
 
 export async function generateStaticParams() {
   const posts = await fetchPosts();
+
   return posts.map((post) => ({ slug: post.slug }));
 }
 
@@ -30,9 +27,27 @@ export async function generateMetadata({
     return {
       title: post.title,
       description: post.description,
+      openGraph: {
+        url: `/blog/${slug}`,
+        title: `${post.title}`,
+        siteName: "jeremykreutzbender.com",
+        description: post.description,
+        images: [
+          {
+            url: `/og-image/${slug}`,
+            width: 960,
+            height: 540,
+            alt: `Blog post: ${post.title}`,
+            type: "image/png",
+          },
+        ],
+      },
     };
   } else {
-    return {};
+    return {
+      title: "Not Found",
+      description: "The resource you were looking for does not exist",
+    };
   }
 }
 
@@ -43,16 +58,6 @@ export default async function BlogPost({
 
   if (!post) return notFound();
 
-  return (
-    <MDXRemote
-      source={post.content}
-      options={{
-        parseFrontmatter: true,
-        mdxOptions: {
-          remarkPlugins: [remarkGfm, remarkFrontmatter],
-        },
-      }}
-      components={mdxComponents}
-    />
-  );
+  const components = await postComponents();
+  return components[slug]();
 }
