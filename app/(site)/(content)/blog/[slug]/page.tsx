@@ -1,6 +1,11 @@
 import { notFound } from "next/navigation";
 
-import { fetchPost, fetchPosts, postComponents } from "@/lib/fetchPosts";
+import {
+  fetchPost,
+  fetchPosts,
+  fetchMdxPosts,
+  postComponents,
+} from "@/lib/fetchPosts";
 
 import type { Metadata } from "next";
 
@@ -11,7 +16,7 @@ type BlogPostPageParams = {
 };
 
 export async function generateStaticParams() {
-  const posts = await fetchPosts();
+  const posts = await fetchMdxPosts();
 
   return posts.map((post) => ({ slug: post.slug }));
 }

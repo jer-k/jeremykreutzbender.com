@@ -42,6 +42,14 @@ export async function postComponents() {
   return components;
 }
 
+export async function fetchMdxPosts() {
+  const postsData = await parsedMdxFiles();
+
+  return postsData.sort((a, b) =>
+    a && b ? new Date(b.date).getTime() - new Date(a.date).getTime() : 0,
+  ) as Post[];
+}
+
 export async function fetchPosts() {
   const postsData = await parsedMdxFiles();
   const postsAndThirdPartyPosts = [...postsData, ...thirdPartyPosts];
