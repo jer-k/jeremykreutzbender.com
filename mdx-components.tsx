@@ -21,7 +21,7 @@ export const mdxComponents: MDXComponents = {
     return (
       <h2>
         {children}
-        <a aria-label={id} href={`#${id}`} className="p-5 italic font-bold">
+        <a aria-label={id} href={`#${id}`} className="p-1 italic font-bold">
           #
         </a>
       </h2>
