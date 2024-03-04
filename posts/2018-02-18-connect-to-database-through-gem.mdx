@@ -40,13 +40,13 @@ bundle gem books_gem
 
 We’ll need to add ActiveRecord as a dependency to the `books_gem.gemspec`.
 
-```ruby books_gem.gemspec
+```ruby
  spec.add_dependency 'activerecord', '~> 5'
 ```
 
 Next, create a base class at `lib/books_gem/models/base.rb`
 
-```ruby lib/books_gem/models/base.rb
+```ruby
 require 'active_record'
 require 'books_gem/db/books_gem_db'
 
@@ -60,7 +60,7 @@ end
 
 and a few subclasses.
 
-```ruby books_gem/models/book.rb
+```ruby
 require 'books_gem/models/base'
 
 module BooksGem
@@ -69,7 +69,7 @@ module BooksGem
 end
 ```
 
-```ruby books_gem/models/author.rb
+```ruby
 require 'books_gem/models/base'
 
 module BooksGem
@@ -88,7 +88,7 @@ going much further in depth on that topic; kudos to her, she provided much of th
 Since this is a gem, we want our connection to be configurable for anyone who uses it. The `BOOKS_GEM_DB` constant will
 provide this configurability, which we'll create at `lib/books_gem/db/books_gem_db.rb`.
 
-```ruby lib/books_gem/db/books_gem_db.rb
+```ruby
 require 'yaml'
 require 'erb'
 
@@ -98,7 +98,7 @@ BOOKS_GEM_DB = YAML.load(ERB.new(IO.read(File.join(db_dir, 'books_gem_database.y
 
 The YAML file will be located at `lib/books_gem/db/books_gem_database.yml`.
 
-```ruby lib/books_gem/db/books_gem_database.yml
+```ruby
 default: &default
   adapter: postgresql
   encoding: unicode
@@ -130,7 +130,7 @@ save it into the `BOOKS_GEM_DB` constant.
 The last thing we need to do is expose all our classes in `lib/books_gem.rb` so that applications who install the
 gem can use them.
 
-```ruby lib/books_gem.rb
+```ruby
 require "books_gem/version"
 
 require 'books_gem/models/book'
@@ -143,14 +143,14 @@ There is one last gotcha, which is ensuring that the environment variables from 
 the gem loads. I prefer to use [Dotenv](https://github.com/bkeepers/dotenv) and we would install it using the `rails-now`
 preference.
 
-```ruby Gemfile.rb
+```ruby
 gem 'dotenv-rails', require: 'dotenv/rails-now'
 gem 'books_gem', path: path/to/books_gem
 ```
 
 Then we can set our environment variables in the Rails application and be done.
 
-```shell .env
+```shell
 BOOKS_GEM_DB_HOST=localhost
 BOOKS_GEM_DB_USER=books_user
 BOOKS_GEM_DB_PASSWORD=books

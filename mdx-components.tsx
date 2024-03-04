@@ -17,6 +17,16 @@ export const mdxComponents: MDXComponents = {
   PublishedOnOldBlog: PublishedOnOldBlog,
   PublishedOnReleaseBlog: PublishedOnReleaseBlog,
   pre: Code,
+  h2: ({ id, children }) => {
+    return (
+      <h2>
+        {children}
+        <a aria-label={id} href={`#${id}`} className="p-1 italic font-bold">
+          #
+        </a>
+      </h2>
+    );
+  },
   img: (props) => (
     <Image
       sizes="100vw"
