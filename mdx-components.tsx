@@ -19,7 +19,7 @@ export const mdxComponents: MDXComponents = {
   pre: Code,
   h2: ({ id, children }) => {
     return (
-      <h2>
+      <h2 id={id}>
         {children}
         <a aria-label={id} href={`#${id}`} className="p-1 italic font-bold">
           #
