@@ -1,6 +1,5 @@
 import { processContactForm } from "@/app/actions/contact";
 
-jest.mock("@/app/actions/db/emails");
 jest.mock("@/app/actions/emails/send");
 
 describe("processContactForm", () => {
