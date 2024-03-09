@@ -2,7 +2,6 @@
 
 import { ErrorResponse } from "resend";
 
-import { insertEmail } from "@/app/actions/db/emails";
 import { sendEmail } from "@/app/actions/emails/send";
 import {
   contactSchema,
@@ -21,17 +20,6 @@ export async function processContactForm(
   if (parsedFormData.success) {
     const { fullName, emailAddress, message } = parsedFormData.data;
 
-    const databaseResult = await insertEmail({
-      fullName,
-      emailAddress,
-      message,
-    });
-
-    if (databaseResult.errorMessage || databaseResult.columnErrors) {
-      if (databaseResult.columnErrors) {
-        return { formErrors: databaseResult.columnErrors.formFields };
-      }
-    }
     const sendEmailResult = await sendEmail({
       fullName,
       emailAddress,
