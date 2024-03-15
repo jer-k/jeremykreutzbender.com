@@ -59,6 +59,12 @@
     --warning: 38 92% 50%;
     --warning-foreground: 48 96% 89%;
 
+    --solarized-light: 44 87% 94%;
+    --solarized-light-foreground: 196 13% 45%;
+
+    --solarized-dark: 192 100% 11%;
+    --solarized-dark-foreground: 186 8% 55%;
+
     /* Component theming */
 
     /* background is 'bright' */

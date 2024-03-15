@@ -53,6 +53,14 @@ module.exports = {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
+        solaralizedlight: {
+          DEFAULT: "hsl(var(--solarized-light))",
+          foreground: "hsl(var(--solarized-light-foreground)",
+        },
+        solaralizeddark: {
+          DEFAULT: "hsl(var(--solarized-dark))",
+          foreground: "hsl(var(--solarized-dark-foreground)",
+        },
         midnight: {
           DEFAULT: "hsl(var(--midnight))",
           foreground: "hsl(var(--midnight-foreground))",
