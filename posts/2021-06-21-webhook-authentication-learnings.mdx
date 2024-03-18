@@ -13,7 +13,6 @@ tags:
   - "webhooks"
   - "release"
 description: "What I learned from implementing Gitlab support at Release and how I refactored our Rails code to support all three providers."
-socialImage:
 ---
 
 import { PublishedOnReleaseBlog } from "@/components/mdx/published-on-release-blog";
@@ -29,7 +28,7 @@ for Gitlab and a way to handle their webhooks. I completed the authentication fi
 another pull request as I wanted to refactor the way we were handling all webhooks.
 
 As I started the webhook work, the state of how Release handled webhooks was that GitHub was using the [github_webhook](https://github.com/ssaunier/github_webhook)
-gem and Bitbucket was using some custom built code that lived in a Controller Concern. With the need to add a third client
+gem and Bitbucket was using some custom-built code that lived in a Controller Concern. With the need to add a third client
 I wanted to align everything into a few classes that allow us to easily onboard more providers if the need ever arose.
 
 As I finished up the work I thought it would be useful to share some things I found about the differences between the
@@ -37,7 +36,7 @@ three providers and share some of the code that I wrote in case anyone else is t
 First I'll talk about a few things I came across and later, in the Technical Details section, I'll go over a few classes
 we're using in our Ruby on Rails project for handling the webhooks.
 
-I enjoyed doing this work because it spanned a lot different aspects of our codebase, including designing a refactor
+I enjoyed doing this work because it spanned a lot of different aspects of our codebase, including designing a refactor
 that would allow for processing webhooks from three different sources, reading documentation and understanding three
 different APIs, and writing tests to ensure that as we move forward we shouldn't need to every worry about breaking our
 webhook processing.

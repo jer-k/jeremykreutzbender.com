@@ -16,7 +16,6 @@ tags:
   - "active-record"
   - "rake"
 description: "The process I went through to figure out what was needed; I believe it is good exercise in understanding how to follow code to and understanding what it takes to re-implement functionality."
-socialImage:
 ---
 
 import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
@@ -27,14 +26,14 @@ import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
 
 _Published on {frontmatter.date}_
 
-This is a follow up to my last post about [Adding ActiveRecord Rake Tasks to a Gem](https://jer-k.github.io/add-active-record-rake-tasks-to-gem/) that I promised to write.
+This is a follow-up to my last post about [Adding ActiveRecord Rake Tasks to a Gem](https://jer-k.github.io/add-active-record-rake-tasks-to-gem/) that I promised to write.
 In that post I had to figure out how to make the command `rails g migration` accessible inside the gem, which ended
 up taking me all afternoon, but surprised me in how little code was actually needed to achieve the result. I wanted to
 write about the process I went through to figure out what was needed; I believe it is good exercise in understanding
 how to follow code to and understanding what it takes to re-implement functionality.
 
-A note before I begin: I use [RubyMine](https://www.jetbrains.com/ruby/) for my IDE and all of the tracing of the code I did in RubyMine, unless
-otherwise stated. I'm going to provide links to Github so you can see exactly where I saw the code I'm talking about.
+A note before I begin: I use [RubyMine](https://www.jetbrains.com/ruby/) for my IDE and all the tracing of the code I did in RubyMine, unless
+otherwise stated. I'm going to provide links to GitHub so you can see exactly where I saw the code I'm talking about.
 I also picked the most current commit as of writing for the links to ensure they continue pointing at the correct code.
 
 When I first realized that `rails g migration` wasn't available in the gem I thought to myself, well that makes a lot
@@ -121,7 +120,7 @@ end
 ```
 
 Now I knew that the `Rails.application` needed to be my own `Rails::Engine`. I hadn't even written an `Engine` before,
-but thankfully the Rails team has done a great job adding documentation about writing your own inside of the file! As I
+but thankfully the Rails team has done a great job adding documentation about writing your own inside the file! As I
 started looking through the documentation I came across the portion about [Generators](https://github.com/rails/rails/blob/ae3e241b573b450fd9ce694a458ad942a8bd6b03/railties/lib/rails/engine.rb#L52-L62)
 
 ```ruby
