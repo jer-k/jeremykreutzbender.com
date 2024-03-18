@@ -12,7 +12,6 @@ tags:
   - "sales"
   - "release"
 description: "The day to day of an early stage start up can take on many forms. I just finished up my first year and wanted to my share my experiences."
-socialImage:
 ---
 
 import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
@@ -76,14 +75,14 @@ product does decimates your funnel. We tossed that entire flow out the window an
 requiring a name for account and guess what? We now see people signing up on their own and working to get themselves up and running.
 
 Another instance of this was that I was tasked to write a CLI for the application and at the start of the project
-I asked whether or not I should invest the time to learn Go and use it or stick with what I knew best and use Ruby.
+I asked whether I should invest the time to learn Go and use it or stick with what I knew best and use Ruby.
 The decision was made to go with Ruby and I went ahead and wrote up a CLI. Everything worked great on my Macbook Pro
 while developing the CLI but once we attempted to distribute it through brew, issues started popping up. If I recall,
 something to do with eventmachine, which was brought in as a dependency for an ActionCable client, and the version of
 Ruby on the installers machine (or lack of Ruby all together) started causing issues. I can’t remember exactly, except
 for the fact that it was not seamless to install the CLI, which would cause issues for anyone trying to use it. We
 eventually decided that it was not worth the time and effort to try to resolve these issues and stopped working on the CLI.
-Fast forward six months and we were recommended a Go developer who was available to do some freelance work. We hired him
+Fast-forward six months and we were recommended a Go developer who was available to do some freelance work. We hired him
 to build out the initial version of the CLI in Go and we were delighted to have no installation issues when we
 distributed the alpha version of it throughout the company!
 

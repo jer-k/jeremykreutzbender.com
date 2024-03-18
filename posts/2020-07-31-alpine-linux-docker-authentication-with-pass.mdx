@@ -13,7 +13,6 @@ tags:
   - "pass"
   - "docker-credential-helpers"
 description: "If you've ever encountered the above message when logging into Docker and thought to yourself 'Well it’s unencrypted but it works... I'll deal with it another day' then we've got something in common."
-socialImage:
 ---
 
 import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
@@ -122,7 +121,7 @@ RUN wget https://github.com/docker/docker-credential-helpers/releases/download/v
 ```
 
 Next we'll install `docker-credential-helpers` and one of the first comments on the aforementioned issue [showed](https://github.com/docker/docker-credential-helpers/issues/102#issuecomment-388974092)
-how to do this. I just modified the release number to get the most up to date version.
+how to do this. I just modified the release number to get the most up-to-date version.
 
 ```
 # Create the .docker directory, copy in the config.json file which sets the credential store as pass, and set the correct permissions

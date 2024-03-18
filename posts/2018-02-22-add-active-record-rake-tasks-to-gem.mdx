@@ -16,7 +16,6 @@ tags:
   - "active-record"
   - "rake"
 description: "Instead of having to create a Rails application and install the gem to connect to the database to test your models, we can create local database for only the gem by adding ActiveRecord's Rake tasks."
-socialImage:
 ---
 
 import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
@@ -312,6 +311,6 @@ $ bin/console
 
 We've successfully added all the ActiveRecord Rake tasks to our gem and have been able to create, migrate, seed, and query
 our database! There is a [repository](https://github.com/jer-k/gem_with_database) for I work I did while writing this post. Feel free to try it out and be on
-the lookout for some follow up posts. I'll be writing in more detail about the how I figured out what was needed for the
+the lookout for some follow-up posts. I'll be writing in more detail about how I figured out what was needed for the
 `Rails::Engine`(post [here](https://jer-k.github.io/adding-rails-g-migration-to-a-gem/)) and then I'll continue working on this project setting up the testing environment locally
 and then using Docker for CI purposes, along with a few enhancements to the scripts in `bin/`.

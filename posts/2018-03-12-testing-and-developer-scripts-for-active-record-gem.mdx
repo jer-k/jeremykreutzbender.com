@@ -18,7 +18,6 @@ tags:
   - "testing"
   - "rspec"
 description: "Set up a testing environment that can be run locally and in a repeatable fashion for continuous integration"
-socialImage:
 ---
 
 import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
@@ -179,10 +178,10 @@ Finished in 0.02844 seconds (files took 2.13 seconds to load)
 ```
 
 Success! We've created a re-usable database for the test environment and our tests are passing. The last thing we want
-to do is setup a way to run our tests in a continuous integration environment so that when the popularity of the gem
+to do is set up a way to run our tests in a continuous integration environment so that when the popularity of the gem
 has exploded and the number of contributors skyrockets, we're able to ensure no one is committing broken code. We'll
 do this by creating a `Dockerfile`, utilizing [Docker Compose](https://docs.docker.com/compose/), and a few helpful scripts. However, please bear
-with me, I am by no means an expert with Docker; I've was able to fumble my way through this and get it working so if
+with me, I am by no means an expert with Docker; I was able to fumble my way through this and get it working so if
 my explanations aren't as thorough I apologize.
 
 First, the [Dockerfile](https://github.com/jer-k/gem_with_database/blob/old_dockerfile/Dockerfile).
@@ -213,7 +212,7 @@ RUN apt-get update && apt-get -y install postgresql-client-9.6
 COPY . .
 ```
 
-The `ruby:2.5` image as it is the latest as of writing so we'll use that and we set the `WORKDIR` to `/usr/src/app`.
+The `ruby:2.5` image is the latest as of writing so we'll use that and we set the `WORKDIR` to `/usr/src/app`.
 Next we copy in the `.gemspec` file, the `Gemfile`, and the `version.rb` because it is referenced in the `.gemspec`.
 Then we run `bundle check || bundle install` which will check to see if we need to run `bundle install` or not,
 hopefully saving time and not requiring a full install of all the gems each time we use the container. Next, I want
@@ -221,7 +220,7 @@ to install `postgresl-client` so that we have access to `psql` and can run the `
 modified the Docker instructions for installing [Postgresql](https://docs.docker.com/engine/examples/postgresql_service/). Finally, we copy in the entire contents of the gem.
 
 The `docker-compose.yml` adds the [entrypoint](https://docs.docker.com/compose/compose-file/compose-file-v2/#entrypoint) which takes in a parameter, the name of the postgres database we
-defined, `db`. Otherwise we add the environment variables for postgres and builds the image.
+defined, `db`. Otherwise, we add the environment variables for postgres and builds the image.
 
 ```yaml
 version: "2"
