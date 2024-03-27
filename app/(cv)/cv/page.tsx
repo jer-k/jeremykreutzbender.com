@@ -1,8 +1,16 @@
 import { GlobeIcon } from "lucide-react";
 
+import Link from "next/link";
+
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { WorkExperienceCard } from "@/components/work-experience-card";
 
 import type { Metadata } from "next";
 
@@ -13,15 +21,11 @@ export const metadata: Metadata = {
 
 export default function CvPage() {
   return (
-    <main className="container relative mx-auto scroll-my-12 overflow-auto p-4 print:p-12 md:p-16">
-      <section className="mx-auto w-full max-w-2xl space-y-8 bg-white print:space-y-6">
+    <main className="container relative mx-auto scroll-my-12 overflow-auto p-4 print:p-4 md:p-16">
+      <section className="mx-auto w-full max-w-2xl space-y-4 bg-white print:space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex-1 space-y-1.5">
             <h1 className="text-2xl font-bold">Jeremy Kreutzbender</h1>
-            <p className="max-w-md text-pretty font-mono text-sm text-muted-foreground">
-              Product Engineer focused on building and delivering user facing
-              experiences
-            </p>
             <p className="max-w-md items-center text-pretty font-mono text-xs text-muted-foreground">
               <a
                 className="inline-flex gap-x-1.5 align-baseline leading-none hover:underline"
@@ -33,119 +37,128 @@ export default function CvPage() {
               </a>
             </p>
           </div>
-          <Avatar className="size-28">
+          <Avatar className="h-20 w-20">
             <AvatarImage src="https://github.com/jer-k.png" alt="@jer-k" />
             <AvatarFallback>JK</AvatarFallback>
           </Avatar>
         </div>
         <section className="flex min-h-0 flex-col gap-y-3">
-          <h2 className="text-xl font-bold">About</h2>
-          <p className="text-pretty font-mono text-sm text-muted-foreground">
+          <Link href={"about"}>
+            <h2 className="text-xl font-bold hover:underline">About</h2>
+          </Link>
+          <p className="text-pretty font-mono text-xs text-muted-foreground">
             As a Software Engineer I have taken projects from initial idea to
             completion on my own as well as within a team. I have led projects
             as an engineer but also managed ticket writing and prioritization. I
             highly value collaboration and insights from my colleagues.
-            Currently, I work primarily with Ruby on Rails, GraphQL, TypeScript,
-            React, Next.js.
           </p>
         </section>
         <section className="flex min-h-0 flex-col gap-y-3">
+          <h2 className="text-xl font-bold">Skills</h2>
+          <div className="flex flex-wrap gap-1">
+            <Badge variant="secondary">Ruby on Rails</Badge>
+            <Badge variant="secondary">GraphQL</Badge>
+            <Badge variant="secondary">TypeScript</Badge>
+            <Badge variant="secondary">React / Next.js</Badge>
+            <Badge variant="secondary">Kubernetes</Badge>
+            <Badge variant="secondary">Docker</Badge>
+          </div>
+        </section>
+        <section className="flex min-h-0 flex-col gap-y-3">
           <h2 className="text-xl font-bold">Work Experience</h2>
-          <Card className="bg-white">
-            <CardHeader>
-              <div className="flex items-center justify-between gap-x-2 text-base">
-                <h3 className="inline-flex items-center justify-center gap-x-1 font-semibold leading-none">
-                  <a className="hover:underline" href="https://release.com">
-                    Release
-                  </a>
-                  <span className="inline-flex gap-x-1">
-                    <Badge variant="secondary" className="align-middle text-xs">
-                      Remote
-                    </Badge>
-                  </span>
-                </h3>
-                <div className="text-sm tabular-nums text-gray-500">
-                  March, 2020 - Current
-                </div>
-              </div>
-              <div className="flex items-center justify-between gap-x-2 text-base">
-                <h4 className="font-mono text-sm leading-none">
-                  Founding Engineer
-                </h4>
-              </div>
-            </CardHeader>
-            <CardContent className="mt-2 text-xs">
-              As the first engineering hire at Release I&apos;ve worn nearly
-              every hat imaginable. My primary role has always been one of the
-              lead engineers on the customer facing website. I have also spent
-              large portions of time supporting and triaging customer issues and
-              handling ticket writing and prioritization.
-            </CardContent>
-          </Card>
-          <Card className="bg-white">
-            <CardHeader>
-              <div className="flex items-center justify-between gap-x-2 text-base">
-                <h3 className="inline-flex items-center justify-center gap-x-1 font-semibold leading-none">
-                  <a className="hover:underline" href="https://truecar.com">
-                    TrueCar
-                  </a>
-                  <span className="inline-flex gap-x-1">
-                    <Badge variant="secondary" className="align-middle text-xs">
-                      On-Site
-                    </Badge>
-                  </span>
-                </h3>
-                <div className="text-sm tabular-nums text-gray-500">
-                  January, 2014 - September, 2019
-                </div>
-              </div>
-              <h4 className="font-mono text-sm leading-none">
-                Software Engineer II-IV
-              </h4>
-            </CardHeader>
-            <CardContent className="mt-2 text-xs">
-              I worked on various internal facing and public facing projects
-              throughout my career at TrueCar. The largest internal project
-              replaced a week long manual ETL pipeline with a React application
-              that was able to process and deploy new data every day. The
-              largest public facing project was responsible for the main funnel
-              of New Car traffic ($200m/yr business). We built new Rails APIs
-              and React components and worked to take page speed loading times
-              from 3 seconds to less than 1 second.
-            </CardContent>
-          </Card>
-          <Card className="bg-white">
-            <CardHeader>
-              <div className="flex items-center justify-between gap-x-2 text-base">
-                <h3 className="inline-flex items-center justify-center gap-x-1 font-semibold leading-none">
-                  CarWoo!
-                  <span className="inline-flex gap-x-1">
-                    <Badge variant="secondary" className="align-middle text-xs">
-                      On-Site
-                    </Badge>
-                  </span>
-                </h3>
-                <div className="text-sm tabular-nums text-gray-500">
-                  June, 2012 - December, 2013
-                </div>
-              </div>
-              <h4 className="font-mono text-sm leading-none">
-                Software Engineer
-              </h4>
-            </CardHeader>
-            <CardContent className="mt-2 text-xs">
-              My primary focus was an iOS application which I built by myself,
-              with a colleague assisting me by building the API it talked to,
-              for CarWoo!&apos;s dealership customers. Upon completion of the
-              application, I started working on the primary Ruby on Rails
-              application.
-            </CardContent>
-          </Card>
+          <WorkExperienceCard
+            companyName="Release"
+            companyUrl="https://release.com"
+            workType="Remote"
+            duration="March, 2020 - Current"
+            title="Founding Engineer"
+            description={
+              <ul className="list-disc ps-4">
+                <li>
+                  Migrated build system to Buildkit which reduced build times by
+                  50% and unlocked horizontal scaling
+                </li>
+                <li>
+                  Wrote tool to translate Docker compose files into Release
+                  Application Template YAML (similar to kompose)
+                </li>
+                <li>
+                  Built a webhook processing system to ingest and normalize
+                  webhooks from GitHub, Gitlab, and Bitbucket. After
+                  normalization, trigger pipelines to carry out tasks such as
+                  creating new environments or triggering deploys to existing
+                  environments
+                </li>
+                <li>
+                  Rebuilt UI using Next.js, Typescript, and GraphQL. Modernized
+                  the look of the site with Chakra UI. Reduced cold page load
+                  times by an average of 20% but also took advantage of SWR
+                  strategy to make subsequent navigation instantaneous
+                </li>
+              </ul>
+            }
+          />
+          <WorkExperienceCard
+            companyName="TrueCar"
+            companyUrl="https://truecar.com"
+            workType="On-Site"
+            duration="January, 2014 - September, 2019"
+            title="Software Engineer II-IV"
+            description={
+              <>
+                <ul className="list-disc ps-4">
+                  <li>
+                    Built iOS app for a new Sell My Car initiative; including
+                    backend work with Ruby on Rails
+                  </li>
+                  <li>
+                    Worked on an internal tool (Ruby on Rails / React) which
+                    replaced a week long manual ETL process of car data. The
+                    tool processed data from a daily feed while providing the
+                    ability to manage and deploy the transformed data multiple
+                    times a day (700% increase)
+                  </li>
+                  <li>
+                    Rebuilt the New Car traffic funnel ($200m/yr business at the
+                    time) using Ruby on Rails / React. Ran extensive A/B tests
+                    on each funnel step to ensure NFE did not drop. Reduced page
+                    load times from 3 seconds to sub 1 second (300% increase)
+                  </li>
+                </ul>
+              </>
+            }
+          />
+          <WorkExperienceCard
+            companyName="CarWoo!"
+            workType="On-Site"
+            duration="June, 2012 - December, 2013"
+            title="Software Engineer"
+            description={
+              <ul className="list-disc ps-4">
+                <li>
+                  Built an iOS app to give car dealers a mobile first experience
+                  using CarWoo!
+                </li>
+                <li>
+                  Transitioned to working on the main CarWoo! website, learning
+                  Ruby on Rails
+                </li>
+                <li>
+                  Built an Account Manager dashboard powered by a nightly job
+                  running a MySQL query collecting events
+                </li>
+                <li>
+                  Rebuilt a high traffic page by gathering empirical evidence on
+                  issues customers were facing
+                </li>
+              </ul>
+            }
+          />
         </section>
         <section className="flex min-h-0 flex-col gap-y-3">
           <h2 className="text-xl font-bold">Education</h2>
-          <Card className="bg-white">
-            <CardHeader>
+          <Card className="bg-white py-4">
+            <CardHeader className="py-0">
               <div className="flex items-start justify-between gap-x-2 text-base">
                 <h3 className="flex flex-col space-y-1 font-semibold leading-none">
                   <a
@@ -168,18 +181,10 @@ export default function CvPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="mt-2">B.S. Computer Science</CardContent>
+            <CardContent className="py-0 mt-2 text-xs">
+              B.S. Computer Science - Cum Laude
+            </CardContent>
           </Card>
-        </section>
-        <section className="flex min-h-0 flex-col gap-y-3">
-          <h2 className="text-xl font-bold">Skills</h2>
-          <div className="flex flex-wrap gap-1">
-            <Badge>Ruby on Rails</Badge>
-            <Badge>GraphQL</Badge>
-            <Badge>TypeScript</Badge>
-            <Badge>React / Next.js</Badge>
-            <Badge>Kubernetes</Badge>
-          </div>
         </section>
       </section>
     </main>
