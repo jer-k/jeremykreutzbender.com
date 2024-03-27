@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import * as React from "react";
+import { GithubIconButton } from "@/components/github-icon-button";
 
 export function Header() {
   const pathname = usePathname();
@@ -52,7 +53,12 @@ export function Header() {
               />
             </Link>
           </div>
-          <ModeToggle />
+          <div>
+            <GithubIconButton
+              href={"https://github.com/jer-k/jeremykreutzbender.com"}
+            />
+            <ModeToggle />
+          </div>
         </div>
       </div>
       <div className="md:hidden flex">
@@ -87,6 +93,11 @@ export function Header() {
             <DropdownMenuItem asChild>
               <Link aria-label="Contact" href="/contact">
                 Contact
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link aria-label="About" href="/about">
+                About
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
