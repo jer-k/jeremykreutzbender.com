@@ -51,19 +51,20 @@ export default function ContentLayout({ children }: { children: ReactNode }) {
 There is functionality for dark mode as well with `dark:prose-invert`! With this layout in place I was extremely happy
 to not worry about anymore styling for any of my content pages.
 
-## No next-mdx-remote!
+## No next-mdx-remote
 
 In Max's [Fetching and rendering markdown](https://maxleiter.com/blog/build-a-blog-with-nextjs-13#fetching-and-rendering-markdown)
 section of his blog, he mentions that he wants to use [next-mdx-remote](https://github.com/hashicorp/next-mdx-remote)
-_for niche specific reasons_. I don't have any reasoning to do that so I wanted to change the approach and ensure that
-all my Markdown is all rendered the same way. What I mean by that is a regular `.mdx` file can be rendered as a page
-component, the [Getting Started](https://nextjs.org/docs/app/building-your-application/configuring/mdx#getting-started)
-section of Markdown and MDX documentation for Next.js shows how this is done. Since I enjoy writing content in Markdown
-and I have other pages on this site, such as About which are written in Markdown, I wanted the blog posts as well as
-those pages to all be rendered using the `mdx-components.tsx`. Given all that, let's dive into some changes.
+_for niche specific reasons_. I don't have any reasoning to do that, so I wanted to change the approach and ensure that
+all my Markdown files are rendered the same way. What I mean by that is a regular `.mdx` file can be rendered as a page
+component and the [Getting Started](https://nextjs.org/docs/app/building-your-application/configuring/mdx#getting-started)
+section of Markdown and MDX documentation for Next.js shows how this is done. Instead of passing the plugins and the
+contents of the `mdx-components.tsx` file to `next-mdx-remote`, I want to leverage the `createMdx` functionality described
+in the Getting Started tutorial above. I'll cover my changes to `createMdx` and `mdx-components.tsx` in the next
+section.
 
 My [fetchPosts.ts](https://github.com/jer-k/jeremykreutzbender.com/blob/main/lib/fetchPosts.ts) differs a bit from
-how Max set his up so we'll go through the changes that allowed me to stop using `next-mdx-remote`.
+how Max set his up. Lets go through the changes that allowed me to stop using `next-mdx-remote`.
 First up is `parseMdxFiles`.
 
 ```ts
@@ -90,7 +91,7 @@ const parsedMdxFiles = cache(parseMdxFiles);
 ```
 
 In `parseMdxFiles` we're reading the checked in blog posts at [./posts](https://github.com/jer-k/jeremykreutzbender.com/tree/main/posts)
-and constructing an array of `Post` objects which contain the frontmatter, which is extracted using
+and constructing an array of `Post` objects. Those objects contain the frontmatter, which is extracted using
 [gray-matter](https://github.com/jonschlinkert/gray-matter) and the actual post content. We're also using the new
 [cache](https://react.dev/reference/react/cache) feature from React create `parsedMdxFiles` to ensure that we only ever
 have to parse these files once, which is what we want because we're going to reference them a few more times.
@@ -114,34 +115,97 @@ export async function postComponents() {
 }
 ```
 
-Here we're using our cached `parsedMdxFiles` and are going to build up a hash of React components, which are the rendered
+Here we're using our cached `parsedMdxFiles` and building up a hash of React components, which are the rendered
 content of each Markdown file. Since we're in the world of React Server Components, we don't need to do any sort of
 [Lazy Loading](https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading) as the docs state
 
 > Lazy loading applies to Client Components.
 
 Instead, we can use `await import` as a way to dynamically load each component. It took me a long time to come to this
-conclusion and I nearly gave up and was going to manually import each blog post after trying to use `React.lazy`
-and `next/dynamic` to achieve this, but I was happy to finally come to this realization. We can then use this function
-in [slug/page.tsx](<https://github.com/jer-k/jeremykreutzbender.com/blob/main/app/(site)/(content)/blog/%5Bslug%5D/page.tsx>)
+conclusion and I nearly gave up; I was going to manually import each blog post after trying to use `React.lazy`
+and `next/dynamic` to achieve this, but I was happy to finally come to the realization I can just `await import`.
+We can then use this function in
+[slug/page.tsx](<https://github.com/jer-k/jeremykreutzbender.com/blob/main/app/(site)/(content)/blog/%5Bslug%5D/page.tsx>)
 as so.
 
 ```tsx
 export default async function BlogPost({
   params: { slug },
 }: BlogPostPageParams) {
-  const post = await fetchPost(slug);
-
-  if (!post) return notFound();
-
   const components = await postComponents();
-  return components[slug]();
+  const postComponent = components[slug];
+
+  if (!postComponent) return notFound();
+  return postComponent();
 }
 ```
 
-With that, I was able to get the blog posts rendering without the use of `next-mdx-remote`.If you have any questions
-about this approach or if I did something that is completely crazy, feel free to reach out on the Contact page because
-I would love to discuss this more!
+With that, I was able to get the blog posts rendering without the use of `next-mdx-remote`.
+
+## My createMDX and mdx-components.tsx Setup
+
+Now that the blog posts are rendering, I wanted to add some rehype plugins to give a little extra functionality to
+each post. I added [rehype-slug](https://github.com/rehypejs/rehype-slug) and
+[rehype-autolink-headings](https://github.com/rehypejs/rehype-autolink-headings) so that I could create linkable
+header elements. In the end my `createMdx` in
+[next.config.mjs](https://github.com/jer-k/jeremykreutzbender.com/blob/main/next.config.mjs) function looked like this
+
+```ts
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: [
+      remarkFrontmatter,
+      [remarkMdxFrontmatter, { name: "frontmatter" }],
+    ],
+    rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
+  },
+});
+```
+
+The next step was to create a nice clickable header that would be rendered. I decided `<h2>` would be where I would
+start with this and if I wanted to add more clickable elements I could expand later. I created an
+[H2WithAnchor](https://github.com/jer-k/jeremykreutzbender.com/blob/main/components/mdx/h2-with-anchor.tsx) component
+that looks like this.
+
+```tsx
+import { PropsWithChildren } from "react";
+
+type Props = {
+  id?: string;
+} & PropsWithChildren;
+export function H2WithAnchor({ id, children }: Props) {
+  return (
+    <h2 className="group" id={id}>
+      {children}
+      <a
+        aria-label={id}
+        href={`#${id}`}
+        className="p-2 italic font-bold opacity-0 group-hover:opacity-75"
+      >
+        #
+      </a>
+    </h2>
+  );
+}
+```
+
+Then I added it to my [mdx-components.tsx](https://github.com/jer-k/jeremykreutzbender.com/blob/main/mdx-components.tsx).
+
+```tsx
+export const mdxComponents: MDXComponents = {
+  // ...
+  h2: ({ id, children }) => <H2WithAnchor id={id}>{children}</H2WithAnchor>,
+  // ...
+};
+```
+
+Now there is a nice `#` that appears when hovering over the `<h2>` elements and will change the route to be anchored
+on the heading. You can click on
+[building-a-blog-with-app-router-rsc-tailwind#my-createmdx-and-mdx-componentstsx-setup](http://jeremykreutzbender.com/blog/building-a-blog-with-app-router-rsc-tailwind#my-createmdx-and-mdx-componentstsx-setup)
+to land right back here!
+
+I've added a handful of other components into the `mdx-components.tsx` file and am really liking the ability to mix
+React into my preferred way of writing.
 
 ## Nitpicking Bright's Code Highlighting
 
@@ -191,5 +255,6 @@ software that we all enjoy using is an awesome experience. Now I can `highlight`
 
 ## Conclusion
 
-I learned a lot while putting all this together and I'm really happy with the results. The speed at which the blog
-posts load is crazy fast so there is no waiting around to get to reading.
+I learned a lot while putting all this together and I'm really happy with the results. For now, I've got everything
+in a place where I won't need to spend any more time working on setting up the blog and I can focus on writing more
+content!
