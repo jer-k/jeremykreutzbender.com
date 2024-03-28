@@ -1,0 +1,195 @@
+---
+title: Building a blog with App Router, React Server Components and Tailwind
+date: "2024-03-18"
+template: "post"
+draft: false
+slug: "building-a-blog-with-app-router-rsc-tailwind"
+description: "Steps I took to build out a blog with Next.js App Router, React Server Components and Tailwind."
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+As 2024 started I finally got around to working on the blog portion of this site. While I was having a lot of fun
+building out the other pages
+(see [Building a new website with Next.js 14 and App Router](https://jeremykreutzbender.com/blog/building-a-new-website-with-nextjs))
+I knew that I needed to get to work on the blog portion so that I could write about all the work I had been doing!
+Thankfully I wasn't starting this endeavour from scratch as [@max_leiter](https://twitter.com/max_leiter), who works
+at [Vercel](https://vercel.com) had written an extremely thorough tutorial on how to do this. I encourage you to read
+[Building a blog with Next.js 14 and React Server Components](https://maxleiter.com/blog/build-a-blog-with-nextjs-13) as
+he goes into far more detail on all the steps needed to start from scratch. I didn't want to recreate Max's blog post so
+what I'm presenting here are some of the changes I made.
+
+## [Tailwind](https://tailwindcss.com/)
+
+I've been building my site using [shadcn/ui](https://ui.shadcn.com/), which leverages Tailwind so I figured I
+would stick with this approach when building out the blog portion as well. I discovered that Tailwind has a
+[typography](https://tailwindcss.com/docs/plugins#typography) plugin which adds the `prose` class.
+
+> The @tailwindcss/typography plugin adds a set of prose classes that can be used to quickly add sensible typographic
+> styles to content blocks that come from sources like markdown or a CMS database.
+
+This is exactly what I wanted and using [Route Groups](https://nextjs.org/docs/app/building-your-application/routing/route-groups)
+allowed me to wrap all the content in the blog and any other page I want to render with Markdown in the `prose` class.
+
+You can look at my [layout.tsx](<https://github.com/jer-k/jeremykreutzbender.com/blob/main/app/(site)/(content)/layout.tsx>)
+but the contents are shown below.
+
+```tsx
+import { ReactNode } from "react";
+
+export default function ContentLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className="md:w-full md:flex md:justify-center">
+      <div className="prose dark:prose-invert">{children}</div>
+    </div>
+  );
+}
+```
+
+There is functionality for dark mode as well with `dark:prose-invert`! With this layout in place I was extremely happy
+to not worry about anymore styling for any of my content pages.
+
+## No next-mdx-remote!
+
+In Max's [Fetching and rendering markdown](https://maxleiter.com/blog/build-a-blog-with-nextjs-13#fetching-and-rendering-markdown)
+section of his blog, he mentions that he wants to use [next-mdx-remote](https://github.com/hashicorp/next-mdx-remote)
+_for niche specific reasons_. I don't have any reasoning to do that so I wanted to change the approach and ensure that
+all my Markdown is all rendered the same way. What I mean by that is a regular `.mdx` file can be rendered as a page
+component, the [Getting Started](https://nextjs.org/docs/app/building-your-application/configuring/mdx#getting-started)
+section of Markdown and MDX documentation for Next.js shows how this is done. Since I enjoy writing content in Markdown
+and I have other pages on this site, such as About which are written in Markdown, I wanted the blog posts as well as
+those pages to all be rendered using the `mdx-components.tsx`. Given all that, let's dive into some changes.
+
+My [fetchPosts.ts](https://github.com/jer-k/jeremykreutzbender.com/blob/main/lib/fetchPosts.ts) differs a bit from
+how Max set his up so we'll go through the changes that allowed me to stop using `next-mdx-remote`.
+First up is `parseMdxFiles`.
+
+```ts
+async function parseMdxFiles() {
+  const filePaths = await fs.readdir("./posts/");
+
+  const postsData = [];
+
+  for (const filePath of filePaths) {
+    const postFilePath = `./posts/${filePath}`;
+    const postContent = await fs.readFile(postFilePath, "utf8");
+    const { data } = matter(postContent);
+
+    if (!data.draft) {
+      const postData = { ...data, content: postContent } as Post;
+      postsData.push(postData);
+    }
+  }
+
+  return postsData;
+}
+
+const parsedMdxFiles = cache(parseMdxFiles);
+```
+
+In `parseMdxFiles` we're reading the checked in blog posts at [./posts](https://github.com/jer-k/jeremykreutzbender.com/tree/main/posts)
+and constructing an array of `Post` objects which contain the frontmatter, which is extracted using
+[gray-matter](https://github.com/jonschlinkert/gray-matter) and the actual post content. We're also using the new
+[cache](https://react.dev/reference/react/cache) feature from React create `parsedMdxFiles` to ensure that we only ever
+have to parse these files once, which is what we want because we're going to reference them a few more times.
+
+The next function is `postComponents`.
+
+```ts
+export async function postComponents() {
+  const components: Record<string, () => ReactElement> = {};
+
+  const postsData = await parsedMdxFiles();
+
+  for (const post of postsData) {
+    const { default: Component } = await import(
+      `@/posts/${post.date}-${post.slug}.mdx`
+    );
+    components[post.slug] = Component;
+  }
+
+  return components;
+}
+```
+
+Here we're using our cached `parsedMdxFiles` and are going to build up a hash of React components, which are the rendered
+content of each Markdown file. Since we're in the world of React Server Components, we don't need to do any sort of
+[Lazy Loading](https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading) as the docs state
+
+> Lazy loading applies to Client Components.
+
+Instead, we can use `await import` as a way to dynamically load each component. It took me a long time to come to this
+conclusion and I nearly gave up and was going to manually import each blog post after trying to use `React.lazy`
+and `next/dynamic` to achieve this, but I was happy to finally come to this realization. We can then use this function
+in [slug/page.tsx](<https://github.com/jer-k/jeremykreutzbender.com/blob/main/app/(site)/(content)/blog/%5Bslug%5D/page.tsx>)
+as so.
+
+```tsx
+export default async function BlogPost({
+  params: { slug },
+}: BlogPostPageParams) {
+  const post = await fetchPost(slug);
+
+  if (!post) return notFound();
+
+  const components = await postComponents();
+  return components[slug]();
+}
+```
+
+With that, I was able to get the blog posts rendering without the use of `next-mdx-remote`.If you have any questions
+about this approach or if I did something that is completely crazy, feel free to reach out on the Contact page because
+I would love to discuss this more!
+
+## Nitpicking Bright's Code Highlighting
+
+Part of Max's tutorial was choosing [bright](https://github.com/code-hike/bright) as the code highlighting solution. It
+was extremely easy to set up and with a variety of different themes, I was able to find one that I really liked and
+matched the color scheme on my site pretty closely. I chose `solarized`, which I found from the
+[Code Hike Themes](https://codehike.org/docs/themes) page.
+
+One of my favorite things to do when writing Markdown files is to use the `backticks` to highlight inline code. However,
+I noticed that the current implementation was not actually applying any styling and I was ending up with words that
+looked like &grave;this&grave;. I looked at the HTML that was being rendered and it was a `<code>` tag so I figured I
+could update my `mdx-components.tsx` file to have something like
+
+```js
+code: ({ children }) => <div className="bg-blue-50">{children}</div>;
+```
+
+and see the changes. Instead I was presented with this nice error message
+
+```
+Unhandled Runtime Error
+Error: Cannot read properties of undefined (reading 'children')
+
+Call Stack
+children
+node_modules/bright/dist/index.mjs (516:44)
+Array.map
+<anonymous>
+map
+node_modules/bright/dist/index.mjs (512:54)
+```
+
+I did some investigation and eventually opened a ticket
+[Attempting to adjust 'code' in mdx-components breaks](https://github.com/code-hike/bright/issues/37). I followed up
+[two days later](https://github.com/code-hike/bright/issues/37#issuecomment-1896152229) with a re-creation and potential
+solution to the issue. Unfortunately minutes after posting that comment my house was struck with a weather related
+catastrophe and I completely forgot about attempting to create a PR to remedy the issue. Much to my surprise,
+a few months later [@joshwcomeau](https://twitter.com/joshwcomeau), whom I follow on Twitter, opened a PR referencing
+the issue I created. He was experiencing the same thing and wanted to be able to utilize adding styling for his React
+course [The Joy of React](https://www.joyofreact.com/) (you should check it out, he'll teach you to build a blog as well!)
+The maintainer of the project, [@pomber](https://twitter.com/pomber), came in, tidied up the code a bit more, and we
+had ourselves a new [0.8.5](https://github.com/code-hike/bright/releases/tag/bright%400.8.5) release of `bright`!
+
+Needless to say, my original code changes I detailed in the issue weren't anywhere close to what was merged, I was
+overjoyed to be a part of open source collaboration. Having multiple people are able to come together to improve
+software that we all enjoy using is an awesome experience. Now I can `highlight` as `much` as `I want to`!
+
+## Conclusion
+
+I learned a lot while putting all this together and I'm really happy with the results. The speed at which the blog
+posts load is crazy fast so there is no waiting around to get to reading.

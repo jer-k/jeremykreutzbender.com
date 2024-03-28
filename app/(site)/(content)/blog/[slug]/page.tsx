@@ -1,11 +1,6 @@
 import { notFound } from "next/navigation";
 
-import {
-  fetchPost,
-  fetchPosts,
-  fetchMdxPosts,
-  postComponents,
-} from "@/lib/fetchPosts";
+import { fetchPost, fetchMdxPosts, postComponents } from "@/lib/fetchPosts";
 
 import type { Metadata } from "next";
 
