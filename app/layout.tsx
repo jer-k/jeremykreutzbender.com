@@ -13,6 +13,22 @@ export const metadata: Metadata = {
     default: "Jeremy Kreutzbender",
   },
   description: "My personal website",
+  openGraph: {
+    title: "Jeremy Kreutzbender",
+    description: "Product Engineer",
+    url: "https://jeremykreutzbender.com",
+    siteName: "Jeremy Kreutzbender's site",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    title: "Jeremy Kreutzbender",
+    card: "summary_large_image",
+    creator: "@J_Kreutzbender",
+  },
+  icons: {
+    shortcut: "https://jeremykreutzbender.com/favicons/favicon.ico",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
