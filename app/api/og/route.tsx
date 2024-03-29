@@ -20,6 +20,7 @@ export async function GET(request: Request) {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
+            background: "#FFF",
           }}
         >
           <div tw="flex flex-col items-center bg-primary w-full p-10 space-y-4">
