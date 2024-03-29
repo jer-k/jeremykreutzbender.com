@@ -5,6 +5,23 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Videos",
   description: "My videos",
+  openGraph: {
+    title: "Videos - Jeremy Kreutzbender",
+    description: "Videos",
+    url: "https://jeremykreutzbender.com/videos",
+    siteName: "Jeremy Kreutzbender's personal site",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/api/og?title=Videos",
+        width: 960,
+        height: 540,
+        alt: "Videos page",
+        type: "image/png",
+      },
+    ],
+  },
 };
 
 export default function Videos() {

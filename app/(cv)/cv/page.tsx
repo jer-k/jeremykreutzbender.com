@@ -15,8 +15,25 @@ import { WorkExperienceCard } from "@/components/work-experience-card";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "CV",
-  description: "My online CV",
+  title: "Online CV",
+  description: "An interactive online CV",
+  openGraph: {
+    title: "Online CV - Jeremy Kreutzbender",
+    description: "An interactive online CV",
+    url: "https://jeremykreutzbender.com/cv",
+    siteName: "Jeremy Kreutzbender's personal site",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/api/og?title=CV",
+        width: 960,
+        height: 540,
+        alt: "CV page",
+        type: "image/png",
+      },
+    ],
+  },
 };
 
 export default function CvPage() {

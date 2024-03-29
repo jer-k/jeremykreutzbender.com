@@ -9,6 +9,23 @@ import { TwitterIconButton } from "@/components/twitter-icon-button";
 export const metadata: Metadata = {
   title: "Contact Me",
   description: "Contact Me",
+  openGraph: {
+    title: "Contact - Jeremy Kreutzbender",
+    description: "Contact Me",
+    url: "https://jeremykreutzbender.com/contact",
+    siteName: "Jeremy Kreutzbender's personal site",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/api/og?title=Contact",
+        width: 960,
+        height: 540,
+        alt: "Contact page",
+        type: "image/png",
+      },
+    ],
+  },
 };
 
 export default function Component() {

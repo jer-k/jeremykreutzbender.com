@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     title: "Jeremy Kreutzbender",
     description: "Product Engineer",
     url: "https://jeremykreutzbender.com",
-    siteName: "Jeremy Kreutzbender's site",
+    siteName: "Jeremy Kreutzbender's personal site",
     locale: "en_US",
     type: "website",
   },
