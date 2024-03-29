@@ -6,6 +6,23 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Blog",
   description: "My blog posts",
+  openGraph: {
+    title: "Blog - Jeremy Kreutzbender",
+    description: "All my blog posts",
+    url: "https://jeremykreutzbender.com/blog",
+    siteName: "Jeremy Kreutzbender's personal site",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/api/og?title=Blog",
+        width: 960,
+        height: 540,
+        alt: "Blog page",
+        type: "image/png",
+      },
+    ],
+  },
 };
 
 export default async function Blog() {

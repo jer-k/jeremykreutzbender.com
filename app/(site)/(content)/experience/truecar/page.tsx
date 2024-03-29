@@ -5,6 +5,23 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Experience - TrueCar",
   description: "Projects I worked on while at TrueCar",
+  openGraph: {
+    title: "TrueCar Experience - Jeremy Kreutzbender",
+    description: "Work experience at TrueCar",
+    url: "https://jeremykreutzbender.com/experience/truecar",
+    siteName: "Jeremy Kreutzbender's personal site",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/api/og?title=TrueCar Experience",
+        width: 960,
+        height: 540,
+        alt: "TrueCar Experience page",
+        type: "image/png",
+      },
+    ],
+  },
 };
 
 export default function About() {

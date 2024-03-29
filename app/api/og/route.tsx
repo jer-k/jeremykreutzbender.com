@@ -23,11 +23,11 @@ export async function GET(request: Request) {
             background: "#FFF",
           }}
         >
-          <div tw="flex flex-col items-center bg-primary w-full p-10 space-y-4">
+          <div tw="flex flex-col items-center bg-primary w-full p-10">
             <div tw="flex max-w-screen-md">
               <h1 tw="text-4xl">{title}</h1>
             </div>
-            <div tw="flex flex-row items-start justify-between w-full">
+            <div tw="flex flex-row items-start justify-between w-full mt-4">
               <span tw="text-lg">jeremykreutzbender.com</span>
               {date && <span tw="text-lg">{date}</span>}
             </div>
