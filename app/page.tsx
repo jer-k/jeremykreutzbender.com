@@ -44,6 +44,11 @@ export default async function HomePage() {
                   description="An interactive version of my CV"
                   href="/cv"
                 />
+                <HeroCard
+                  title="Open Source"
+                  description="PRs I've made to open source projects"
+                  href="/open_source"
+                />
                 {/*<HeroCard title="Product Engineering" description="My thoughts on what it means to be a Product Engineer instead of a Full Stack Engineer" href="/product-engineer" />*/}
               </div>
             </div>

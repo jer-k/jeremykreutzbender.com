@@ -7,10 +7,12 @@ export default async function sitemap() {
     lastModified: post.date,
   }));
 
-  const routes = ["", "/blog", "/videos", "/contact", "/cv"].map((route) => ({
-    url: `https://jeremykreutzbender.com${route}`,
-    lastModified: new Date().toISOString().split("T")[0],
-  }));
+  const routes = ["", "/blog", "/videos", "/contact", "/cv", "open_source"].map(
+    (route) => ({
+      url: `https://jeremykreutzbender.com${route}`,
+      lastModified: new Date().toISOString().split("T")[0],
+    }),
+  );
 
   return [...routes, ...blogs];
 }
