@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Component() {
+export default function Contact() {
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-1">
