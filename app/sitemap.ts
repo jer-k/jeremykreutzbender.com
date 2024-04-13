@@ -1,7 +1,7 @@
-import { fetchPosts } from "@/lib/fetchPosts";
+import { fetchMdxPosts } from "@/lib/fetchPosts";
 
 export default async function sitemap() {
-  const posts = await fetchPosts();
+  const posts = await fetchMdxPosts();
   const blogs = posts.map((post) => ({
     url: `https://jeremykreutzbender.com/blog/${post.slug}`,
     lastModified: post.date,
