@@ -14,9 +14,11 @@ type Props = {
 export function HeroCard({ title, description, href }: Props) {
   return (
     <Link href={href}>
-      <Card className="w-64 h-24 md:w-80 md:h-24">
+      <Card className="w-64 h-24 shadow-xl md:w-80 md:h-24">
         <CardHeader>
-          <CardTitle>{title}</CardTitle>
+          <CardTitle className="text-primary dark:text-bright">
+            {title}
+          </CardTitle>
           <CardDescription>{description}</CardDescription>
         </CardHeader>
       </Card>

@@ -29,7 +29,7 @@ export default async function HomePage() {
           <section className="w-full">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center space-y-4 text-center">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl lg:text-6xl">
+                <h1 className="text-3xl text-primary dark:text-bright font-bold tracking-tighter sm:text-5xl lg:text-6xl">
                   Jeremy Kreutzbender - Product Engineer
                 </h1>
               </div>
@@ -53,30 +53,32 @@ export default async function HomePage() {
               </div>
             </div>
           </section>
-          <section className="w-full">
-            <div className="container px-4 md:px-6">
-              <h2 className="text-3xl font-bold tracking-tighter text-center sm:text-4xl">
-                Latest Blog Posts
-              </h2>
-              <div className="flex flex-col mt-8 space-y-6">
-                <Suspense
-                  fallback={
-                    <div className="flex items-center">
-                      <BlogCardSkeleton />
-                      <BlogCardSkeleton />
-                      <BlogCardSkeleton />
+          <section className="md:w-full md:flex md:justify-center">
+            <div className="prose">
+              <div className="flex flex-col space-y-4 not-prose">
+                <h2 className="text-3xl text-primary dark:text-bright font-bold tracking-tighter text-center sm:text-4xl">
+                  Latest Blog Posts
+                </h2>
+                <div className="flex flex-col mt-8 space-y-6">
+                  <Suspense
+                    fallback={
+                      <div className="flex items-center">
+                        <BlogCardSkeleton />
+                        <BlogCardSkeleton />
+                        <BlogCardSkeleton />
+                      </div>
+                    }
+                  >
+                    {posts.slice(0, 5).map((post) => (
+                      <BlogCard key={post.slug} post={post} />
+                    ))}
+                    <div className="flex justify-center">
+                      <Link href={"/blog"}>
+                        <Button>Read More...</Button>
+                      </Link>
                     </div>
-                  }
-                >
-                  {posts.slice(0, 5).map((post) => (
-                    <BlogCard key={post.slug} post={post} />
-                  ))}
-                  <div className="flex justify-center">
-                    <Link href={"/blog"}>
-                      <Button>Read More...</Button>
-                    </Link>
-                  </div>
-                </Suspense>
+                  </Suspense>
+                </div>
               </div>
             </div>
           </section>

@@ -46,9 +46,11 @@ export function BlogCard({ post }: BlogCardProps) {
     </CardFooter>
   );
   const card = (
-    <Card>
+    <Card className="shadow-xl">
       <CardHeader className="pb-0">
-        <CardTitle>{post.title}</CardTitle>
+        <CardTitle className="text-primary dark:text-bright">
+          {post.title}
+        </CardTitle>
         <CardDescription>{post.description}</CardDescription>
       </CardHeader>
       {cardFooter}
