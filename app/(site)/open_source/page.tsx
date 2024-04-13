@@ -31,7 +31,9 @@ export default async function OpenSourcePage() {
 
   return (
     <div className="flex flex-col items-center space-y-6">
-      <h1 className="font-bold text-4xl">Open Source Contributions</h1>
+      <h1 className="text-primary dark:text-bright font-bold text-3xl">
+        Open Source Contributions
+      </h1>
       <div className="prose">
         <div className="flex flex-col space-y-6 not-prose">
           {pullRequests.map((pullRequest) => (

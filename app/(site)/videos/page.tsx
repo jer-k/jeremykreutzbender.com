@@ -26,9 +26,16 @@ export const metadata: Metadata = {
 
 export default function Videos() {
   return (
-    <div className="flex flex-col items-center justify-center space-y-2 py-4">
-      <h3>Videos are under construction</h3>
-      <p>Well I haven&apos;t actually recorded anything yet, but someday</p>
+    <div className="flex flex-col items-center space-y-6">
+      <h1 className="text-primary dark:text-bright font-bold text-3xl">
+        Videos
+      </h1>
+      <div className="flex flex-col space-y-4 not-prose">
+        <div className="flex flex-col items-center justify-center space-y-2 py-4">
+          <h3>Videos are under construction</h3>
+          <p>Well I haven&apos;t actually recorded anything yet, but someday</p>
+        </div>
+      </div>
       <Progress value={0} className="w-[60%]" />
     </div>
   );
