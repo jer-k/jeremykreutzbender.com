@@ -34,7 +34,7 @@ type BlogProps = {
   };
 };
 
-export default async function Blog() {
+export default async function Blog({ searchParams }: BlogProps) {
   //const page = (searchParams.page && parseInt(searchParams.page)) || 1;
   const posts = await fetchPosts();
   const start = 0;

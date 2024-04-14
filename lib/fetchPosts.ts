@@ -7,12 +7,12 @@ import fs from "fs/promises";
 import { thirdPartyPosts } from "@/lib/constants/thirdPartyPosts";
 
 async function parseMdxFiles() {
-  const filePaths = await fs.readdir("./posts/");
+  const filePaths = await fs.readdir("posts/");
 
   const postsData = [];
 
   for (const filePath of filePaths) {
-    const postFilePath = `./posts/${filePath}`;
+    const postFilePath = `posts/${filePath}`;
     const postContent = await fs.readFile(postFilePath, "utf8");
     const { data } = matter(postContent);
 
