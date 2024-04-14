@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import { cache, ReactElement } from "react";
 
 import matter from "gray-matter";
@@ -7,12 +9,12 @@ import fs from "fs/promises";
 import { thirdPartyPosts } from "@/lib/constants/thirdPartyPosts";
 
 async function parseMdxFiles() {
-  const filePaths = await fs.readdir("posts/");
+  const filePaths = await fs.readdir(path.join(process.cwd(), "posts"));
 
   const postsData = [];
 
   for (const filePath of filePaths) {
-    const postFilePath = `posts/${filePath}`;
+    const postFilePath = path.join(process.cwd(), "posts", filePath);
     const postContent = await fs.readFile(postFilePath, "utf8");
     const { data } = matter(postContent);
 
