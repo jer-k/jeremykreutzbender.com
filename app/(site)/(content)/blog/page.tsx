@@ -34,11 +34,12 @@ type BlogProps = {
   };
 };
 
-export default async function Blog({ searchParams }: BlogProps) {
-  const page = (searchParams.page && parseInt(searchParams.page)) || 1;
+export default async function Blog() {
+  //const page = (searchParams.page && parseInt(searchParams.page)) || 1;
   const posts = await fetchPosts();
-  const start = (page - 1) * 10;
-  const numPages = Math.ceil(posts.length / 10);
+  const start = 0;
+  // const start = (page - 1) * 10;
+  // const numPages = Math.ceil(posts.length / 10);
 
   return (
     <div className="flex flex-col items-center space-y-6">
@@ -49,7 +50,7 @@ export default async function Blog({ searchParams }: BlogProps) {
         {posts.slice(start, start + 10).map((post) => (
           <BlogCard key={post.slug} post={post} />
         ))}
-        <Pagination page={page} numPages={numPages} path="blog" />
+        {/* <Pagination page={page} numPages={numPages} path="blog" /> */}
       </div>
     </div>
   );
