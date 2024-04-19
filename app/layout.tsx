@@ -13,6 +13,9 @@ export const metadata: Metadata = {
     default: "Jeremy Kreutzbender",
   },
   description: "My personal website",
+  alternates: {
+    canonical: `https://jeremykreutzbender.com/}`,
+  },
   openGraph: {
     title: "Jeremy Kreutzbender",
     description: "Product Engineer",

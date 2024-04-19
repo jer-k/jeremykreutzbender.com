@@ -8,6 +8,9 @@ import { Pagination } from "@/components/pagination";
 export const metadata: Metadata = {
   title: "Open Source",
   description: "My open source contributions",
+  alternates: {
+    canonical: "https://jeremykreutzbender.com/open_source",
+  },
   openGraph: {
     title: "Open Source - Jeremy Kreutzbender",
     description: "My open source contributions",

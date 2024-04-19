@@ -5,6 +5,9 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Experience - TrueCar",
   description: "Projects I worked on while at TrueCar",
+  alternates: {
+    canonical: "https://jeremykreutzbender.com/experience/truecar",
+  },
   openGraph: {
     title: "TrueCar Experience - Jeremy Kreutzbender",
     description: "Work experience at TrueCar",

@@ -4,12 +4,7 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { WorkExperienceCard } from "@/components/work-experience-card";
 
 import type { Metadata } from "next";
@@ -17,6 +12,9 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Online CV",
   description: "An interactive online CV",
+  alternates: {
+    canonical: "https://jeremykreutzbender.com/cv",
+  },
   openGraph: {
     title: "Online CV - Jeremy Kreutzbender",
     description: "An interactive online CV",

@@ -5,6 +5,9 @@ import AboutMdx from "./about.mdx";
 export const metadata: Metadata = {
   title: "About",
   description: "All About Me",
+  alternates: {
+    canonical: "https://jeremykreutzbender.com/about",
+  },
   openGraph: {
     title: "About - Jeremy Kreutzbender",
     description: "All About Me",

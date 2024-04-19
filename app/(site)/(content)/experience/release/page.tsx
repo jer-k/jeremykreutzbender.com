@@ -5,6 +5,9 @@ import ReleaseMdx from "./release.mdx";
 export const metadata: Metadata = {
   title: "Experience - Release",
   description: "Projects I worked on while at Release",
+  alternates: {
+    canonical: "https://jeremykreutzbender.com/experience/release",
+  },
   openGraph: {
     title: "Release Experience - Jeremy Kreutzbender",
     description: "Work experience at Release",

@@ -9,6 +9,9 @@ import { TwitterIconButton } from "@/components/twitter-icon-button";
 export const metadata: Metadata = {
   title: "Contact Me",
   description: "Contact Me",
+  alternates: {
+    canonical: "https://jeremykreutzbender.com/contact",
+  },
   openGraph: {
     title: "Contact - Jeremy Kreutzbender",
     description: "Contact Me",
