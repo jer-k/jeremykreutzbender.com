@@ -15,8 +15,8 @@ import { HighlightLink } from "@/components/highlight-link";
 export function Header() {
   return (
     <header className="mb-4 border-b border-primary dark:border-bright">
-      <div className="hidden md:flex h-full flex-row px-16">
-        <div className="container px-0 flex flex-row items-center justify-between">
+      <div className="hidden md:flex h-full flex-row px-4 md:px-16">
+        <div className="px-0 flex flex-row items-center justify-between w-full">
           <HighlightLink label="Home" href="/" />
           <div className="flex flex-row items-center space-x-4">
             <HighlightLink label="Blog" href="/blog" />
@@ -37,7 +37,7 @@ export function Header() {
           </div>
         </div>
       </div>
-      <div className="md:hidden flex px-16">
+      <div className="md:hidden flex px-4 md:px-16">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none focus:text-gray-600 dark:focus:text-gray-400">
