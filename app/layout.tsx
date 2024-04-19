@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
   description: "My personal website",
   alternates: {
-    canonical: `https://jeremykreutzbender.com/}`,
+    canonical: `https://jeremykreutzbender.com`,
   },
   openGraph: {
     title: "Jeremy Kreutzbender",
