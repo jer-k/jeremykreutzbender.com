@@ -27,8 +27,8 @@ export function Hero() {
             </h3>
             <p className="text-primary dark:text-bright">
               Hello from Portland, OR and welcome to my website! My software
-              interests with providing user experiences; which is what I call
-              Product Engineering.
+              journey currently has me learning as much as I can about
+              delivering great user experiences through product engineering.
             </p>
           </div>
           <div className="flex [grid-area:sub]">
@@ -43,7 +43,12 @@ export function Hero() {
                 description="An interactive version of my work history"
                 href="/cv"
               />
-              <HeroCard title="Other" description="Other" href="/cv" />
+              <HeroCard
+                externalLink
+                title="Currently"
+                description="Working at Release developing Preview Environments as a Service"
+                href="https://release.com"
+              />
             </div>
           </div>
         </div>
