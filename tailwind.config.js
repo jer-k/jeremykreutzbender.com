@@ -124,6 +124,9 @@ module.exports = {
       scale: {
         101: "1.01",
       },
+      gridTemplateRows: {
+        hero: "repeat(2, minmax(0, 0.5fr))",
+      },
     },
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],

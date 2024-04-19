@@ -1,67 +1,43 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
-import { HomeIcon, VideoIcon, BookOpen, Contact } from "lucide-react";
-
-import { ModeToggle } from "@/components/mode-toggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import * as React from "react";
+import { ModeToggle } from "@/components/mode-toggle";
 import { GithubIconButton } from "@/components/github-icon-button";
+import { LinkedInIconButton } from "@/components/linkedin-icon-button";
+import { TwitterIconButton } from "@/components/twitter-icon-button";
+import { HighlightLink } from "@/components/highlight-link";
 
 export function Header() {
-  const pathname = usePathname();
-
-  const baseIcon = "h-7 w-7";
-  const activeIcon = `${baseIcon} stroke-shine`;
-
   return (
-    <header className="mb-4">
-      <div className="hidden md:flex h-full flex-row">
+    <header className="mb-4 border-b border-primary dark:border-bright">
+      <div className="hidden md:flex h-full flex-row px-16">
         <div className="container px-0 flex flex-row items-center justify-between">
-          <div className="flex flex-row items-end space-x-4">
-            <Link aria-label="Home" href="/">
-              <HomeIcon
-                className={`link ${pathname === "/" ? activeIcon : baseIcon}`}
+          <HighlightLink label="Home" href="/" />
+          <div className="flex flex-row items-center space-x-4">
+            <HighlightLink label="Blog" href="/blog" />
+            <HighlightLink label="CV" href="/cv" />
+            <HighlightLink label="Open Source" href="/open_source" />
+            <HighlightLink label="Contact" href="/contact" />
+            {/*<HighlightLink label="About" href="/about" />*/}
+            <div className="flex flex-row items-center space-x-2">
+              <GithubIconButton
+                href={"https://github.com/jer-k/jeremykreutzbender.com"}
               />
-            </Link>
-            <Link aria-label="Blog" href="/blog">
-              <BookOpen
-                className={`link ${
-                  pathname.includes("/blog") ? activeIcon : baseIcon
-                }`}
+              <TwitterIconButton href={"https://twitter.com/J_Kreutzbender"} />
+              <LinkedInIconButton
+                href={"https://www.linkedin.com/in/jeremykreutzbender/"}
               />
-            </Link>
-            <Link aria-label="Videos" href="/videos">
-              <VideoIcon
-                className={`link ${
-                  pathname === "/videos" ? activeIcon : baseIcon
-                }`}
-              />
-            </Link>
-            <Link aria-label="Contact" href="/contact">
-              <Contact
-                className={`link ${
-                  pathname === "/contact" ? activeIcon : baseIcon
-                }`}
-              />
-            </Link>
-          </div>
-          <div>
-            <GithubIconButton
-              href={"https://github.com/jer-k/jeremykreutzbender.com"}
-            />
-            <ModeToggle />
+              <ModeToggle />
+            </div>
           </div>
         </div>
       </div>
-      <div className="md:hidden flex">
+      <div className="md:hidden flex px-16">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none focus:text-gray-600 dark:focus:text-gray-400">
@@ -86,8 +62,13 @@ export function Header() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link aria-label="Videos" href="/videos">
-                Videos
+              <Link aria-label="Contact" href="/cv">
+                CV
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link aria-label="Open Source" href="/open_source">
+                Open Source
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
@@ -95,16 +76,11 @@ export function Header() {
                 Contact
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
+            {/*<DropdownMenuItem asChild>
               <Link aria-label="About" href="/about">
                 About
               </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link aria-label="Contact" href="/cv">
-                CV
-              </Link>
-            </DropdownMenuItem>
+            </DropdownMenuItem>*/}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

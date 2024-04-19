@@ -42,6 +42,7 @@ export default function Contact() {
                 height="400"
                 src="/me/sunset-headshot.png"
                 width="400"
+                placeholder="blur"
               />
               <p>
                 Feel free to reach out if you have a comment or question about

@@ -14,9 +14,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         enableSystem
         disableTransitionOnChange
       >
-        <div className="flex flex-col h-screen justify-between px-16 pt-4">
+        <div>
           <Header />
-          {children}
+          <main className="flex flex-col justify-between px-16 pt-4">
+            {children}
+          </main>
           <Toaster />
           <Footer />
         </div>
