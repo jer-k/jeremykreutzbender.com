@@ -5,16 +5,16 @@ type Props = {
 };
 export function LinkedInIconButton({ href }: Props) {
   return (
-    <a href={href}>
-      <Button variant="link">
+    <a href={href} target="_blank">
+      <Button className="p-0" variant="link">
         <svg
-          className="h-6 w-6"
+          className="h-6 w-6 text-primary hover:text-primary/70 dark:text-bright dark:hover:text-bright/70"
           fill="none"
           height="24"
           stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="2"
+          strokeWidth="1.5"
           viewBox="0 0 24 24"
           width="24"
           xmlns="http://www.w3.org/2000/svg"

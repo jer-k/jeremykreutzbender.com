@@ -5,5 +5,3 @@ export function Footer() {
     </footer>
   );
 }
-
-// --primary: 184 58% 14%;
