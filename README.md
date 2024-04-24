@@ -1,4 +1,4 @@
-# jeremykreutzbender.com
+# [jeremykreutzbender.com](https://jeremykreutzbender.com)
 
 Hello and welcome to the repository for my personal website. In 2022 I started using Next.js professionally and as the
 Vercel team has been adding new features (functionality with React Server Components, Server Actions, etc) to Next.js
@@ -22,6 +22,10 @@ Below is list of the libraries I've been using, pages I've built, and what I've 
 - [zod](https://zod.dev/)
 
 ## Pages
+
+### [CV](https://jeremykreutzbender.com/cv)
+
+...
 
 ### [Contact](https://jeremykreutzbender.com/contact)
 
