@@ -5,7 +5,7 @@ import { Footer } from "@/components/footer";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <ThemeProvider

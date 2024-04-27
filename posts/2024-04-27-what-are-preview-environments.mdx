@@ -1,0 +1,292 @@
+---
+title: What Are Preview Environments?
+date: "2024-04-27"
+template: "post"
+draft: false
+slug: "what-are-preview-environments"
+description: "An introduction to what Preview Environments are and what they're good for."
+---
+
+import { Aside } from "@/components/mdx/aside";
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+If you haven't heard of the term Preview Environment before it may be because it goes by many different names. Some
+of those names include Ephemeral Environment or Preview Deployment but they all are describing the same concept.
+That concept is an isolated running instance of an application's code that is meant to be used before the code is
+shipped to the production site. Let's finalize this concept with a definition from Vercel's
+[Preview Deployments Overview documentation](https://vercel.com/docs/deployments/preview-deployments)
+
+> Preview Deployments allow you to preview changes to your app in a live deployment without merging those changes to
+> your Git project's production branch.
+
+A quick background on myself in regard to this topic; I've been working at [Release](https://release.com) for the past
+four years and we've been championing Environments as a Service. You can think of Environments as a Service as a platform
+to manage the complexities of the infrastructure needed to create Preview Environments for any company.
+Before joining Release I worked at a company where I was a consumer of an internal tool that provided Preview Environments
+for all the applications the company was working on.
+
+<Aside heading="Preview Environments are not Remote Development Environments">
+  While a Remote Development Environment *could* be used as Preview Environment,
+  my opinion is that that Preview Environments are based on deployments tied to
+  a commit rather than the possibility of ever-changing code. You wouldn't want
+  someone visiting your Remote Development Environment and deleting a bunch of
+  records in the database causing an unnecessary interruption to your workflow.
+  Sharing a Remote Development Environment with another person is a step earlier
+  than sharing a Preview Environment.
+</Aside>
+
+## What is an Environment anyway?
+
+If you're familiar with the concept of different environments then you can skip over this section, but I wanted
+to zoom out from Preview Environments and talk about the different traditional environments. We'll start at a Local
+Environment and work our way up to a Production Environment.
+
+### Local Environment
+
+A Local Environment is the environment that runs on a desktop or laptop at home or in an office and likely differs from
+production by a lot. This is where most engineers (unless they're using a Remote Development Environment) will do their
+coding. Typically, resources like a database will be installed natively on the machine and connected to through a
+`localhost` address.
+
+Local Environments may also be powered by tools like [Docker Compose](https://docs.docker.com/compose/). If the company
+is deploying their application through Docker images onto a container based architecture, it may make sense to use
+Docker Compose to bring the setup of the Local Environment closer to the setup of the Production Environment.
+
+### Development Environment
+
+The Development Environment is the closest analogy to a Preview Environment we have. It is meant to be a place where
+work in progress on a branch can be shared for early feedback. There may be a handful of Development Environments
+available for the company to share but because they are a limited resource they can become a bottleneck. A telltale
+sign of needing Preview Environments is if a company is having to schedule time slots for code to be deployed onto a
+Development Environment and engineers are unable to ship their work due to having to wait for an available slot.
+
+### QA Environment
+
+The QA Environment is a step towards moving code that has been merged to the main branch to the Production Environment.
+Generally the QA Environment will have automated end-to-end tests run against it to ensure that no regressions have
+occurred as well as QA engineers testing the new features that have been merged to ensure they're meeting the acceptance
+criteria.
+
+### Staging Environment
+
+The Staging Environment is the final step before code is shipped to the Production Environment. Most of the time,
+companies will attempt to make the infrastructure surrounding the Staging Environment match as close as possible to the
+Production Environment. Doing so is an attempt to catch any issues that may arise due to differing under provisioned
+resources in the preceding environments.
+
+### Production Environment
+
+The Production Environment is the customer facing website or service. It will have the most attention paid to it by
+various teams to ensure that it is working properly as close to 100% of the time as possible. It will also use the
+largest amount of resources compared to any of the preceding environments. Code that makes it to the Production
+Environment has gone through development, testing, and acceptance by engineers and stakeholders to ensure that it will
+provide value to the customers. In the end, the Production Environment is the manifestation of the company on a website.
+
+## Resembling Production
+
+Preview Environments should resemble the Production Environment as closely as they possibly can. The reason for this
+is to catch errors that arise from different versions of software, differences in the scale of data, or behavior that
+changes when a program is switched into production mode as early as possible. While these are not the only factors that
+play into ensuring a Preview Environment resembles the Production Environment, they should give us an idea of things
+to look for.
+
+### Software Versions
+
+Ensuring that your Local, Preview, and Production Environments all share the same major version of software helps to
+reduce bugs that might only be caught when new code is deployed to production. If you're using a different major version
+on your Local Environment of an application which is an external dependency you might end up using a feature of that
+application which isn't available to other environments. The most critical thing you can do is have the Preview Environment
+use the same version of external dependencies as the Production Environment. That is a great way apply a shift-left
+mentality to uncover these types of bugs. The last thing you want is for the Production Environment to crash because
+it doesn't support a feature of an external dependency.
+
+### Differences in Data Scale
+
+In the following section we'll learn more about how to populate the data in a Preview Environment but one of the things
+to be wary of is a lack of data on the Local Environment. When adding a new feature, an engineer may change a database
+query by adding an additional `WHERE` clause and in doing so they unknowingly stop using an index that was relied upon.
+The engineer might only have a few hundred rows in a table on their local database so the query behaves according to
+their expectations. However, if the production database has millions or hundreds of millions of rows on the table then
+the changes to the query are going to have significant performance implications.
+
+Another database related issue that can arise are changes to tables causing locks. There is a Ruby gem called
+[strong_migrations](https://github.com/ankane/strong_migrations) that will throw errors when these unsafe actions
+happen during a migration. One example is [Changing the type of a column](https://github.com/ankane/strong_migrations/blob/a0c3cc3dc2734358a6009123050b0d2e165e9195/README.md#changing-the-type-of-a-column)
+
+> Changing the type of a column causes the entire table to be rewritten. During this time, reads and writes are
+> blocked in Postgres, and writes are blocked in MySQL and MariaDB.
+
+Again, on the Local Environment the table may only have a few hundred rows and this lock time is minimal. There also
+won't be anyone else attempting to write to the table during time of the migration so no problems would arise. These type
+of problems are harder to catch and resolve but if the Preview Environment has data at a similar scale to the Production
+Environment then hopefully we notice that a migration is taking a long time and start to think about what implications
+that would have.
+
+### Applications in Production Mode
+
+The applications that we build tend to behave differently when they're set into production mode. We'll use environment
+variables like `NODE_ENV` or `RAILS_ENV` to tell the application to swap into that mode and our code paths will fork
+when we run checks like `Rails.env.production?`. Applications in development mode tend to have features running that
+help with developer experience such as hot module reloading or un-minified code. While those are great to have when
+writing code, they aren't particularly useful on a Preview Environment and they tend to slow applications down. By
+putting the application into production mode, we're ensuring that the Preview Environment behaves as closely to the
+Production Environment as possible.
+
+To run the Preview Environments in production mode we'll want to introduce a second environment variable such as
+`ENVIRONMENT_TYPE` where the values are `LOCAL | DEVELOPMENT | PREVIEW | QA | STAGING | PRODUCTION`. By having this
+second variable, we're able to set the application into production mode but ensure that if there are certain behaviors
+we don't want to include, say sending emails to customers, we can use a check like
+`process.env.ENVIRONMENT_TYPE === "PRODUCTION"` to switch behaviors. Try not to place large code paths behind this check
+because that could lead to bugs arising only on the Production Environment but instead use it in your configurations to
+toggle off anything that could affect real customers.
+
+## Data Requirements
+
+A defining characteristic of a Preview Environment is its data integrity. As mentioned in the previous section, we want
+the Preview Environment to resemble the Production Environment as closely as possible but providing the same data can
+be a challenge. Let's explore a few options.
+
+### No Data
+
+A Preview Environment that starts with no data puts the onus on the engineer to manually fill in the data requirements
+for the feature they're working on. While this no data approach can work, it is not an exercise that would encourage use
+of Preview Environments; when the environment is finished deploying for the first time it should be ready for use,
+not require additional setup.
+
+### Seed Data
+
+Using a seed data file which is loaded into the database during the initial deployment. Using seed data is a good
+first step, but it is constrained by the amount of data written into the file, which tend to be known good datasets.
+For example, there may be a certain dataset that is causing a bug on production but is not replicated in the seed
+data making it impossible to test without manually adjusting the data. Another issue that can arise with seed data is
+a difference in the amount of data; if the seed data only contains say 100 rows on a table it may not be possible to
+test whether a new SQL query will perform adequately when run on the Production Environment. These issues are not to
+say that a seed data approach won't work, in most cases it can be enough to make the Preview Environment useful,
+but there are a few more options.
+
+### Database Backup and Restore
+
+All databases attached to permanent environments like the Staging or Production Environment will be using a database
+which has nightly, or even hourly, backups enabled. Having the backups ensures that if anything were to go wrong with
+that environment, it can be recreated from a point in time without much data loss. Using one of these backups as the
+starting point for our Preview Environment ensures that it resembles characteristics exhibited by the Production
+Environment. Using the backup from the Production Environment is great from a data integrity standpoint because any
+bugs happening to real customers due to certain data configurations can be caught. However, using the production data
+leads to issues such as customer PII being accessible to anyone with access to the Preview Environment, which is a
+very large security risk. Instead, we can use the backup from the Staging Environment which will have enough data to
+make the Preview Environment immediately useful.
+
+### Masked Production Data
+
+The last option, which is the most complicated, but yields the best results is to use the database backup from the
+Production Environment and apply a [data masking](https://en.wikipedia.org/wiki/Data_masking) approach. We won't go into any great detail on how set this
+up here, but the general idea would be to create a new database which is restored from a production backup. Once
+the new database is available, mask all the data, which is far easier said than done. After the masking is complete,
+create a new backup from that database. Finally, make the new masked backup available for use by the Preview
+Environments. There are companies who offer this data masking a service so it is possible to pay for this service
+instead of having to create and maintain the process. The result of the data masking work would be a dataset that does
+not contain any PII and has all the records and associations available to debug complex bugs.
+
+## Automation
+
+Now that we understand a lot more about what a Preview Environment is, we need to touch on how we create them. Every
+company, team, and application is going to have different requirements needed for the Preview Environment and that is
+far too broad of a topic us to attempt to cover here. However, I want to introduce the concept of the Golden Path.
+From the Spotify article [How We Use Golden Paths to Solve Fragmentation in Our Software Ecosystem](https://engineering.atspotify.com/2020/08/how-we-use-golden-paths-to-solve-fragmentation-in-our-software-ecosystem/)
+we can use their definition.
+
+> The Golden Path — as we define it today — is the ‘opinionated and supported’ path to ‘build something’ (for example,
+> build a backend service, put up a website, create a data pipeline). The Golden Path tutorial is a step-by-step
+> tutorial that walks you through this opinionated and supported path.
+
+This means that for a given need, say a backend service in Java, a set of requirements has been designed and implemented
+to ensure that any team who needs such a service does not have to start from scratch. Given a Golden Path to follow, the
+team only needs to add their own application code along with defining any external dependencies and they can create a
+Preview Environment. Building this automation through the Golden Path is no easy task, but for consumers who only
+want a Preview Environment, it should be as easy as possible to get one.
+
+### Single (Click | Command) Deploy
+
+Every team should have the ability to create a Preview Environment with a single click or command. That click would
+be in the form of an internal or SaaS web application that has been set up along a Golden path with the team's
+application code. When an individual engineer wants to create a Preview Environment they should only need to visit
+the web page to create one, indicate which git branch they're using and click deploy. The same idea could also be
+available through a CLI. In this case there would be a configuration file that indicates what the application
+is and the CLI can infer the git branch so the engineer need only issue a command like
+`$ cli-tool create-preview-environment`.
+
+### Pull Requests
+
+Taking the automation a step further where no manual interaction is needed, it is a smart idea to create a Preview
+Environment when a Pull Request is opened or a specific label is applied to it. To achieve this you'll need to have the
+creation of your Preview Environment running on something like GitHub Actions or a web service that is listening for
+webhooks. Removing any friction to creating Preview Environments is a great way to onboard people who have never used
+them before as well.
+
+## Shareable
+
+Finally, Preview Environments need to be shareable; previewing is more fun when others are involved! Each Preview
+Environment should have a unique URL that ensures that it won't ever collide with another environment. For example, on
+Vercel the unique URL looks like `jeremykreutzbender-idq0kqlt6-jerks-projects.vercel.app` where `idq0kqlt6` is the
+unique portion. In addition to that unique URL, there might be a more user-friendly URL. Again on Vercel, that would
+look like `jeremykreutzbender-com-git-main-jerks-projects.vercel.app` where they have added the Git branch name meaning
+any time I push a new branch for this website, I could replace `main` with my branch name and find the new Preview
+Environment. If the application consists of more than one service, we'll need to adjust the URL to contain the service
+name. We may end up with something like `frontend-jeremykreutzbender-idq0kqlt6-jerks-projects.domain.com` and
+`backend-jeremykreutzbender-idq0kqlt6-jerks-projects.domain.com`.
+
+## Real World Use Cases
+
+The number of ways that Preview Environments can be used is going to depend on the size and makeup of the organization.
+Are the engineers bottle-necked by a limited number of Development Environments? Is the QA team struggling because bugs
+are being found after code is merged to main? Are stakeholders unhappy when a feature is marked as completed but the
+first time they see the feature, which doesn't meet their expectation, on the Production Environment? Let's cover a few
+use cases that I've encountered.
+
+### Sales Demo
+
+Sales teams which need a way to demo the product they're selling without stepping on the toes of others on the
+team benefit immensely from Preview Environments. Instead of using the Preview Environment to see new features early,
+they'll be relying on the fact that they can create a replica of their service from the main branch that is isolated
+from everyone else during the demo. There may even be a special database backup that can be selected for these sales
+demos which provides all the needed underlying data, but also a clean slate to demonstrate the onboarding process for
+new customers. The sales team member will also be able to perform any destructive actions, such as removing team members
+from an organization without fear of causing issues for someone else. Once the demo is over, the Preview Environment
+can be destroyed and the sales team member can prepare for the next call without needing to do any additional data
+cleanup.
+
+### QA Testing
+
+We previously talked about the QA Environment as code travels to the Production Environment but an important use case in
+getting code approved to merge is QA approval. When a QA engineer needs to go through their testing process, being able
+to create their own Preview Environment, which has its own isolated data, ensures that they're starting their testing
+from a clean slate. This is also a perfect opportunity for testing code which deletes records from the database as those
+deletions won't affect anyone else. Better yet, if the code changes fail to pass the testing but the record deletion
+happened, a new Preview Environment can be created to restart the process!
+
+### Stakeholder Approval
+
+For any stakeholders on a given task, Preview Environments are a huge step forward in being able to verify that the
+changes being made are in line with the expectations. Rather than having to send over screenshots and hope that suffices,
+stakeholders can be sent the link to the Preview Environment and verify themselves. This ability for stakeholders to
+interactively see the changes ensures that their expectations are being met. They can then give direct feedback if
+any changes are needed.
+
+Vercel took this concept of direct feedback to the next level with their Preview Environment
+[Comments](https://vercel.com/docs/workflow-collaboration/comments) feature. It allows the stakeholder to give feedback
+directly in the UI rather than having to take and annotate screenshots and then send them over to the engineering team.
+Adding user experience improvements like comments goes a long way in making Preview Environments a sticky feature that
+organizations can't live without.
+
+## Conclusion
+
+After all that, hopefully the answer to the question 'What Are Preview Environments?' has been answered. There are lots
+of benefits to adopting Preview Environments but it is not an easy task to accomplish. It will likely take a dedicated
+DevOps team to build the scripts and pipelines to needed or an even larger project to create an Internal Developer
+Platform. There are open source solutions that will lighten the load for this type of effort and remove the need to
+start from scratch. Many companies are also offering SaaS solutions for Preview Environments but we aren't going to
+open a new can of worms with a build vs buy debate in the conclusion section. Let's appreciate the fact that there
+are many different ways to solve this issue and hopefully you're able to adopt one to start using Preview Environments.
