@@ -8,13 +8,14 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://jeremykreutzbender.com"),
   title: {
     template: "%s | Jeremy Kreutzbender",
     default: "Jeremy Kreutzbender",
   },
-  description: "My personal website",
+  description: "A website by Jeremy Kreutzbender",
   alternates: {
-    canonical: `https://jeremykreutzbender.com`,
+    canonical: "https://jeremykreutzbender.com",
   },
   openGraph: {
     title: "Jeremy Kreutzbender",
@@ -23,6 +24,17 @@ export const metadata: Metadata = {
     siteName: "Jeremy Kreutzbender's personal site",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: `/api/og??title=${encodeURIComponent(
+          "Jeremy Kreutzbender's site",
+        )}`,
+        width: 960,
+        height: 540,
+        alt: "Jeremy Kreutzbender's site",
+        type: "image/png",
+      },
+    ],
   },
   twitter: {
     title: "Jeremy Kreutzbender",

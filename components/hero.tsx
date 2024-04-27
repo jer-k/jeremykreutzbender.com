@@ -32,7 +32,7 @@ export function Hero() {
             </p>
           </div>
           <div className="flex [grid-area:sub]">
-            <div className="flex flex-col items-start space-y-2 h-full w-full">
+            <div className="flex flex-col items-start space-y-2 h-full w-full lg:justify-between">
               <HeroCard
                 title="Open Source"
                 description="Contributions I've made to open source projects"
