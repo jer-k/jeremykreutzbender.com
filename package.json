@@ -54,14 +54,14 @@
     "remark-mdx-frontmatter": "^4.0.0",
     "resend": "^2.1.0-canary.1",
     "server-only": "^0.0.1",
-    "shadcn-ui": "^0.4.1",
+    "shadcn-ui": "^0.8.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^7.5.3",
     "@storybook/addon-interactions": "^7.5.3",
     "@storybook/addon-links": "^7.5.3",
-    "@storybook/addon-onboarding": "^1.0.8",
+    "@storybook/addon-viewport": "^8.0.9",
     "@storybook/blocks": "^7.5.3",
     "@storybook/nextjs": "^7.5.3",
     "@storybook/react": "^7.5.3",

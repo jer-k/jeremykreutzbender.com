@@ -45,9 +45,9 @@ export function Hero() {
               />
               <HeroCard
                 externalLink
-                title="Currently"
-                description="Working at Release developing Preview Environments as a Service"
-                href="https://release.com"
+                title="Storybook"
+                description="Components I've built for this site"
+                href="https://storybook.jeremykreutzbender.com"
               />
             </div>
           </div>
