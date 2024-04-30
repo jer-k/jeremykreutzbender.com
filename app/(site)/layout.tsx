@@ -5,7 +5,10 @@ import { Footer } from "@/components/footer";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 
-export default function SiteLayout({ children }: { children: ReactNode }) {
+type Props = {
+  children: ReactNode;
+};
+export default function SiteLayout({ children }: Props) {
   return (
     <>
       <ThemeProvider

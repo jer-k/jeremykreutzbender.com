@@ -1,0 +1,287 @@
+---
+title: Building Dynamic Breadcrumbs in Next.js App Router
+date: "2024-04-29"
+template: "post"
+draft: false
+slug: "app-router-dynamic-breadcrumbs"
+description: "Putting the pieces together to add breadcrumbs to a Next.js App Router project via Parallel Routes."
+---
+
+import { Aside } from "@/components/mdx/aside";
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+I've been wanting to figure out how to access the route parameters in a Next.js App Router project for a while and
+I recently came by this tweet from [@fredkisss](https://twitter.com/fredkisss) pointing to a Pull Request that
+had just landed in Next.js.
+
+<Tweet id="1784357070008955083" />
+
+The Pull Request he linked is [support breadcrumb style catch-all parallel routes](https://github.com/vercel/next.js/pull/65063)
+by [ztanner](https://github.com/ztanner), a [Vercel](https://vercel.com) employee and [Next.js](https://nextjs.org/)
+maintainer.
+
+The Pull Request added functionality and demonstrates how to use the [Parallel Routes](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes)
+feature to access the route parameters. I would encourage you to read through that documentation to get a better
+understanding of what Parallel Routes are but I will also summarize concepts as I write this out.
+
+<Aside heading="The catch-all feature is currently in the canary">
+  As of publishing (2024-04-30) the code from the Pull Request is still in the
+  canary releases of Next.js. If you want to use it, you'll have to explicitly
+  update your version of Next to the latest canary, which can be found at
+  [https://github.com/vercel/next.js/releases](https://github.com/vercel/next.js/releases).
+  I will update this note when it has landed in a proper release.
+</Aside>
+
+## Parallel Route Slots
+
+To start on building our breadcrumbs we have to understand what slots are in Parallel Routes.
+[slots](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes#slots) are defined as
+
+> Parallel routes are created using named slots. Slots are defined with the @folder convention.
+> ... Slots are passed as props to the shared parent layout.
+
+What this means is that we can add a folder to our project named `app/@breadcrumbs` to create a slot. To be able to
+build out our breadcrumbs, we'll want to use a [catch-all segment](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#catch-all-segments)
+such as `app/@breadcrumbs/[...catchAll]`. Finally, we'll add a page which will render the breadcrumbs
+`app/@breadcrumbs/[...catchAll]/page.tsx`. For now, let's add a little placeholder until we're ready to build our
+breadcrumbs.
+
+```typescript jsx
+type Props = {
+  params: {
+    catchAll: string[]
+  }
+}
+export default function BreadcrumbsSlot({params: { catchAll } }: Props) {
+  console.log("rendering in @breadcrumbs", catchAll)
+  return <div>placeholder</div>
+}
+```
+
+The logging statement will print out the array of route parameters that have been found.
+
+### default.tsx
+
+A note when using Parallel Routes is that a [default](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes#defaultjs)
+file is required. The docs say
+
+> On refresh, Next.js will render a default.js for @analytics. If default.js doesn't exist, a 404 is rendered instead.
+
+We don't want to render a 404 page so we need to add `app/@breadcrumbs/default.tsx`. In this case we're going to render
+an empty fragment to satisfy the requirements.
+
+```typescript jsx
+export default function Default() {
+  return (<></>)
+}
+```
+
+### layout.tsx
+
+Rendering the slot is covered more extensively in the Parallel Routes documentation linked above but a way to think
+about it is that `children` is a special slot that is automatically provided. To add our defined slots, we can mimic
+the way `children` are passed into the layout. We'll change our root layout at `app/layout.tsx`.
+
+```typescript jsx
+export default function Layout({ children, breadcrumbs }: { children: ReactNode, breadcrumbs: ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        {breadcrumbs}
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+## Nested Dynamic Routes
+
+The Pull Request I referenced at the start added the functionality for deeply nested dynamic routes to work with
+Parallel Routes so let's add in some routes to test this feature out. Let's go with names and add
+`app/[first]/[middle]/[last]/page.tsx`. We don't need to add anything to this page so we'll return a simple message
+to indicate where we're at.
+
+```typescript jsx
+export default function Page() {
+  return (
+    <div>Hello from Nested Dynamic</div>
+  )
+}
+```
+
+With this route in place, we can visit `http://localhost:3000/Joseph/Francis/Tribbiani` and we'll see
+`rendering in @breadcrumbs [ 'Joseph', 'Francis', 'Tribbiani' ]` logged from the server. This is great and we'll
+be able to build our breadcrumbs for this page.
+
+## Static + Dynamic Routes
+
+One thing I discovered while writing this post is that the catch-all does not cover routes which have static routes in
+them. I wanted to add this section in because this website does not have a set of deeply nested dynamic routes, instead
+I have a `blog/` route with a single dynamic route `[slug]` underneath it and I was hoping to use this feature to add
+additional navigation. To demonstrate this, we can add `app/blog/[slug]/page.tsx`.
+
+```typescript jsx
+export default function Page() {
+  return (
+    <div>Hello from Blog Slug</div>
+  )
+}
+```
+
+If we visit `http://localhost:3000/blog/new-blog-post` we'll see `rendering in @breadcrumbs [ 'new-blog-post' ]`. That
+isn't what I expected and it is unfortunate that `'blog'` isn't added to our catch-all. If we want to render breadcrumbs
+that include `blog` then we'll have to add an additional page in our `@breadcrumb` slot.
+
+We'll make another file at `app/@breadcrumbs/blog/[slug]/page.tsx`.
+
+```typescript jsx
+type Props = {
+  params: {
+    slug: string
+  }
+}
+export default function BreadcrumbsSlot({params: { slug } }: Props) {
+  console.log("rendering in @breadcrumbs", slug)
+  return <div>placeholder</div>
+}
+```
+
+Now we will be able to customize the breadcrumbs specifically for our `blog` route.
+
+<Aside heading="Can this be improved?">
+  I'll be keeping my eye on this feature and whether or not the static routes
+  can be added to the catch-all. It may not be feasible, but for a larger site
+  that has many different static routes I would think that being able to define
+  a single `page.tsx` to build all the breadcrumbs for the entire site would be
+  preferred.
+</Aside>
+
+## shadcn/ui Breadcrumb
+
+I use [shadcn/ui](https://ui.shadcn.com/) for the components on this website and will be laying out how to use the
+route parameters to build the breadcrumbs using components from it. However, the same principles should apply to
+components from any library. We'll be using the [Breadcrumb](https://ui.shadcn.com/docs/components/breadcrumb) to build
+out our own `Breadcrumbs` component. Given that we have an array of nested routes (from our logged output above) we'll
+need to construct longer and longer `href` attributes to pass into the `BreadcrumbLink` component. I decided to use a
+regular old `for` loop because I've been doing a bunch of data structures practice but if you want to use
+`routes.forEach`, go for it; either way, the concept is the same. We will build out clickable links for every part of the
+route except for the final one, which will be just a static representation of the current page as a `BreadcrumbPage`.
+
+```typescript jsx
+import React, {ReactElement} from "react";
+
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
+
+export function Breadcrumbs({routes = []}: {routes: string[]}) {
+  let fullHref: string | undefined = undefined;
+  const breadcrumbItems: ReactElement[] = [];
+  let breadcrumbPage: ReactElement = (<></>);
+
+  for(let i = 0; i < routes.length; i++) {
+    const route = routes[i];
+    let href;
+
+    href = fullHref ? `${fullHref}/${route}` : `/${route}`
+    fullHref = href
+
+    if (i === routes.length-1) {
+      breadcrumbPage = (
+        <BreadcrumbItem>
+          <BreadcrumbPage>{route}</BreadcrumbPage>
+        </BreadcrumbItem>
+      )
+    } else {
+      breadcrumbItems.push(
+        <React.Fragment key={href}>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href={href}>{route}</BreadcrumbLink>
+          </BreadcrumbItem>
+        </React.Fragment>
+      )
+    }
+  }
+
+  return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/">Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        {breadcrumbItems}
+        <BreadcrumbSeparator />
+        {breadcrumbPage}
+      </BreadcrumbList>
+    </Breadcrumb>
+  )
+}
+```
+
+Now that we have our `Breadcrumbs` component we can update our slots to render it.
+
+```typescript jsx
+// app/@breadcrumbs/[...catchAll]/page.tsx
+import { Breadcrumbs } from "@/components/breadcrumbs";
+type Props = {
+  params: {
+    catchAll: string[]
+  }
+}
+export default function BreadcrumbSlot({params: { catchAll } }: Props) {
+  return <Breadcrumbs routes={catchAll} />
+}
+```
+
+```typescript jsx
+// app/@breadcrumbs/blog/[slug]/page.tsx
+import { Breadcrumbs } from "@/components/breadcrumbs";
+type Props = {
+  params: {
+    slug: string
+  }
+}
+export default function BreadcrumbSlot({params: { slug } }: Props) {
+  return <Breadcrumbs routes={["blog", slug]} />
+}
+```
+
+For the catch-all, we only need to pass the `catchAll` array into `Breadcrumbs`, however for our blog implementation we
+have to append the `"blog"` portion ourselves.
+
+## Conclusion
+
+The final file structure of the application looks like this
+
+```
+/
+  app/
+    [first]/
+      [middle]/
+        [last]/
+          page.tsx
+    blog/
+      [slug]/
+        page.tsx
+    @breadcrumb/
+      [...catchAll]/
+        page.tsx
+      blog/
+        [slug]/
+          page.tsx
+      default.tsx
+```
+
+I hope you were able to learn a little bit more about how the App Router works with Parallel Routes and how slots can
+be used to render different data depending on the route. I think this is a really powerful concept that I'll be
+exploring more in the future.
