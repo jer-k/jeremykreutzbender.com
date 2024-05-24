@@ -4,7 +4,7 @@ export default async function sitemap() {
   const posts = await fetchMdxPosts();
   const blogs = posts.map((post) => ({
     url: `https://jeremykreutzbender.com/blog/${post.slug}`,
-    lastModified: post.date,
+    lastModified: post.updated || post.date,
   }));
 
   const routes = [
