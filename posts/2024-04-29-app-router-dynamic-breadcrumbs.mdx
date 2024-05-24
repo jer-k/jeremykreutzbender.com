@@ -1,6 +1,7 @@
 ---
 title: Building Dynamic Breadcrumbs in Next.js App Router
 date: "2024-04-29"
+updated: "2024-05-24"
 template: "post"
 draft: false
 slug: "app-router-dynamic-breadcrumbs"
@@ -11,29 +12,28 @@ import { Aside } from "@/components/mdx/aside";
 
 # {frontmatter.title}
 
-_Published on {frontmatter.date}_
+_Originally Published on {frontmatter.date}_
+
+_Updated on {frontmatter.updated}_
+
+<Aside heading="This feature is fully functional in Next.js 15">
+  This blog post has been updated to reflect changes in Next.js that completed
+  this feature. The section that pointed out some issues in the original
+  implementation now showcases that static and dynamic routes are able to be
+  used to create breadcrumbs from a single catch-all Parallel Route. A
+  Repository I created to illustrate this feature can be found at
+  [jer-k/parallel-routes](https://github.com/jer-k/parallel-routes).
+</Aside>
 
 I've been wanting to figure out how to access the route parameters in a Next.js App Router project for a while and
-I recently came by this tweet from [@fredkisss](https://twitter.com/fredkisss) pointing to a Pull Request that
-had just landed in Next.js.
-
-<Tweet id="1784357070008955083" />
-
-The Pull Request he linked is [support breadcrumb style catch-all parallel routes](https://github.com/vercel/next.js/pull/65063)
+I recently came by a tweet from [@fredkisss](https://twitter.com/fredkisss) pointing to a Pull Request that
+had just landed in Next.js.The Pull Request he linked is [support breadcrumb style catch-all parallel routes](https://github.com/vercel/next.js/pull/65063)
 by [ztanner](https://github.com/ztanner), a [Vercel](https://vercel.com) employee and [Next.js](https://nextjs.org/)
 maintainer.
 
 The Pull Request added functionality and demonstrates how to use the [Parallel Routes](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes)
 feature to access the route parameters. I would encourage you to read through that documentation to get a better
 understanding of what Parallel Routes are but I will also summarize concepts as I write this out.
-
-<Aside heading="The catch-all feature is currently in the canary">
-  As of publishing (2024-04-30) the code from the Pull Request is still in the
-  canary releases of Next.js. If you want to use it, you'll have to explicitly
-  update your version of Next to the latest canary, which can be found at
-  [https://github.com/vercel/next.js/releases](https://github.com/vercel/next.js/releases).
-  I will update this note when it has landed in a proper release.
-</Aside>
 
 ## Parallel Route Slots
 
@@ -119,10 +119,13 @@ be able to build our breadcrumbs for this page.
 
 ## Static + Dynamic Routes
 
-One thing I discovered while writing this post is that the catch-all does not cover routes which have static routes in
-them. I wanted to add this section in because this website does not have a set of deeply nested dynamic routes, instead
-I have a `blog/` route with a single dynamic route `[slug]` underneath it and I was hoping to use this feature to add
-additional navigation. To demonstrate this, we can add `app/blog/[slug]/page.tsx`.
+_Since the original publish date of this article, a new Pull Request,
+[Provide non-dynamic segments to catch-all parallel routes](https://github.com/vercel/next.js/pull/65233), has been added
+to Next.js which makes this functionality in this section possible._
+
+I wanted to add this section because my personal site, which you're reading this post on, does not have a set of
+deeply nested dynamic routes, instead I have a `blog/` route with a single dynamic route `[slug]` underneath it.
+To demonstrate this, we can add `app/blog/[slug]/page.tsx`.
 
 ```typescript jsx
 export default function Page() {
@@ -132,33 +135,9 @@ export default function Page() {
 }
 ```
 
-If we visit `http://localhost:3000/blog/new-blog-post` we'll see `rendering in @breadcrumbs [ 'new-blog-post' ]`. That
-isn't what I expected and it is unfortunate that `'blog'` isn't added to our catch-all. If we want to render breadcrumbs
-that include `blog` then we'll have to add an additional page in our `@breadcrumb` slot.
-
-We'll make another file at `app/@breadcrumbs/blog/[slug]/page.tsx`.
-
-```typescript jsx
-type Props = {
-  params: {
-    slug: string
-  }
-}
-export default function BreadcrumbsSlot({params: { slug } }: Props) {
-  console.log("rendering in @breadcrumbs", slug)
-  return <div>placeholder</div>
-}
-```
-
-Now we will be able to customize the breadcrumbs specifically for our `blog` route.
-
-<Aside heading="Can this be improved?">
-  I'll be keeping my eye on this feature and whether or not the static routes
-  can be added to the catch-all. It may not be feasible, but for a larger site
-  that has many different static routes I would think that being able to define
-  a single `page.tsx` to build all the breadcrumbs for the entire site would be
-  preferred.
-</Aside>
+If we visit `http://localhost:3000/blog/new-blog-post` we'll see `rendering in @breadcrumbs [ 'blog', 'new-blog-post' ]`.
+Next.js is properly adding the static `blog` path into our params so we're able to build out our breadcrumbs for the entire
+site with a single parallel route!
 
 ## shadcn/ui Breadcrumb
 
@@ -228,7 +207,7 @@ export function Breadcrumbs({routes = []}: {routes: string[]}) {
 }
 ```
 
-Now that we have our `Breadcrumbs` component we can update our slots to render it.
+Now that we have our `Breadcrumbs` component we can update our slot to render it.
 
 ```typescript jsx
 // app/@breadcrumbs/[...catchAll]/page.tsx
@@ -242,22 +221,6 @@ export default function BreadcrumbSlot({params: { catchAll } }: Props) {
   return <Breadcrumbs routes={catchAll} />
 }
 ```
-
-```typescript jsx
-// app/@breadcrumbs/blog/[slug]/page.tsx
-import { Breadcrumbs } from "@/components/breadcrumbs";
-type Props = {
-  params: {
-    slug: string
-  }
-}
-export default function BreadcrumbSlot({params: { slug } }: Props) {
-  return <Breadcrumbs routes={["blog", slug]} />
-}
-```
-
-For the catch-all, we only need to pass the `catchAll` array into `Breadcrumbs`, however for our blog implementation we
-have to append the `"blog"` portion ourselves.
 
 ## Conclusion
 
@@ -276,9 +239,6 @@ The final file structure of the application looks like this
     @breadcrumb/
       [...catchAll]/
         page.tsx
-      blog/
-        [slug]/
-          page.tsx
       default.tsx
 ```
 
