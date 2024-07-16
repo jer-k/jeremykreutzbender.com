@@ -2,7 +2,7 @@ import { PropsWithChildren } from "react";
 
 export function Blockquote({ children }: PropsWithChildren) {
   return (
-    <blockquote className="border-l-gray-100 dark:border-l-dusk">
+    <blockquote className="border-l-4 border-l-gleam dark:border-l-dusk">
       {children}
     </blockquote>
   );
