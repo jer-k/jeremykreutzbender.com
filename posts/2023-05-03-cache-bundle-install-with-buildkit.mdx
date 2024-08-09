@@ -1,0 +1,143 @@
+---
+title: "Cache Bundle Install with BuildKit"
+date: "2023-05-03"
+draft: true
+slug: "cache-bundle-install-with-buildkit"
+tags:
+  - "docker"
+  - "buildkit"
+  - "rails"
+  - "ruby"
+description: "How to use Buildkit's mount cache to reduce bundle install times during Docker builds."
+---
+
+import { PublishedOnReleaseBlog } from "@/components/mdx/published-on-release-blog";
+
+# {frontmatter.title}
+
+<PublishedOnReleaseBlog />
+
+_Published on {frontmatter.date}_
+
+At Release, we’ve been using BuildKit to do our own builds for some time now and BuildKit does an awesome job
+of caching Docker image layers! But one thing that continued to slow down our builds was running `bundle install`
+when upgrading gems in our Rails application. I decided to start researching if there was any way that we could
+cache our `bundle install` commands over many builds because a cold `bundle install` is very slow, but incremental
+changes are quite fast. In my search, I came across a KubeCon video about BuildKit,
+[Running Cache-Efficient Builds at Scale on Kubernetes with BuildKit - Gautier Delorme, Apple Inc.](https://www.youtube.com/watch?v=wTENRhYt3mw)
+which had a very interesting slide.
+
+![docker-cache-mounts](/post_images/docker-cache-mounts.png)
+
+This is exactly the type of solution I was looking for and it comes built in with BuildKit! Let’s take a look at
+an example from the mount cache documentation to start.
+
+Example: cache Go packages
+
+```dockerfile
+# syntax=docker/dockerfile:1
+FROM golang
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    go build ...
+```
+
+In this example, the `go build` command uses the `/root/.cache/go-build directory` to store the packages in between
+builds. Because the output of go build is a binary and does not require anything to run besides that binary, this
+example makes correct use of the cache. If we think of the cache directory as a named volume from the host server
+into the container we can create a picture of how this example works. When `go build` is run, the cache directory
+is populated on the host server and the resulting binary ends up in the container. The problem is that this mount
+cache functionality wasn’t built with the idea that the packages in the cache needed to be pulled into the resulting
+image.
+
+To solve this problem I continued my search and came across this issue on the BuildKit repository,
+[Am I misunderstanding RUN mount=type=cache?](https://github.com/moby/buildkit/issues/1173). The writer of the issue
+explains how this functionality isn’t working with `bundle install` and is trying to figure out what to do. In one
+of the answers a link to blog post in Japanese is provided,
+[Dockerfile for Rails6のベストプラクティスを解説](https://qiita.com/k_kind/items/836bc7ba2e33dc2ed3e7). A Dockerfile is
+provided in the post, which has the solution we’ve been searching for.
+
+```dockerfile
+WORKDIR /app
+…
+RUN bundle config set app_config .bundle
+RUN bundle config set path .cache/bundle
+# mount cacheを利用する
+RUN --mount=type=cache,uid=1000,target=/app/.cache/bundle \
+    bundle install && \
+    mkdir -p vendor && \
+    cp -ar .cache/bundle vendor/bundle
+RUN bundle config set path vendor/bundle
+```
+
+Now that we know what the solution is, let’s go through it line by line to make sure we fully understand what is
+happening.
+
+```dockerfile
+WORKDIR /app
+```
+
+First, we set the working directory for the Dockerfile to `/app`.
+
+```dockerfile
+RUN bundle config set path .cache/bundle
+```
+
+Then, we set Bundler’s path `.cache/bundle` which is the directory the gems will be installed into.
+
+```dockerfile
+RUN --mount=type=cache,uid=1000,target=/app/.cache/bundle \
+    bundle install && \
+    mkdir -p vendor && \
+    cp -ar .cache/bundle vendor/bundle
+```
+
+Now the important part! We use the `--mount=type=cache` and set the cache to be the same location as Bundler’s path.
+But a key here is to include the `WORKDIR` path so it becomes `target=/app/.cache/bundler`. This means our directory
+of installed gems will be persisted from build to build. We run `bundle install` to install the gems and then create
+a vendor directory. The last step here is to copy `.cache/bundle` into `vendor/bundle` because, if you recall from the
+Go example, the contents of the cache are not included in the layer.
+
+```dockerfile
+RUN bundle config set path vendor/bundle
+```
+
+Finally we set Bundler’s path to the directory we copied the files into and we’re good to go. Now we fully understand what
+is happening! To wrap up, there are a few final points to cover. The first is that the code above is not quite ideal.
+It works, but it is missing a few options to add some safety and reliability. There will be a full example shown below.
+
+The mount cache accepts an `id` as a parameter. The [documentation](https://docs.docker.com/engine/reference/builder/#run---mounttypecache)
+says:
+
+> Optional ID to identify separate/different caches. Defaults to the value of the target
+
+Setting an `id` is valuable if there are potentially lots of Dockerfiles running on the same BuildKit server that might be
+attempting to use the same cache location; imagine if two different Rails projects started sharing the same directory! Which
+leads us to the second parameter of `sharing`. The [documentation](https://docs.docker.com/engine/reference/builder/#run---mounttypecache)
+says:
+
+> One of shared, private, or locked. Defaults to shared. A shared cache mount can be used concurrently by multiple writers.
+> private creates a new mount if there are multiple writers. locked pauses the second writer until the first one releases the
+> mount.
+
+We want to opt for `sharing=locked` meaning that if two builds of the same Dockerfile are running at the same time,
+only one can access the cache at a time. This ensures that the output of `bundle install` won’t be mangled when the
+`cp` command is issued.
+
+An updated solution would look like this
+
+```dockerfile
+WORKDIR /app/
+RUN gem install Bundler
+RUN bundle config set app_config .bundle
+RUN bundle config set path .cache/bundle
+COPY Gemfile Gemfile.lock ./
+RUN --mount=type=cache,id=<your-app-name>-gem-cache,sharing=locked,target=/app/.cache/bundle \
+bundle install && \
+  mkdir -p vendor && \
+  cp -ar .cache/bundle vendor/bundle
+RUN bundle config set path vendor/bundle
+```
+
+If you would like to read more about how the caching works, there is an issue on the BuildKit repository,
+[mount=type=cache more in-depth explanation?](https://github.com/moby/buildkit/issues/1673) that has a great discussion
+on how this functionality actually works.
