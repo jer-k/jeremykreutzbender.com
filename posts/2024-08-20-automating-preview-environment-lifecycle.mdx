@@ -1,0 +1,206 @@
+---
+title: Automating the Lifecycle of a Preview Environment
+date: "2024-08-20"
+template: "post"
+draft: false
+slug: "automating-preview-environment-lifecycle"
+description: "Preview Environments are "
+---
+
+import { BlockquoteWithLink } from "@/components/mdx/blockquote-with-link";
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+In my previous post [What Are Preview Environments?](https://jeremykreutzbender.com/blog/what-are-preview-environments)
+we went into detail about what Preview Environments are and briefly touched on the automation aspect. Those few paragraphs
+didn't cover the full lifecycle that a Preview Environment goes through and so I thought it would be beneficial to cover
+the different steps that occur and some choices I think are beneficial to automating this lifecycle the correct way. The
+content of this post is best suited for someone who wants to build a platform to create Preview Environments for themselves
+or others, but I believe anyone who has an interest in Preview Environments could benefit from understanding everything
+that goes into creating them. Also, we will be covering ideas at a high level and leave the specific technology choices up
+to the reader. There will be emphasis placed on certain technical aspects that I believe will lead to a smoother system
+based on my experiences.
+
+![preview environment lifecycle unknown](/post_images/automating-preview-environment-lifecycle/preview-environment-lifecycle-unknown.svg)
+
+Given all of that, let's start our automation journey off by imagining we just finished writing some code on a new branch,
+wrote up a lovely commit message, and pushed that commit up to GitHub. I've chosen to use [GitHub](https://github.com)
+as an example throughout this post rather than a generic term such a Source Control platform. All the information presented
+is viable with [GitLab](https://gitlab.com) or [Bitbucket](https://bitbucket.org) as well.
+
+Every time certain actions take place on GitHub, it will check to see if you've configured an integration as a destination
+to send webhook events to. These actions are things like pushing a new commit to the Repository, opening a Pull Request,
+leaving a comment on the Pull Request, or merging the Pull Request. Because these actions tend to already be a part of our
+workflow, using them is a perfect way to automate the creation of Preview Environments.
+
+## Webhooks Produce Actions
+
+![webhooks produce actions](/post_images/automating-preview-environment-lifecycle/webhooks-produce-actions.svg)
+
+Let's go over a few different types of Webhook events and how we can translate those into actions related to Preview
+Environments. You can think of these actions in terms of
+[CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete). This list isn't exhaustive nor is it authoritative as
+the way we create and update Preview Environments will entirely depend on what type of architecture we're deploying the
+Preview Environments into. Let's quickly explore what Webhook event should create a Preview Environment and compare
+deployments into Kubernetes or a serverless architecture.
+
+Let's start with an example of how I perceive [Vercel](https://vercel.com) creates their Preview Deployment. Since Vercel
+is using a serverless architecture, they're able to create environments every time a commit is pushed because there is little
+to no cost to keep the output of the built application ready and waiting for any requests to come in. This is a wonderful
+approach and ensures that customers are delivered a great experience where their environment is always available, even long
+after a branch has been merged, and costs are only incurred via usage. Compare this approach to a platform like
+[Porter](https://www.porter.run/) where the environments are created in a Kubernetes cluster that has a finite set of
+resources. Given the resources constraint, we'll want to wait for an indication, whether that be a Pull Request being opened
+or specific label being added to the Pull Request, to create the environment so that we don't exhaust the resources on
+branches that aren't ready to be used. In the following explanations, we'll be considering the latter architecture where
+we have a finite set of resources.
+
+![webhooks actions](/post_images/automating-preview-environment-lifecycle/webhook-actions-unknown.svg)
+
+### Pull Request Opened
+
+The start of our automation of a Preview Environment's lifecycle will be when a Pull Request is opened on our Repository.
+We'll go through an initial setup of the resources needed for the environment and then apply the code from the latest commit
+on the branch. This webhook produces a `Create Environment` action.
+
+### Commit Pushed
+
+As new code is written and pushed, we'll start receiving push notifications from GitHub. We'll need to find our Preview
+Environment that matches the branch associated with the push and apply the new code to it. This webhook produces a
+`Update Environment` action.
+
+### Comment Added to Pull Request
+
+When a comment is added to a Pull Request we will end up ignoring it. We're illustrating this example a single time to point
+out that GitHub can and will send us a lot of webhooks we won't care about. The settings aren't fine grained enough to be
+able to pick and choose what Pull Request related webhooks we want, we get them all! In those cases where we get things we aren't interested in, we'll accept the request, write the data to the database, and produce no action.
+
+### Pull Request Closed
+
+In GitHub terms, they do not distinguish between a Pull Request being merged or closed, both result in an
+`"action": "closed"` attribute being added to the webhook payload. For our system, we'll handle both in the same manner, as
+an indication that the lifecycle of our Preview Environment has come to its end. This webhook produces a
+`Delete Environment` action.
+
+## Designing a system to turn Webhooks to Actions
+
+Now that we have an understanding of a set of Webhook events and how they can be turned into actions related to Preview
+Environments, let's take a high level approach to setting up a system to handle this behavior.
+
+![webhooks processing architecture](/post_images/automating-preview-environment-lifecycle/webhook-processing-architecture.svg)
+
+### Receiving Webhooks
+
+In the diagram above, the left hand side (GitHub, Repository, Webhooks) are all taken care of by GitHub. As previously
+mentioned, when new code is pushed to a Repository on Github, a Webhook will be sent to any provider that is configured. In
+this case the provider would be our own application. As we receive those webhooks, the first thing we'll want to do is
+write the data into the database and return a 2XX response to GitHub to acknowledge that the request was properly handled.
+It is important to acknowledge and respond quickly, instead of doing any processing right away, to ensure that GitHub
+doesn't think the deliveries are failing, when in fact they are succeeding. Enough failed deliveries in a row may cause
+systems sending webhooks to cease sending them to you.
+
+<BlockquoteWithLink
+  link={
+    "https://docs.github.com/en/webhooks/using-webhooks/best-practices-for-using-webhooks#respond-within-10-seconds"
+  }
+  linkText={"Respond within 10 seconds"}
+>
+  Your server should respond with a 2XX response within 10 seconds of receiving
+  a webhook delivery. If your server takes longer than that to respond, then
+  GitHub terminates the connection and considers the delivery a failure.
+</BlockquoteWithLink>
+
+While 10 seconds is an extremely generous amount of time, it is better to avoid spending a lot of time in our
+application's request handler and instead handle that logic after the fact. If you've never set up a server to receive
+webhooks before, GitHub's [Handling webhook deliveries](https://docs.github.com/en/webhooks/using-webhooks/handling-webhook-deliveries)
+page has everything you'll need to get started.
+
+### Writing to the database
+
+Storing the webhook data in the database is entirely up to us as the application developer. We may want to store the entirety
+of the data in a single JSON column and be done with it. That approach can work well if we're only ever receiving webhooks
+form a single source, but if we start supporting webhooks from say GitLab as well as GitHub, we'll want to normalize the data
+into columns. Doing so will prevent us from having to dig through the data in two differen places to find say what branch the
+the new code was pushed to. A normalized table might start out looking like something like this.
+
+```sql
+CREATE TABLE webhooks (
+    id bigint NOT NULL,
+    repository_id bigint NOT NULL,
+    data jsonb,
+    branch character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+```
+
+My opinion on this matter would be to write the record in the database with only the `data` column in the application's request
+handler. Then in the asynchronous queue, which we're about to get into, extract all the other column data and update the record.
+
+### Queuing Actions
+
+Handling the extraction of data and processing of the action should be done asynchronously with a queueing system. Again, it is
+up to us as the application developer to decide which queueing system we want to use but I would strongly suggest using
+a technology that has concepts similar to Kafka's topics and partitions. While we won't prescribe to a specific solution here,
+we'll cover a few problems that I've run into while building this exact system.
+
+The primary problem is the processing of out of order messages. This problem happens when we try to do our processing with a
+queuing system that uses the Competing Consumers pattern. The pattern is that as we scale the consumers which will do the
+processing work, all the consumers will be greedy and attempt to process whatever work is available with no regards to
+ordering. We can imagine a scenario where two Webhooks are received in very quick succession, the first being a Pull Request
+opened for a branch and the second being a push to the same branch. If we process both of the actions in parallel, because
+we have many consumers, and the processing of the action for the push happens just slightly faster then we'll encounter a
+situation where we want to update a Preview Environment that doesn't exist yet. This problem can get even worse if instead
+we have an existing Preview Environment and many pushes are received in short succession. When processing the push action,
+we will produce an outcome to deploy the code related to that push. If those pushes are processed out of order then we'll
+end up queuing deployments in an order that does not have the latest code at completion.
+
+With a queueing system supports topics and partitions, we can create a topic for Webhook processing with many
+partitions and use the `repository_id` as a partition key. Using a partition key ensures that we'll send the messages
+to the same partition, which in Kafka are then consumed in order. By doing this we eliminate any out of order problems
+that we previously discussed. Enabling the ability to process our actions in order ensures that we can produce the
+outcomes that we desire for the lifecycle of a Preview Environment.
+
+## Modeling Actions to Outcomes
+
+The outcomes that we're looking for in our Preview Environment lifecycle are the creation of the environment,
+continuous updates of new code to that environment via deployments, and finally the deletion of the environment. There
+could be various actions that produce these outcomes, such as the automatic ones we've described from Webhooks or
+possibly manual actions through a UI.
+
+![webhooks actions preview environments](/post_images/automating-preview-environment-lifecycle/webhook-actions-preview-environments.svg)
+
+Let's explore a situation where we have many Preview Environments all tracking the same branch. This could be possible
+through a combination of an environment being created by opening a Pull Request and multiple team members creating
+environments manually.
+
+### Queueing Deployments
+
+![queue deploy architecture](/post_images/automating-preview-environment-lifecycle/queue-deploy-architecture.svg)
+
+In a scenario where we have a push to the branch that all of the aforementioned environments are tracking we'll create
+an action to update all the environments. When processing that action we would fan a set of new deployments, displayed
+as `Deployment n` above. As with processing the Webhooks, we need to ensure that our deployments are queued and processed
+in order. We can see that one of the environments currently has a deployment, `Deployment m`, in the queue already and thus
+the newly created `Deployment n` is waiting to be processed where as the other two environments will start processing it
+immediately.
+
+The architecture of setting up this queue is something that will largely depend on what technology is being used
+and what the expected load on the system will be. Some things to take into consideration are that
+
+- We want to run as many deployments in parallel as possible
+- Ensure that we only run a single deployment per environment at a time
+- Deployments can be long running so multiple environments sharing a consumer could lead to delays
+- Decide if retries are appliciable
+
+## Conclusion
+
+Hopefully this has provided a conceptual idea on what the lifecycle of a Preview Environment looks like and some technical
+choices that should aid in building the lifecycle. As previously mentioned, the lifecycle may be entirely different based on
+what architecture is backing the environments but concepts should remain quite similar. We start with an input, in the case
+of this article, our input was a Webhook. That input creates an action, such as a creating a Preview Environment, which will
+be executed by the system and produce an outcome. The outcome in this case is a new Preview Environment that is accessible
+over the internet to allow for testing code changes or garnering feedback on new designs. This lifecycle is then repeated as
+new product requirements arise and
