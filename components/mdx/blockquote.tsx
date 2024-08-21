@@ -1,8 +1,18 @@
 import { PropsWithChildren } from "react";
 
-export function Blockquote({ children }: PropsWithChildren) {
+import clsx from "clsx";
+
+type Props = {
+  noMargin?: boolean;
+} & PropsWithChildren;
+
+export function Blockquote({ noMargin, children }: Props) {
   return (
-    <blockquote className="border-l-4 border-l-gleam dark:border-l-dusk">
+    <blockquote
+      className={clsx("border-l-4 border-l-gleam dark:border-l-dusk", {
+        "my-0": noMargin,
+      })}
+    >
       {children}
     </blockquote>
   );

@@ -26,7 +26,9 @@ export default async function HomePage() {
       <div className="flex flex-col h-screen justify-between">
         <Header />
         <main className="flex-1 flex flex-col gap-y-8 px-16 pt-4">
-          <Hero />
+          <section className="flex justify-center w-full">
+            <Hero />
+          </section>
           <section className="md:w-full md:flex md:justify-center">
             <div className="prose">
               <div className="flex flex-col space-y-4 not-prose">
