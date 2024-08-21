@@ -1,10 +1,13 @@
-import { fetchPosts } from "@/lib/fetchPosts";
+import { fetchPosts, fetchTags } from "@/lib/fetchPosts";
 
 import { BlogCard } from "@/components/blog-card";
-
 import { Pagination } from "@/components/pagination";
+import { TagSelect } from "@/components/tag-select";
+
+import { Button } from "@/components/ui/button";
 
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -34,22 +37,36 @@ export const metadata: Metadata = {
 type BlogProps = {
   searchParams: {
     page?: string;
+    tags?: string;
   };
 };
 
 export default async function Blog({ searchParams }: BlogProps) {
-  const page = (searchParams.page && parseInt(searchParams.page)) || 1;
   const posts = await fetchPosts();
+  const tags = await fetchTags();
+
+  const selectedTags = searchParams.tags ? searchParams.tags.split(",") : [];
+  const filteredPosts =
+    selectedTags.length > 0
+      ? posts.filter((post) =>
+          post.tags.some((tag) => selectedTags.includes(tag)),
+        )
+      : posts;
+
+  const page = (searchParams.page && parseInt(searchParams.page)) || 1;
   const start = (page - 1) * 10;
-  const numPages = Math.ceil(posts.length / 10);
+  const numPages = Math.ceil(filteredPosts.length / 10);
 
   return (
     <div className="flex flex-col items-center space-y-6">
       <h1 className="text-primary dark:text-bright font-bold text-3xl">
         Blog Posts
       </h1>
+      <div className="w-full max-w-sm">
+        <TagSelect tags={tags} />
+      </div>
       <div className="flex flex-col space-y-4 not-prose">
-        {posts.slice(start, start + 10).map((post) => (
+        {filteredPosts.slice(start, start + 10).map((post) => (
           <BlogCard key={post.slug} post={post} />
         ))}
         <Pagination page={page} numPages={numPages} path="blog" />

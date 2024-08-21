@@ -11,6 +11,7 @@ import {
   CardDescription,
   CardFooter,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 type BlogCardProps = {
   post: Post;
@@ -40,8 +41,17 @@ export function BlogCard({ post }: BlogCardProps) {
     </CardFooter>
   ) : (
     <CardFooter className="pt-2 pb-6">
-      <div className="flex flex-row items-center justify-end w-full">
-        <div className="flex text-xs">{post.date}</div>
+      <div className="flex flex-col gap-2 w-full">
+        <div className="flex flex-row items-center justify-end w-full">
+          <div className="flex text-xs">{post.date}</div>
+        </div>
+        <div className="flex flex-row items-center justify-end gap-2 w-full">
+          {post.tags.map((tag) => (
+            <Badge variant="secondary" key={tag}>
+              {tag}
+            </Badge>
+          ))}
+        </div>
       </div>
     </CardFooter>
   );
