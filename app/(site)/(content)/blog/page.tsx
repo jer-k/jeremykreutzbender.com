@@ -62,7 +62,7 @@ export default async function Blog({ searchParams }: BlogProps) {
       <h1 className="text-primary dark:text-bright font-bold text-3xl">
         Blog Posts
       </h1>
-      <div className="w-full max-w-sm">
+      <div className="w-full">
         <TagSelect tags={tags} />
       </div>
       <div className="flex flex-col space-y-4 not-prose">

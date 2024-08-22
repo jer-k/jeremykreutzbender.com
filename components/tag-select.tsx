@@ -1,12 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -30,14 +29,21 @@ export function TagSelect({ tags }: { tags: string[] }) {
     const newTags = selectedTags.includes(tag)
       ? selectedTags.filter((t) => t !== tag)
       : [...selectedTags, tag];
+    updateUrl(newTags);
+  };
 
+  const clearTags = () => {
+    updateUrl([]);
+  };
+
+  const updateUrl = (newTags: string[]) => {
     const params = new URLSearchParams(searchParams);
     if (newTags.length > 0) {
       params.set("tags", newTags.join(","));
     } else {
       params.delete("tags");
     }
-    params.delete("page");
+    params.delete("page"); // Reset pagination when changing tags
     router.push(`/blog?${params.toString()}`);
   };
 
@@ -48,44 +54,59 @@ export function TagSelect({ tags }: { tags: string[] }) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className="w-full justify-between h-auto min-h-[2.5rem] py-2"
         >
-          Select tags...
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          {selectedTags.length > 0 ? (
+            <>
+              <div className="flex flex-wrap gap-1 max-h-[4.5rem] overflow-y-auto pr-2 w-full">
+                {selectedTags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="text-xs">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </>
+          ) : (
+            <span className="text-muted-foreground">Filter Posts</span>
+          )}
+          {selectedTags.length > 0 ? (
+            <Button
+              className="p-0"
+              variant="ghost"
+              size="sm"
+              onClick={clearTags}
+            >
+              <X className="h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          ) : (
+            <Search className="h-4 w-4 shrink-0 opacity-50" />
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput placeholder="Search tags..." />
-          <CommandEmpty>No tag found.</CommandEmpty>
-          <CommandGroup>
-            {tags.map((tag) => (
-              <CommandItem key={tag} onSelect={() => toggleTag(tag)}>
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    selectedTags.includes(tag) ? "opacity-100" : "opacity-0",
-                  )}
-                />
-                {tag}
-              </CommandItem>
-            ))}
+          <CommandGroup className="p-2">
+            <div className="grid grid-cols-3 gap-2 max-h-96 overflow-scroll">
+              {tags.map((tag) => (
+                <CommandItem
+                  key={tag}
+                  onSelect={() => toggleTag(tag)}
+                  className="col-span-1 justify-start px-2 py-1"
+                >
+                  <Check
+                    className={cn(
+                      "mr-1 h-3 w-3",
+                      selectedTags.includes(tag) ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                  <span className="truncate">{tag}</span>
+                </CommandItem>
+              ))}
+            </div>
           </CommandGroup>
         </Command>
       </PopoverContent>
-      <div className="flex flex-wrap gap-2 mt-2">
-        {selectedTags.map((tag) => (
-          <Badge key={tag} variant="secondary" className="text-sm">
-            {tag}
-            <button
-              className="ml-1 hover:text-destructive"
-              onClick={() => toggleTag(tag)}
-            >
-              ×
-            </button>
-          </Badge>
-        ))}
-      </div>
     </Popover>
   );
 }
