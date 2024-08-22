@@ -52,6 +52,17 @@ export async function fetchMdxPosts() {
   ) as Post[];
 }
 
+export async function fetchTags() {
+  const postsData = await parsedMdxFiles();
+
+  const tags = postsData.reduce<string[]>(
+    (acc, post) => [...acc, ...post.tags],
+    [],
+  );
+
+  return [...new Set(tags)].sort();
+}
+
 export async function fetchPosts() {
   const postsData = await parsedMdxFiles();
   const postsAndThirdPartyPosts = [...postsData, ...thirdPartyPosts];
