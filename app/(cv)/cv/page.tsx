@@ -85,7 +85,7 @@ export default function CvPage() {
             companyName="Release"
             companyUrl="https://release.com"
             workType="Remote"
-            duration="March, 2020 - Current"
+            duration="March, 2020 - August 2024"
             title="Founding Engineer"
             description={
               <ul className="list-disc ps-4">
