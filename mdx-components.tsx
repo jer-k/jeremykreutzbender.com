@@ -1,15 +1,16 @@
-import Image, { ImageProps } from "next/image";
+import Image, { type ImageProps } from "next/image";
 
 import { Code } from "bright";
 import { Tweet } from "react-tweet";
 
+import { Aside } from "@/components/mdx/aside";
+import { Blockquote } from "@/components/mdx/blockquote";
+import { BlockquoteWithLink } from "@/components/mdx/blockquote-with-link";
+import { CodeblockTitle } from "@/components/mdx/codeblock-title";
 import { H2WithAnchor } from "@/components/mdx/h2-with-anchor";
 import { InlineCodeBlock } from "@/components/mdx/inline-code-block";
 import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
 import { PublishedOnReleaseBlog } from "@/components/mdx/published-on-release-blog";
-import { Aside } from "@/components/mdx/aside";
-import { Blockquote } from "@/components/mdx/blockquote";
-import { BlockquoteWithLink } from "./components/mdx/blockquote-with-link";
 
 import type { MDXComponents } from "mdx/types";
 
@@ -26,9 +27,19 @@ export const mdxComponents: MDXComponents = {
   Aside: Aside,
   pre: Code,
   code: ({ children }) => <InlineCodeBlock>{children}</InlineCodeBlock>,
+  div: ({ className, children, ...props }) => {
+    if (className?.includes("rehype-code-title")) {
+      return <CodeblockTitle {...props}>{children}</CodeblockTitle>;
+    }
+    return (
+      <div className={className} {...props}>
+        {children}
+      </div>
+    );
+  },
   h2: ({ id, children }) => <H2WithAnchor id={id}>{children}</H2WithAnchor>,
   a: ({ href, children }) => (
-    <a href={href} target="_blank">
+    <a href={href} target="_blank" rel="noreferrer">
       {children}
     </a>
   ),
