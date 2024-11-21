@@ -1,0 +1,377 @@
+---
+title: Adding Email Verification in Rails 8
+date: "2024-11-21"
+template: "post"
+draft: false
+slug: "adding-email-address-verification-in-rails-8"
+description: |
+  Rails 8 added an authentication generator, but it stopped short of creating
+  User records and verifying their emails. I decided to build it and share
+  what I learned.
+tags:
+  - "ruby-on-rails"
+  - "authentication"
+  - "verification"
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+With the release of Rails 8 and a directional shift towards enabling Rails to provide more of the foundational
+building blocks, one of the most interesting pieces was the authentication generator. As a long time Rails user,
+the projects I've worked on have always relied on [devise](https://github.com/heartcombo/devise) as the all
+in one authentication solution. While `devise` offers just about everything needed for authentication, it does so in
+a way that obfuscates a lot of functionality and can make it challenging to understand exactly what is happening.
+I'm not saying that obfuscation is bad when it comes to authentication and I'm definitely not saying that you need to
+roll your own authentication, but having the code related to authentication written into files checked into the
+repository allows for an easier understanding of what is going on. Also, if any changes need to be made to accommodate
+different authentication patterns then the code is right there and ready to be changed! If you haven't already seen
+the release notes for
+[Generating the authentication basics](https://rubyonrails.org/2024/11/7/rails-8-no-paas-required#generating-the-authentication-basics)
+from the Rails blog, go check them out and if you want a bit of a deeper dive on the code that is generated then I
+suggest reading
+[Rails 8 introduces a basic authentication generator](https://www.bigbinary.com/blog/rails-8-introduces-a-basic-authentication-generator)
+from [Jaimy Simon](https://www.bigbinary.com/blog/authors/jaimysimon) at [Big Binary](https://www.bigbinary.com),
+a Ruby on Rails development firm. This blog post notes that
+
+> The current authentication generator supports email-password login for existing users but does not handle new account creation.
+
+With a gap left in the implementation for registering and verifying new users I wanted to share my experience of building out
+that code. This implementation won't include any UI elements as there are too many options for building UI and what I prefer
+may not be what someone reading prefers. At the conclusion of this article your backend code will be ready to support
+any UI implementation.
+
+## A sidebar about [ActiveRecord::TokenFor](https://api.rubyonrails.org/v8.0/classes/ActiveRecord/TokenFor/ClassMethods.html)
+
+That introduction was really a long winded way of saying, I learned a lot while reading the code that Rails generated
+and I wanted to write a bit more about `ActiveRecord::TokenFor` as it will be used in the implementation of the email
+address verification. However, if you want to skip this section, head straight to the
+[Email Address Verification Implementation](#email-address-verification-implementation) section. If not, bear with me as we wander
+through some Rails code.
+
+One of the files that is generated, `app/views/passwords_mailer.html.erb`, is an email template used for resetting
+a password. It looks like this
+
+```ruby:app/views/passwords_mailer.html.erb
+<p>
+  You can reset your password within the next 15 minutes on
+  <%= link_to "this password reset page", edit_password_url(@user.password_reset_token) %>.
+</p>
+```
+
+I thought it was interesting that the password reset was only valid for 15 minutes and I wanted to know how that was being
+implemented. I started out by going to the generated
+[PasswordsController](https://github.com/rails/rails/blob/dd8f7185faeca6ee968a6e9367f6d8601a83b8db/railties/lib/rails/generators/rails/authentication/templates/app/controllers/passwords_controller.rb.tt)
+and looking at the `update` route. The relevant code looks like this.
+
+```ruby:app/controllers/passwords_controller.rb
+before_action :set_user_by_token, only: %i[ edit update ]
+
+def update
+  if @user.update(params.permit(:password, :password_confirmation))
+    redirect_to new_session_path, notice: "Password has been reset."
+  else
+    redirect_to edit_password_path(params[:token]), alert: "Passwords did not match."
+  end
+end
+
+private
+
+def set_user_by_token
+  @user = User.find_by_password_reset_token!(params[:token])
+rescue ActiveSupport::MessageVerifier::InvalidSignature
+  redirect_to new_password_path, alert: "Password reset link is invalid or has expired."
+end
+```
+
+From here, I figured the next step was going to be a quick go to definition on `User.find_by_password_reset_token!`.
+However, there is no `password_reset_token` column on the `User` model so I was a bit of a loss for
+where this method was being defined. Since the password code had to be included into `User` from somewhere so I opened
+up `user.rb` and saw that a `has_secure_password` method was being included in the class. That method is defined in the
+[ActiveModel::SecurePassword](https://api.rubyonrails.org/v8.0/classes/ActiveModel/SecurePassword/ClassMethods.html) module.
+
+When reading through the docs for `SecurePassword` there is a paragraph in the middle of it all that says
+
+> Finally, a password reset token that’s valid for 15 minutes after issue is automatically configured when reset_token is set
+> to true (which it is by default) and the object responds to generates_token_for (which Active Records do).
+
+Perfect, we found where the 15 minute reset token is being included from but my curiosity went further because I wanted
+to know how it was implemented! If you didn't know, the Rails documentation has a link to file on GitHub at the bottom of
+every documentation page so I jumped over to GitHub and started looking through the implementation code, primarily searching
+for something related to `15.minutes`.
+
+I found the relevant code
+[secure_password.rb#L161-L178](https://github.com/rails/rails/blob/dd8f7185faeca6ee968a6e9367f6d8601a83b8db/activemodel/lib/active_model/secure_password.rb#L161-L178)
+and it looks like this.
+
+```ruby
+# Only generate tokens for records that are capable of doing so (Active Records, not vanilla Active Models)
+if reset_token && respond_to?(:generates_token_for)
+  generates_token_for :"#{attribute}_reset", expires_in: 15.minutes do
+    public_send(:"#{attribute}_salt")&.last(10)
+  end
+
+  class_eval <<-RUBY, __FILE__, __LINE__ + 1
+    silence_redefinition_of_method :find_by_#{attribute}_reset_token
+    def self.find_by_#{attribute}_reset_token(token)
+      find_by_token_for(:#{attribute}_reset, token)
+    end
+
+    silence_redefinition_of_method :find_by_#{attribute}_reset_token!
+    def self.find_by_#{attribute}_reset_token!(token)
+      find_by_token_for!(:#{attribute}_reset, token)
+    end
+  RUBY
+end
+```
+
+Finding that `15.minutes` call led to the discovery of where `User.find_by_password_reset_token!` was being defined as well.
+As expected, it is a dynamically defined method based on the attribute that is being used for the password. The
+`has_secure_password` method actually takes in an `attribute` parameter which defaults to `:password` allowing for customization
+of a different name. This was great, I had found where and how the token was being set up. One last thing caught
+my eye were the `respond_to?(:generates_token_for)` and `generates_token_for` method calls.
+
+The comment above this code mentions that all `ActiveRecord` objects are capable of using these methods but I hadn't ever
+used them before. I wanted to know what they were so I went searching for where `#generates_token_for` was defined. It happens
+to be in [ActiveRecord::TokenFor](https://api.rubyonrails.org/v8.0/classes/ActiveRecord/TokenFor/ClassMethods.html).
+
+The first paragraph of the documentation gives a great summary of what this module is used for.
+
+> Defines the behavior of tokens generated for a specific purpose. A token can be generated by calling TokenFor#generate_token_for
+> on a record.
+> Later, that record can be fetched by calling find_by_token_for (or find_by_token_for!) with the same purpose and token.
+
+This is a really cool feature and something I totally missed in the Rails 7.1 release notes. I read through a number of blog posts
+and
+[Rails 7.1 adds ActiveRecord::Base::generates_token_for](https://www.shakacode.com/blog/rails-7-1-introduces-active-record-generates_token_for/)
+did what I thought was the best job describing what the predecessor to this functionality was and going into more details about
+why `#generates_token_for` is a better approach than using a manually generated UUID.
+
+Now that we've wandered around through some Rails code and understand how the password reset token is being generated, let's
+write some code to create and verify some users!
+
+## Email Address Verification Implementation
+
+To start out, this is a reminder that no UI code will be presented here, we're only going to build the backend
+implementation. Another note is I've referred to this feature as 'email address verification' but if you want to swap
+the word 'verification' with 'confirmation', this feature is commonly referred to that way as well. Let's get
+started.
+
+### User Creation
+
+We're starting off with the first step of actually creating our `User` records. We'll create our `UsersController` and
+our `#create` method. We'll use
+[ActionController::ParamsWrapper](https://api.rubyonrails.org/v8.0/classes/ActionController/ParamsWrapper.html) to
+to add `password` and `password_confirmation` into our `user` hash in the params, as those two attributes are not
+columns on `User`, only `password_digest` is, but are required by `has_secure_password`. We'll also use the new
+Rails 8
+[ActionController::Parameters#expect](https://api.rubyonrails.org/v8.0/classes/ActionController/Parameters.html#method-i-expect)
+to build our `#user_create_params` method.
+
+> `expect` is the preferred way to require and permit parameters. It is safer than the previous recommendation to call
+> `permit` and `require` in sequence, which could allow user triggered 500 errors.
+
+```ruby:app/controllers/users_controller.rb
+class UsersController < ApplicationController
+  allow_unauthenticated_access only: [ :create ]
+  wrap_parameters :user, include: User.attribute_names + [ :password, :password_confirmation ]
+
+  def create
+    @user = User.new(create_user_params)
+
+    if @user.save!
+      start_new_session_for(@user)
+      UserMailer.verify_email_address(@user).deliver_later
+      # Handle valid case: render a JSON payload or redirect to another page
+    else
+      # Handle invalid case: render a JSON payload or redirect to another page
+    end
+  end
+
+  private
+
+  def create_user_params
+    params.expect(user: [ :email_address, :password, :password_confirmation ])
+  end
+end
+```
+
+We'll circle back on implementing `UserMailer.verify_email_address(@user)` but for now we're set up for creating
+our `User` records.
+
+### Verification Concern
+
+Now we'll build a Concern similar to `has_secure_password`. We'll use the same pattern with `.generates_token_for`
+to create a token that can be sent in an email and used to find the `User` record associated with the token later on.
+
+```ruby:app/models/concerns/email_address_verification.rb
+module EmailAddressVerification
+  extend ActiveSupport::Concern
+
+  class_methods do
+    def has_email_address_verification
+      generates_token_for(:email_address_verification, expires_in: 24.hours)
+
+      def self.find_by_email_address_verification_token(token)
+        find_by_token_for(:email_address_verification, token)
+      end
+    end
+  end
+
+  def email_address_verification_token
+    generate_token_for(:email_address_verification)
+  end
+end
+```
+
+I decided that 24 hours was a good amount of time to allow for the email address to be verified; we could allow for longer
+but it depends on if we're going to restrict access to the application until the verification has happened or not.
+This concern also creates a helper method `.find_by_email_address_verification_token` in a similar fashion to the
+`.find_by_password_reset_token` that is included with `has_secure_password`. Finally we have
+`#email_address_verification_token` which can be called to generate the actual token. Note that this method calls
+`#generate_token_for`, without the `s`. The `.generates_token_for` method describes the ability for the class to generate
+tokens for a given purpose.
+
+In `user.rb` we'll have the following.
+
+```ruby:app/models/user.rb
+class User < ApplicationRecord
+  ...
+
+  include EmailAddressVerification
+  has_email_address_verification
+
+  ...
+end
+```
+
+With all our token generation ready to go, let's write our email.
+
+### Verification Mailer
+
+I decided to include this verification in `UserMailer`. We could have made an `EmailAddressVerificationMailer` similar to
+the `PasswordsMailer` so we'll leave that choice up to the reader. The `#verify_email_address` method
+looks pretty much the same as the `PasswordsMailer#reset` which was generated from the Rails authentication generator.
+
+```ruby:app/mailers/user_mailer.rb
+class UserMailer < ApplicationMailer
+  def verify_email_address(user)
+    @user = user
+    mail(subject: "Please verify your email", to: user.email_address)
+  end
+end
+```
+
+The view we're using is also quite similar to the one generated for the password reset. We're calling
+`@user.email_address_verification_token` to generate the token which will be used to do the verification.
+
+```ruby:app/views/user_mailer/verify_email_address.html.erb
+<p>
+  Please verify your email by clicking the link below:
+  <%= link_to 'Verify Email', email_address_verification_url(@user.email_address_verification_token) %>
+</p>
+```
+
+### Verification Controller
+
+Continuing with the trend of following what was generated for passwords, we'll create an
+`EmailAddressVerificationsController`. It is going to have two methods, `#show` to perform the verification
+and `#resend` to send another email if needed.
+
+```ruby:app/controllers/email_address_verifications_controller.rb
+class EmailAddressVerificationsController < ApplicationController
+  def show
+    @user = User.find_by_email_address_verification_token(params[:token])
+
+    if @user == Current.user
+      @user.verify
+      # Handle valid case: render a JSON payload or redirect to another page
+    else
+      # Handle invalid case: render a JSON payload or redirect to another page
+    end
+  end
+
+  def resend
+    UserMailer.verify_email_address(Current.user).deliver_later
+    # Handle response: render a JSON payload or redirect to another page
+  end
+end
+```
+
+To note, both of these methods require the user to be logged in. When we're doing the verification in `#show`,
+we ensure that we can find the `User` based on the token from the email. If no `User` record is found that means
+that the 24 hour window has passed and the token has expired. In that case, we'll want to return instructions to
+the user to send themselves another verification email via `#resend`. In the case where we found the `User` record
+and that found record is the same as the authenticated user performing the action, we'll verify the record.
+
+### New Routes
+
+We've added `User` creation, the ability to verify an email address, and resend a verification email.
+We'll need routes to support those actions!
+
+```ruby:config/routes.rb
+  resources :users, only: [ :create ]
+
+  resources :email_address_verifications, only: [ :show ], param: :token do
+    collection do
+      post "resend"
+    end
+  end
+```
+
+### New `User` Attribute: `verified`
+
+We want to add a column to `User` to indicate if they've successfully verified their email address.
+
+```ruby:db/migrate/<timestamp>_add_user_verified.rb
+class AddUserVerified < ActiveRecord::Migration[8.0]
+  def change
+    add_column :users, :verified, :boolean, default: false
+  end
+end
+```
+
+In `EmailAddressVerificationsController` we made a call to `@user.verify` so we'll need to implement that method as well.
+
+```ruby:app/models/user.rb
+def verify
+  update(verified: true)
+end
+```
+
+While this `verified` column itself doesn't do anything right now, it can be used to redirect someone
+to the verification page or prevent them from accessing certain parts of the application if `verified` is `false`.
+That choice is left up to the reader but continue reading for some further exploration of how to handle users
+who haven't yet verified.
+
+### Application Access Before Verification
+
+Part of adding in email address verification is deciding on whether or not to limit access to the application before
+verification has been completed. On one hand we might want new users to jump in right away and start exploring what the
+application has to offer. In this case, they are able to get a feel as to whether or not they're going to be long term
+users of the application without being burdened to go to their email client and complete the verification. This approach
+opens up a lot of scenarios that will have to be considered.
+
+- What happens when the verification token expires? Is their access restricted if no token is present?
+- If they request a new token after expiration do they maintain full access to the application? This means they could
+  continue using the application forever without ever doing verification.
+- At what point is an unverified account removed from the system? If they've been able to interact with the system and
+  have data associated with their account, that will all need to be removed.
+- What if someone uses an email address they don't own and then the actual owner of the email address tries to sign up?
+  If there is data associated with that account, it will need to be removed before the actual owner starts using the
+  application.
+
+The answer to those questions will depend on the type of application being built. A social network, for example, likely
+wouldn't want to force verification before application access. Doing so may add too much friction to finding out
+whether or not someone likes the social network. If there is too much friction to getting started, the social network
+might not grow fast enough. However, with an enterprise application where people are signing up and expecting to join and have
+access to the same data as their colleagues, then ensuring the email address has been verified before granting access
+to the application 100% the correct choice.
+
+## Conclusion
+
+Whew, that was a lot of words written compared to the amount of code but I quite enjoyed exploring this topic. I hope
+you were able to learn something and are able to yank some, or all, of the code if you're working on adding email address
+verification to your application. We'll see if any of this functionality eventually makes its way into the Rails
+authentication generator. If I had to guess, I think it will!
