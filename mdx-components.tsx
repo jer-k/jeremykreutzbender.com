@@ -4,6 +4,7 @@ import { Code } from "bright";
 import { Tweet } from "react-tweet";
 
 import { Aside } from "@/components/mdx/aside";
+import { BasicDiv } from "@/components/mdx/basic-div";
 import { Blockquote } from "@/components/mdx/blockquote";
 import { BlockquoteWithLink } from "@/components/mdx/blockquote-with-link";
 import { CodeblockTitle } from "@/components/mdx/codeblock-title";
@@ -23,8 +24,9 @@ Code.theme = {
 export const mdxComponents: MDXComponents = {
   PublishedOnOldBlog: PublishedOnOldBlog,
   PublishedOnReleaseBlog: PublishedOnReleaseBlog,
-  BlockquoteWithLink: BlockquoteWithLink,
   Aside: Aside,
+  BasicDiv: BasicDiv,
+  BlockquoteWithLink: BlockquoteWithLink,
   pre: Code,
   code: ({ children }) => <InlineCodeBlock>{children}</InlineCodeBlock>,
   div: ({ className, children, ...props }) => {

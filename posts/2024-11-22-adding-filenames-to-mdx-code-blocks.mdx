@@ -1,0 +1,156 @@
+---
+title: Adding Filenames To MDX Code Blocks with Next.js MDX Components
+date: "2024-11-22"
+template: "post"
+draft: false
+slug: "adding-filenames-to-mdx-code-blocks"
+description: |
+  I've wanted to add filenames to my inline code blocks since I built this blog.
+  I finally did it and got the styling just how I wanted!
+tags:
+  - "next.js"
+  - "mdx"
+---
+
+import { BasicDiv } from "@/components/mdx/basic-div";
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+Sometimes I finish writing some code and it just brings me happiness. That is what happened over the past few days
+while I was writing my previous blog post about
+[Adding Email Address Verification in Rails 8](https://jeremykreutzbender.com/blog/adding-email-address-verification-in-rails-8).
+For the longest time I've wanted to add a header to code blocks so that I could attach a filename to help with
+understanding where the code is meant to written to. I had tried to use some different Rehype and Remark plugins in the past but
+they never quite worked as I wanted. This time around I told myself I was going to figure out how to make it happen
+and I'm super happy with the results. Here is the finished result.
+
+````md:blog-post.mdx
+```md:blog-post.mdx
+This is a code block with a filename!
+```
+````
+
+## rehype-code-titles
+
+I ended up using [rehype-code-titles](https://github.com/rockchalkwushock/rehype-code-titles) to add this functionality.
+It does exactly what I needed it to do but a caveat is that it adds a completely unstyled `div` element. In the end,
+that is good because we don't have to fight to override styles, but it look a little bit to figure out how to get
+the styling correct.
+
+Adding `rehype-code-titles` to Next.js is very easy using the `createMDX` functionality from `@next/mdx`.
+
+```js:next.config
+import createMDX from "@next/mdx";
+import rehypeCodeTitles from "rehype-code-titles";
+
+const withMDX = createMDX({
+  options: {
+    rehypePlugins: [rehypeCodeTitles],
+  },
+});
+```
+
+The [Output](https://github.com/rockchalkwushock/rehype-code-titles?tab=readme-ov-file#output) documentation from
+`rehype-code-titles` shows that the HTML that is generated looks like this.
+
+```html
+<div class="rehype-code-title">lib/mdx.ts</div>
+<pre>
+  <code class="language-typescript">
+  <!-- HTML parse code here -->
+  </code>
+</pre>
+```
+
+This is great, we have a `div` that has our filename in it! However the HTML output by my blog is a little more complex due
+to having light and dark themes provided by the [bright](https://github.com/code-hike/bright) package. The HTML
+that is output for this site looks like this.
+
+```html
+<div class="rehype-code-title">lib/mdx.ts</div>
+<div data-bright-theme="solarized-dark" data-bright-mode="dark" style="...">
+  <pre> ... </pre>
+</div>
+<div data-bright-theme="solarized-light" data-bright-mode="light" style="...">
+  <pre> ... </pre>
+</div>
+```
+
+Here is an example of what the output looked like before styling.
+
+<BasicDiv text="app/controllers/users_controller.rb" />
+```ruby
+class UsersController < ApplicationController
+end
+```
+
+The `<div data-bright-theme="..." data-bright-mode="..." style="...">` elements add margin to separate
+themselves from sibling elements so the resulting `div` from `rehype-code-titles` looked quite out of place.
+I ended up using [v0](https://v0.dev/) and pasting in a screenshot of what I was trying to accomplish. I'll admit
+that my knowledge of correct terminology for CSS questions is lacking and I learned a lot about how to target
+specific elements through this conversation. I think that AI having the ability to interpret UI screenshots and
+lead a conversation to the correct terminology is such a great experience!
+
+## MDX Components
+
+I haven't talked much about how the MDX Components feature of Next.js has played an important role in all of this.
+As I was iterating on the styling for the `<div class="rehype-code-title">` I wanted
+to be able to add a background color to the entire `div` and then have a different color encompass just the text
+portion that was being shown. I was finding this incredibly difficult to solve and multiple attempts of different
+`::before` and `::after` pseudo elements ended up failing (could have been skill issues). That is when I realized
+that I could create and render my own component.
+
+I went ahead and made a change that whenever a `div` is rendered, check to see if it has the `rehype-code-title` class.
+If so, we'll render a custom component otherwise we'll render the `div` as it was.
+
+```typescript:mdx-components.tsx
+export const mdxComponents: MDXComponents = {
+  // ...
+  div: ({ className, children, ...props }) => {
+		if (className?.includes("rehype-code-title")) {
+			return <CodeblockTitle {...props}>{children}</CodeblockTitle>;
+		}
+		return (
+			<div className={className} {...props}>
+				{children}
+			</div>
+		);
+	},
+  // ...
+}
+```
+
+I went ahead and created the `CodeblockTitle` component where I inserted a `span` element inside of the `div` to
+give myself the ability to add a different colored background to the text portion.
+
+```typescript:components/mdx/codeblock-title.tsx
+export function CodeblockTitle({
+	className,
+	children,
+	...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+	return (
+		<div
+			className="rehype-code-title pt-4 px-4 pb-0 rounded-t-md mb-0
+			text-sm font-normal bg-solaralizedlight-darkened dark:bg-solaralizeddark-darkened"
+			{...props}
+		>
+			<span
+			className="rehype-code-title-content relative p-1 -left-[6px] top-[6px]
+			inline-block whitespace-nowrap overflow-x-auto max-w-full
+			bg-solaralizedlight dark:bg-solaralizeddark"
+			>
+				{children}
+			</span>
+		</div>
+	);
+}
+```
+
+## Conclusion
+
+I had a ton of fun implementing this, learned a bit about CSS, and this blog looks, in my opinion, a whole lot
+cooler being able to have the filename next to the code block. Sometimes it's the little things that bring us the most
+happiness!
