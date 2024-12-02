@@ -1,0 +1,314 @@
+---
+title: Adding Google OAuth in Rails 8
+date: "2024-12-02"
+template: "post"
+draft: false
+slug: "adding-google-oauth-in-rails-8"
+description: |
+  Rails 8 added an authentication generator, but what if we want to use Google OAuth?
+  I decided to implement it using the oauth2 gem and share what I learned.
+tags:
+  - "ruby-on-rails"
+  - "authentication"
+  - "oauth"
+  - "google"
+---
+
+import { Aside } from "@/components/mdx/aside";
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+In my previous post talking about Rails 8 authentication,
+[Adding Email Address Verification in Rails 8](/blog/adding-email-address-verification-in-rails-8), I walked through
+adding user creation and email address verification to the scaffolded code that the new Rails 8 authentication
+generator added. However, not everyone wants to deal with typing in a password to sign in and Google OAuth provides
+a great alternative as most people have a Gmail account that can be used. I wanted to share how I added this flow
+with only the [oauth2](https://gitlab.com/oauth-xx/oauth2) gem as a lot of the guides I looked through were
+reliant on [devise](https://github.com/heartcombo/devise) or [omniauth](https://github.com/omniauth/omniauth).
+While those are great options to implement OAuth, I wanted to implement something that was less of a black box.
+This implementation won't include any UI elements as there are too many options for building UI and what I prefer
+may not be what someone reading prefers. At the conclusion of this article your backend code will be ready to support
+any UI implementation.
+
+## Identity Model
+
+We'll start off by creating a migration for our `Identity` model. In this case we're only adding Google OAuth but
+in a larger application we might end up supporting multiple identity providers. We want to ensure that our
+`Identity` model is provider agnostic and not coupled to any specific provider attribute names so we'll be adding
+a couple very generic columns to our `identities` table and associating the records to our `User` model.
+
+```ruby:db/migrate/<timestamp>_add_identities.rb
+class AddIdentities < ActiveRecord::Migration[8.0]
+  def change
+    create_table :identities do |t|
+      t.references :user, index: true, null: false
+      t.string :provider_name, null: false
+      t.string :provider_uid, null: false
+
+      t.timestamps
+    end
+  end
+end
+```
+
+```ruby:app/models/identity.rb
+class Identity < ApplicationRecord
+  belongs_to :user
+end
+```
+
+Optionally, we can add a `has_one :identity` or `has_many :identities` to `user.rb` but for this walkthrough
+we won't be looking up the association that way.
+
+## Routes
+
+Next, we'll need routes to allow users to navigate through the OAuth flow. I decided to put these routes
+under `/oauth` but there is no requirement that this naming scheme be followed. We'll create
+two routes, `/oauth/authorize` and `oauth/callback`, where `authorize` is used to generate our Google
+OAuth url and `callback` is where Google will redirect the user back to after authenticating.
+
+```ruby:config/routes.rb
+resource :oauth, only: %i[], controller: "oauth" do
+  collection do
+    get :authorize
+    get :callback
+  end
+end
+```
+
+Remember that we're only implementing Google OAuth but if we wanted to implement multiple identity
+providers then the route structure would need to be different. In that scenario we would want to have
+routes of `/oauth/:provider/authorize` and `/oauth/:provider/callback`.
+
+## OAuth Controller
+
+Now we'll implement our controller. We'll split this into two parts, implementing `#authorize` and then `#callback`.
+In `#authorize`, as mentioned before, we want to generate the url that Google expects to start the OAuth flow
+and redirect our user to that url.
+
+### authorize route
+
+```ruby:app/controllers/oauth_controller.rb
+class OauthController < ApplicationController
+  allow_unauthenticated_access
+
+  def authorize
+    google_url = authorize_client.auth_code.authorize_url(
+      redirect_uri: callback_oauth_url,
+      scope: "openid email profile",
+      access_type: "online",
+    )
+    redirect_to google_url, allow_other_host: true
+  end
+
+  private
+
+  def authorize_client
+    @authorize_client ||= OAuth2::Client.new(
+      ENV["GOOGLE_OAUTH_CLIENT_ID"],
+      ENV["GOOGLE_OAUTH_CLIENT_SECRET"],
+      {
+        site: "https://accounts.google.com",
+        authorize_url: "/o/oauth2/auth",
+      }
+    )
+  end
+end
+```
+
+#### #authorize_client
+
+Using the `oauth2` gem, we can construct an `OAuth2::Client` object using our Google client ID and secret. If
+you don't have those then I would suggest reading
+[Using OAuth 2.0 to Access Google APIs](https://developers.google.com/identity/protocols/oauth2) for a high
+level overview and then [Setting up OAuth 2.0](https://support.google.com/cloud/answer/6158849?hl=en) for
+step by step instructions on generating the client ID and secret. Then we need to provide the `site` and
+`authorize_url` parameters, which can be found on Google's
+[Using OAuth 2.0 for Web Server Applications](https://developers.google.com/identity/protocols/oauth2/web-server)
+documentation.
+
+For the `site` and `authorize_url` parameters, we can find them in the
+[Step 1: Set authorization parameters](https://developers.google.com/identity/protocols/oauth2/web-server#httprest_1) section
+of the documentation.
+
+> Google's OAuth 2.0 endpoint is at https://accounts.google.com/o/oauth2/v2/auth. This endpoint is accessible only over HTTPS.
+> Plain HTTP connections are refused.
+
+This documentation also notes required parameters of `client_id`, `redirect_uri`, `response_type`,
+and `scope`.
+
+#### authorize_url and redirect
+
+Now we've built our `#authorize_client` method and we need to generate our Google url to redirect the user to. We
+use the `OAuth2::Strategy::AuthCode#authorize_url` method which accepts a set of parameters that will fulfill the required
+parameters previously mentioned. For `redirect_uri`, we're using our route helper to generate the route to our `/oauth/callback`
+route. For `scope`, we're requesting the ability to use the Open ID APIs to access to the user's email address and profile information.
+We're also passing an optional parameter for `access_type` and setting it to `online` because we don't need access to the
+Google APIs when the user isn't active on the application. Finally, `response_type` is added for us in `#authorize_url` and the
+value is `code`. The url we end up redirecting to looks like this.
+
+```
+https://accounts.google.com/o/oauth2/auth/oauthchooseaccount?access_type=online&client_id=<CLIENT_ID>.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth%2Fcallback&response_type=code&scope=openid%20email%20profile&service=lso&o2v=1&ddm=1&flowName=GeneralOAuthFlow
+```
+
+When a user visits that url, they'll be shown the Sign in with Google page and after selecting a Google account to sign in with,
+they'll be redirected back to our `/oauth/callback` route.
+
+### callback route
+
+I decided to keep this walk through straightforward and put all the code in the controller instead of creating a
+class to encompass the following logic. However, I would recommend keeping your controllers succinct and moving
+business logic into a class. With that said, let's take a look at the implementation.
+
+```ruby:app/controllers/oauth_controller.rb
+class OauthController < ApplicationController
+  # ...
+  def callback
+    token = token_client.auth_code.get_token(
+      params[:code],
+      redirect_uri: callback_oauth_url
+    )
+    user_info_response = token.get("https://openidconnect.googleapis.com/v1/userinfo")
+    user_info = JSON.parse(user_info_response.body)
+
+    email_address = user_info["email"]
+    uid = user_info["sub"]
+
+    identity = Identity.find_or_initialize_by(provider_name: "Google", provider_uid: uid)
+    user = if identity.user
+      identity.user
+    else
+      password = SecureRandom.hex(16)
+      new_user = User.new(
+        email_address: email_address,
+        password: password,
+        password_confirmation: password,
+      )
+      identity.user = new_user
+      new_user
+    end
+
+    if identity.save
+      start_new_session_for(user)
+      # Handle valid case: render a JSON payload or redirect to another page
+    else
+      # Handle invalid case (likely an email address collision): render a JSON payload or redirect to another page
+    end
+  end
+
+  private
+
+  def token_client
+    @token_client ||= OAuth2::Client.new(
+      ENV["GOOGLE_OAUTH_CLIENT_ID"],
+      ENV["GOOGLE_OAUTH_CLIENT_SECRET"],
+      {
+        site: "https://oauth2.googleapis.com",
+        token_url: "/token"
+      }
+    )
+  end
+  # ...
+end
+```
+
+There is a lot of code here so we'll break it down into a couple pieces.
+
+#### #token_client
+
+In the Google documentation,
+[Step 5: Exchange authorization code for refresh and access tokens](https://developers.google.com/identity/protocols/oauth2/web-server#exchange-authorization-code)
+we see that we need to call a different API to get an access token.
+
+> To exchange an authorization code for an access token, call the https://oauth2.googleapis.com/token endpoint
+
+We'll build another client method, `#token_client` which uses the `token_url` parameter and will allow us to exchange
+the authorization code for an access token.
+
+#### #get_token
+
+Now we can use `OAuth2::Strategy::AuthCode#get_token` to receive our token from Google. We need to pass the `code` we received
+in the parameters as well as the same `redirect_uri` we used when generating the `authorize_url`. After receiving the `token`,
+we can use that token as a client to request the user information.
+
+#### /userinfo API Call
+
+<Aside>
+  While figuring out what the API to request the user information was, I
+  discovered
+  [accounts.google.com/.well-known/openid-configuration](https://accounts.google.com/.well-known/openid-configuration).
+  This appears to the most up to date configuration for all things related to
+  [OpenID
+  Connect](https://developers.google.com/identity/openid-connect/openid-connect),
+  which has a generic walkthrough of the same steps we've been covering. It also
+  covers the API to get the user information and what fields are available.
+</Aside>
+
+Using our token, we can make a call to `https://openidconnect.googleapis.com/v1/userinfo` to get our user information.
+I've skipped adding error handling on that API call for now, but we should definitely handle a case where we don't
+receive a valid response. We'll parse the response and extract the user's email address and unique identifier.
+
+#### Identity and User Creation
+
+Now that we have a unique identifier from Google, we can go ahead and start building our `Identity` record. Because
+an OAuth flow can be used to sign up or sign in, we need to use `Identity.find_or_initialize_by`. In the case
+where we already have the `Identity` record, we only need to get the `User` record attached to the `Identity`. However,
+if the user is signing up, we need to create a new `User` record and attach it to the `Identity`. The last step is to
+attempt to save the `Identity` record.
+
+If the save is successful, then we've completed our OAuth flow and we can start a new session for our user. They're ready
+to use our application! However, if the save isn't successful, due to say, using an email address that already exists in
+the database, we'll have to determine how we want to handle that case.
+
+## Dealing with Email Address Collisions
+
+When offering email address and password authentication as well as an OAuth flow, there is a good chance that a user will
+end up attempting to use both approaches with the same email address due to forgetting what they previously used.
+In those cases we need to decide what to do when a collision occurs in each scenario.
+
+- User exists from OAuth, tries to use email address + password
+- User exists with email address + password, tries to use OAuth
+
+I will give my opinion on these, however these are just opinions and a different approach can be taken based on the needs
+of the application.
+
+### User exists from OAuth, tries to use email address + password
+
+We'll start with this scenario as I think it is more straightforward than the other. In the case where a user exists
+and was created through an OAuth flow, they will have a password in the database, but that password is unknown to them.
+If they are trying to log in through email address and password, it is near impossible for them enter a correct password
+and the application should return it's generic error message that the given email address and password combination
+was incorrect.
+
+It is possible that we could inspect the `User` record to see if it has an associated `Identity` record to understand
+that an OAuth flow was used. We could create a custom error message in that scenario indicating that an OAuth flow was
+used with the email address that is attempting to be used for sign in. Doing this will complicate the sign in logic
+and does lend to revealing what email addresses have accounts in the application, but directing users to the correct
+way to sign in may lead to better user experiences.
+
+### User exists with email address + password, tries to use OAuth
+
+This scenario has a few different options where we can either reject the OAuth authentication or offer to append
+the OAuth capabilities to the existing account. Let's start off with the straightforward option of rejection. When
+we fail to save the `Identity` and `User` records in our `callback` route, that will be due to the email address
+already being in use on a different `User` record. We can return an error message to the user that the sign in was
+a failure. [GitLab](https://gitlab.com/) uses this approach and presents a nice message of
+`Sign-in using Google auth failed` prompting me to remember that I used email address and password to create my account
+there.
+
+The other option is to offer to append the OAuth capabilities onto the existing account, which in terms of our Rails
+application means finding the existing `User` record and creating an `Identity` attached to that record. While that
+seems not so complicated, it brings up a question of do we allow for both email address and password sign in as well as
+OAuth sign in? Or do we generate a randomized password for them and only allow for OAuth sign in moving forward? I don't
+have a strong opinion here, but my first reaction is that having multiple ways to sign in feels confusing and we should
+be aiming to lead users through good experiences. With that said, maybe allowing for multiple ways to sign in is a good
+experience because the users don't have to remember what they did before.
+
+## Conclusion
+
+I hope you were able to learn something about implementing an OAuth flow and if you're working on a Rails 8 project that
+has used the authentication generator, you were able to add Google OAuth to your application. I tend to click that
+sign in with Google button on every application so I think it is a very useful feature to have and helps with creating
+great user experiences!
