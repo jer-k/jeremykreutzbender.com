@@ -1,20 +1,20 @@
-import { ReactElement } from "react";
+import Link from "next/link";
+import type { ReactElement } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
 
 type Props = {
   companyName: string;
   companyUrl?: string;
   workType: "On-Site" | "Remote";
   duration: string;
-  title: string;
+  title: string | ReactElement;
   description: ReactElement;
 };
 
@@ -32,7 +32,10 @@ export function WorkExperienceCard({
         <div className="flex items-center justify-between gap-x-2 text-base">
           <h3 className="inline-flex items-center justify-center gap-x-1 font-semibold leading-none">
             {companyUrl ? (
-              <a className="hover:underline" href={companyUrl}>
+              <a
+                className="text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                href={companyUrl}
+              >
                 {companyName}
               </a>
             ) : (
