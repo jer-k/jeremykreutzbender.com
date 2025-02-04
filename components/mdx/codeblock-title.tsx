@@ -1,8 +1,10 @@
+import type { HTMLAttributes } from "react";
+
 export function CodeblockTitle({
   className,
   children,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className="rehype-code-title pt-4 px-4 pb-0 rounded-t-md mb-0 text-sm font-normal
