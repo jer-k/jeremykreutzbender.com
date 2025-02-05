@@ -33,7 +33,7 @@ One thing to note is that Zero is a library that excels in the Single Page Appli
 two integrations written by Rocicorp, [React](https://zero.rocicorp.dev/docs/react) and
 [Solid](https://zero.rocicorp.dev/docs/solidjs), as well as two community implementations for
 [Svelte](https://github.com/stolinski/zero-svelte) and [Vue](https://github.com/danielroe/zero-vue). I've been using
-the React implementation with a [Next.js](https://nextjs.org/) UI and using Rails as a backend to manage the database
+the React implementation with a [Next.js](https://nextjs.org/) UI and using Rails as a backend to manage the databases
 and other business logic. I'm not currently familiar enough with [vite-ruby](https://vite-ruby.netlify.app/) to know
 if Zero would work with that setup, but I may try to explore this route in the future.
 
@@ -48,12 +48,12 @@ Yes that is plural databases, Zero requires three databases to operate. If you h
 I would recommend familiarizing yourself with it before continuing to read here. It covers everything we need to know about
 setting up the multiple databases needed and then some. The first is the primary database where our Rails migrations and
 ActiveRecord Models will operate, however Zero refers to it as the upstream database. The second is the Change View Records (CVR)
-which contains information about what has been synced to clients. The third and final is the Change Database (CDB) which stores
-the replication log from the default database. All we need to do is create the CVR and CDB databases and Zero will handle the rest,
-but we'll cover a bit more information about them.
+database which contains information about what has been synced to clients. The third and final is the Change Database (CDB) which
+stores the replication log from the primary database. All we need to do is create the CVR and CDB databases and Zero will
+handle the rest, but we'll cover a bit more information about them.
 
-One final note is that Zero is only capable of working with [PostgreSQL](https://www.postgresql.org) at the moment. In the Zero
-[Connecting to Postgres](https://zero.rocicorp.dev/docs/connecting-to-postgres) documentation it is noted.
+One final note is that Zero is only capable of working with [PostgreSQL](https://www.postgresql.org) at the moment. The Zero
+[Connecting to Postgres](https://zero.rocicorp.dev/docs/connecting-to-postgres) documentation notes this fact.
 
 > In the future, Zero will work with many different backend databases. Today only Postgres is supported.
 > Specifically, Zero requires Postgres v15.0 or higher, and support for
@@ -105,8 +105,8 @@ at the tables that have been created.
     migrations_paths: db/cvr_migrate
 ```
 
-There isn't much to it, we use the `default` configuration, change the name to `blog_application_cvr`.
-Zero will manage the initial setup of the schemas and tables mentioned above for us so we won't need to make any
+There isn't much to it, we use the `default` configuration, and change the name to `blog_application_cvr`.
+Zero will manage the initial setup of the schemas and tables for us so we won't need to make any
 migrations at the moment. We do need to set the `migrations_paths` or else our migrations in `db/migrate` will be applied
 to this database. If you recall from the Multiple Databases documentation, it states that we need to tell Rails where to
 find the migrations.
@@ -119,7 +119,7 @@ find the migrations.
 
 ### Change Database
 
-The Change database holds the replication log from the primary database so that Zero can apply the change deltas to individual
+The Change Database holds the replication log from the primary database so that Zero can apply the change deltas to individual
 rows. Again, we'll skip over exactly what is stored here because it goes over my head.
 
 ```yaml:database.yml
@@ -236,7 +236,7 @@ but I wouldn't recommend it for production. All of `ZERO_*` environment variable
 command like [dev:zero-cache](https://github.com/rocicorp/hello-zero/blob/2b256e512be815b152918d2fd2741491914586b5/package.json#L8).
 
 The only environment variable we need to expose to our application's UI is where to talk to the Zero
-Cache server, which in our case is the default `http://localhost:4848`. That port can be
+Cache server, which in our case is the default value from Zero of `http://localhost:4848`. That port can be
 [configured](https://zero.rocicorp.dev/docs/zero-cache-config#port), as well as many other options. I've exposed
 this value as `NEXT_PUBLIC_ZERO_CACHE_PUBLIC_SERVER` since I'm using Next.js, however if you're using
 [Vite](https://vite.dev/), like hello-zero, then you would use something like `VITE_PUBLIC_SERVER`.
@@ -285,9 +285,9 @@ end
 
 We need to encode a `sub` field, as noted in the Zero [Authentication](https://zero.rocicorp.dev/docs/auth)
 documentation as well as an optional `exp` field for when the JWT will expire. Zero has a built in mechanism to
-refetch a new JWT when the expiration occurs and we'll cover setting after finishing the Rails setup. Finally,
+refetch a new JWT when the expiration occurs and we'll cover setting that up after finishing the Rails setup. Finally,
 Zero has documentation on [Permissions](https://zero.rocicorp.dev/docs/permissions) which can read additional
-data from the JWT. We could encode things like a `organization_id`, `team_id`, and potentially role information
+data from the JWT. We could encode things like an `organization_id`, or a `team_id`, and potentially role information
 to indicate what actions the user should be able to perform. I'm not covering any of that as that implementation
 will be highly dependent on each application but I wanted to note the ability to do it.
 
@@ -342,8 +342,8 @@ export default function ZeroClientProvider({
 In this setup, we have a function `getToken` that will call the API we set up get the JWT token and return
 the JWT; you should use whichever fetching library you are most familiar with in this case. We pass an
 anonymous function `() => getToken()` to the `auth` arg, which tells Zero to use that function anytime
-the it needs to authenticate, whether one first load or JWT expiration. This ties into the optional expiration
-that was we set and allows Zero tonautomatically re-authenticate.
+the it needs to authenticate, whether on first load or JWT expiration. This ties into the optional expiration
+that was we set and allows Zero to automatically re-authenticate.
 
 The other requirement is passing in a `userId` which matches the `sub` field
 we encoded into the JWT. In this example, since we require an authenticated user to perform the `getToken` call
