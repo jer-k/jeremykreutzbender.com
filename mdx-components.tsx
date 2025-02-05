@@ -12,6 +12,7 @@ import { H2WithAnchor } from "@/components/mdx/h2-with-anchor";
 import { InlineCodeBlock } from "@/components/mdx/inline-code-block";
 import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
 import { PublishedOnReleaseBlog } from "@/components/mdx/published-on-release-blog";
+import { ZeroPosts } from "@/components/mdx/zero-posts";
 
 import type { MDXComponents } from "mdx/types";
 
@@ -24,6 +25,7 @@ Code.theme = {
 export const mdxComponents: MDXComponents = {
   PublishedOnOldBlog: PublishedOnOldBlog,
   PublishedOnReleaseBlog: PublishedOnReleaseBlog,
+  ZeroPosts: ZeroPosts,
   Aside: Aside,
   BasicDiv: BasicDiv,
   BlockquoteWithLink: BlockquoteWithLink,

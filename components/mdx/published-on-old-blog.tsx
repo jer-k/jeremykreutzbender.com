@@ -5,6 +5,7 @@ export function PublishedOnOldBlog() {
       <a
         href="https://github.com/jer-k/deprecated-jer-k.github.io"
         target="_blank"
+        rel="noreferrer"
       >
         jer-k.github.io
       </a>
