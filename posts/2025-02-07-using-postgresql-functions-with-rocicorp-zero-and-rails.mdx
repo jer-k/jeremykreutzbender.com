@@ -1,0 +1,204 @@
+---
+title: Using PostgreSQL Functions with Rocicorp's Zero and Ruby on Rails
+date: "2025-02-07"
+template: "post"
+draft: false
+slug: "using-postgresql-functions-with-rocicorp-zero-and-rails"
+description: |
+  In the last post we covered setting up Rocicorp's Zero with Ruby on Rails.
+  Now we'll dive into how to migrate the Zero schema
+tags:
+  - "ruby-on-rails"
+  - "zero"
+  - "postgresql functions"
+  - "fx"
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+Another caveat to using [Zero](https://zero.rocicorp.dev/) is that we can make changes to our objects directly from the UI.
+This means that these changes will never flow through our ActiveRecord Models and we won't have access to callbacks
+like `before_save`; that presents a bit of a divergence from the typical Rails way of making data changes in code. An example
+from the project I've been working on is that my `User` table has `first_name` and `last_name` columns as well as a `full_name`
+column. I wanted `full_name` to be a compound of `first_name` and `last_name` so let's walk through some different ways that
+can be achieved, first by using a `before_save` callback, second using PostgreSQL
+[Generated Columns](https://www.postgresql.org/docs/current/ddl-generated-columns.html), and finally creating a
+[PostgreSQL Function](https://www.postgresql.org/docs/current/functions.html) using the
+[fx](https://github.com/teoljungberg/fx) gem.
+
+## `before_save` Example
+
+To set the stage of what we're trying to accomplish, let's start out with an example using `before_save`. This should
+look very familiar to everyone.
+
+```ruby:app/models/user.rb
+before_save :set_full_name
+
+private
+
+def set_full_name
+  assign_attributes(full_name: first_name + last_name)
+end
+```
+
+This approach is simple and effective and works great if every data change always flows through our `User` model. However,
+if someone where to connect to the database directly and issue the following command then our `full_name` column would
+be out of sync.
+
+```sql
+UPDATE users SET first_name = 'Blog' WHERE id = '1';
+```
+
+It's unlikely that someone is going to use this manual approach to update data, but there is a chance! However, we want to use
+Zero and this is exactly how Zero will update the data. Next, let's look at an example where we defer computing `full_name`
+to the database itself.
+
+## PostgreSQL Generated Column Example
+
+From the Generated Columns documentation linked above we can see that a generated column is an option for our task.
+
+> A generated column is a special column that is always computed from other columns. Thus, it is for columns what a view
+> is for tables. There are two kinds of generated columns: stored and virtual. A stored generated column is computed when
+> it is written (inserted or updated) and occupies storage as if it were a normal column. A virtual generated column
+> occupies no storage and is computed when it is read. Thus, a virtual generated column is similar to a view and a
+> stored generated column is similar to a materialized view (except that it is always updated automatically).
+> PostgreSQL currently implements only stored generated columns.
+
+Rails supports adding stored columns through migrations as a keyword argument. Let's go ahead and create one
+to understand how it works.
+
+```ruby:db/migrate/<timestamp>_add_generated_full_name.rb
+class AddGeneratedFullName < ActiveRecord::Migration[8.0]
+  def change
+    add_column :users, :full_name, :string,
+      as: "first_name || ' ' || last_name",
+      stored: true,
+      null: false
+  end
+end
+```
+
+Now when we create or update a row on the `users` table, whether we're using our `User` model or applying changes
+directly with SQL statements, we can be sure that the `full_name` column will properly be set. We would hope
+this article ends here as this approach is very succint and accomplishes our task, unfortunately there is a very
+problem when pairing this with Zero. At the very bottom of the Generated Columns documentation, there is this
+statement.
+
+> Generated columns are skipped for logical replication and cannot be specified in a CREATE PUBLICATION column list.
+
+That is a big issue because the logical replication is how Zero extracts data from our primary database. I'm not
+entirely sure why this isn't possible but if you Google
+[why aren't generated columns replicated in postgresql](https://www.google.com/search?q=why+aren%27t+generated+columns+replicated+in+postgresql&oq=why+aren%27t+generated+columns+replicated+in+postgresql&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORigATIHCAEQIRigATIHCAIQIRigATIHCAMQIRigATIHCAQQIRigAdIBCDY0MzRqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8)
+you can see that there are many people who have asked the same question. With that knowledge, let's move
+on to our final example of how to accomplish our task.
+
+## `fx` Gem Example
+
+Our final example is using the `fx` gem. From the README, we can see it helps us with managing
+functions and triggers via migrations.
+
+> F(x) adds methods to ActiveRecord::Migration to create and manage database functions and triggers in Rails.
+
+Let's explore how we can use it to accomplish generating our `full_name` column. We start by adding the `fx` gem
+and using it to generate a migration and function `.sql` file.
+
+```ruby:Gemfile
+gem "fx"
+```
+
+```bash
+$ rails generate fx:function generate_full_name
+```
+
+The migration will be filled in for us by `fx` and ready to use.
+
+```ruby:db/migrate/<timestamp>_create_function_generate_full_name.rb
+class CreateFunctionGenerateFullName < ActiveRecord::Migration[8.0]
+  def change
+    create_function :generate_full_name
+  end
+end
+```
+
+However the `.sql` file will be completely empty; I've gone ahead and written the function.
+
+```sql:db/functions/generate_full_name_v01.sql
+CREATE OR REPLACE FUNCTION generate_full_name()
+RETURNS trigger AS $$
+BEGIN
+    NEW.full_name = TRIM(CONCAT(NEW.first_name, ' ', NEW.last_name));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+`generate_full_name` is a generic function that will concatenate the `first_name` and `last_name` columns
+into a `full_name` column that can be used on any table. This function currently isn't being used though, we need
+to create a [trigger function](https://www.postgresql.org/docs/current/plpgsql-trigger.html) to set it up for use
+on the `users` table. `fx` provides this functionality as well.
+
+```bash
+$ rails generate fx:trigger users_full_name table_name:users
+```
+
+Again, the migration will be filled in for us by `fx` and ready to use.
+
+```ruby:db/migrate/<timestamp>_create_trigger_users_full_name.rb
+class CreateTriggerUsersFullName < ActiveRecord::Migration[8.0]
+  def up
+    create_trigger :set_users_full_name, on: :users
+  end
+end
+```
+
+The `.sql` file will again be empty. I've gone ahead and filled it with a trigger function that will call the
+`generate_full_name` function anytime we create a new row on the `users` table or we update the `first_name` or
+`last_name` column of an existing row.
+
+```sql:db/triggers/set_users_full_name_v01.sql
+CREATE TRIGGER set_users_full_name BEFORE INSERT
+OR
+UPDATE OF first_name, last_name
+ON users FOR EACH ROW EXECUTE FUNCTION generate_full_name();
+```
+
+This approach took a few more steps and a bit more code, but `fx` did a lot of the heavy lifting. Remember
+that all this code can now be checked in under version control so that it is easy to view and maintain moving
+forward. Best of all, functions and triggers are fully supported by Zero so this is my suggested solution
+to solving this problem!
+
+## `fx` Function Updates and Versioning
+
+Having version controlled database functions is why `fx` is so valuable. If you noticed the filenames created for the
+functions in the last section, they ended with `v01.sql`. `fx` has functionality to create updates to those functions
+where a `v02.sql` file will be generated as well as a migration to update the database to use the newer version of the
+function. Refer to the section of the README,
+[Cool, but what if I need to change a trigger or function?](https://github.com/teoljungberg/fx?tab=readme-ov-file#cool-but-what-if-i-need-to-change-a-trigger-or-function)
+to learn more. I wanted to highlight this feature because it makes managing the lifecycle of the functions so much
+easier when all the changes can be seen in code and reviewed by colleagues.
+
+## Zero Custom Mutators
+
+At the time of writing this, custom mutators have not shipped, but the premise behind them is that Zero will
+optimistically update the UI with any changes and then send an API call with the change payload to our application
+server. In theory this means that the UI will update immediately and then we'll actually write the data into the
+database through our ActiveRecord Model, allowing for use of a `before_save` callback. For our `full_name` column,
+I could see writing a custom mutator for a `User` profile page where they're allowed to edit their name and avoiding
+the PostgreSQL functions all together. The upside of this functionality is it gives us application developers multiple
+options to solve the same problem, which is always a good thing. The downside is that if you allow a `User` to update
+their name in multiple locations, you'll have to remember to use a custom mutator each time.
+
+If you want to read more about custom mutators, check out this
+[Introducting Zero](https://replicache.notion.site/Introducing-Zero-8ce1b1f184aa4a9088a9f76e1b8db003) document and
+search for the 'Custom Mutators' section.
+
+## Conclusion
+
+I hope this helped shed on light on a new approach to managing data requirements when we have deviate from using ActiveRecord
+callbacks. I'm pretty excited for this workflow of managing the functions with the `fx` gem and I'm already starting to plan
+out how to build an audit log, similar to the [paper_trail](https://github.com/paper-trail-gem/paper_trail) gem. I'll get a
+post written up about that work once it has been completed.
+
+<ZeroPosts currentSlug={frontmatter.slug} />
