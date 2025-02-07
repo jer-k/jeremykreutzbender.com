@@ -7,7 +7,7 @@ const titlesAndSlugs = {
   //   "manage-rocicorp-zero-schema-migrations-with-rails",
 };
 
-const prodUrl = "https://jeremykreutzbender.com/blog/";
+const prodUrl = "https://jeremykreutzbender.com/blog";
 type Props = {
   currentSlug: string;
 };
