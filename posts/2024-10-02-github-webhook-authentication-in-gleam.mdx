@@ -1,0 +1,165 @@
+---
+title: Authenticate GitHub's Webhooks API using Gleam
+date: "2024-10-02"
+template: "post"
+draft: false
+slug: "github-webhook-authentication-in-gleam"
+category: "Programming"
+tags:
+  - "github"
+  - "webhook"
+  - "gleam"
+  - "authentication"
+description: |
+  adsf
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+Years ago, I wrote a post [Authenticate GitHub's Webhooks API using Elixir's Plug](https://jeremykreutzbender.com/github-webhook-authentication-with-elixir-plug)
+as a learning exploration of [Elixir](https://elixir-lang.org/) and in my previous role I also implemented this
+same functionality in [Ruby On Rails](https://rubyonrails.org/). I've also started exploring the [Gleam](https://gleam.run/)
+language recently and figured implementing this authentication would be a great introductory program to learn Gleam with.
+
+## Why Gleam
+
+Throughout my professional career I've primarily worked in dynamic languages but in late 2022 I started on a new frontend
+project using Typescript and it slowly started to change my mind about typed languages. I've previously had some not so great
+experiences working with type systems on top of Javascript. 18 months later and I'm fully onboard with Typescript
+but I thought to myself, what about on the backend? I've always been enamoured with Elixir and
+the potential that the BEAM offers and a few months back Gleam really started to gain traction due to it's 1.0 release.
+While Elixir is in the midst of adding a type system, Gleam was built as a typed language so I figured let's give it a try!
+
+I definitely struggled through getting this program written though. However, once it was done I looked over
+it and realized that it is quite succinct and easy to follow. Gleam is intended to be a language with a small footprint
+so there aren't a million different ways to do things (looking at you Ruby) which means it was fairly easy to find an answer
+of 'How to do X in Gleam?' As someone who suffers from analysis paralysis when striking out into new coding areas, Gleam
+is a breath of fresh air knowing that if I found an answer on how to do something, it is likely the correct way. With
+that said, let's look at the code!
+
+## Code
+
+If you would like to see the code in full, you can find it on my GitHub at
+[gleam_webhook_auth](https://github.com/jer-k/gleam_webhook_auth). Let's start off with the dependencies.
+
+```toml
+[dependencies]
+gleam_stdlib = ">= 0.34.0 and < 2.0.0"
+gleam_http = ">= 3.7.0 and < 4.0.0"
+mist = ">= 3.0.0 and < 4.0.0"
+logging = ">= 1.3.0 and < 2.0.0"
+gleam_erlang = ">= 0.26.0 and < 1.0.0"
+gleam_crypto = ">= 1.4.0 and < 2.0.0"
+envoy = ">= 1.0.1 and < 2.0.0"
+```
+
+A quick rundown of what I pulled in
+
+- [mist](https://github.com/rawhat/mist) - A webserver for Gleam for receiving the webhooks
+- [gleam_crypto](https://github.com/gleam-lang/crypto) - Cryptography library for comparing the signatures of the webhooks
+- [envoy](https://github.com/lpil/envoy) - Environment variable management
+
+### main function
+
+```gleam
+pub fn main() {
+  logging.configure()
+
+  let assert Ok(_) =
+    handle_request
+    |> mist.new
+    |> mist.port(3001)
+    |> mist.start_http
+
+  process.sleep_forever()
+}
+```
+
+### Handling Requests
+
+```gleam
+fn handle_request(req: Request(Connection)) -> Response(ResponseData) {
+  case request.path_segments(req) {
+    ["events"] -> events(req)
+    _ -> not_found()
+  }
+}
+
+fn events(req: Request(Connection)) -> Response(ResponseData) {
+  case req.method {
+    http.Post -> create_event(req)
+    _ -> not_found()
+  }
+}
+
+fn create_event(req: Request(Connection)) {
+  case is_valid_request(request_body(req), signature_digest(req)) {
+    True ->
+      response.new(200)
+      |> response.set_body(mist.Bytes(bytes_builder.from_string("Ok")))
+    False ->
+      response.new(401)
+      |> response.set_body(
+        mist.Bytes(bytes_builder.from_string("Could not authenticate")),
+      )
+  }
+}
+
+fn not_found() -> Response(ResponseData) {
+  response.new(404)
+  |> response.set_body(mist.Bytes(bytes_builder.from_string("Not Found")))
+}
+```
+
+###
+
+```gleam
+fn signature_digest(req: Request(Connection)) {
+  case request.get_header(req, "x-hub-signature-256") {
+    Ok(header) -> {
+      Ok(bit_array.from_string(header))
+    }
+    Error(message) -> Error(message)
+  }
+}
+
+fn secret() {
+  case envoy.get("WEBHOOK_SECRET") {
+    Ok(secret) -> bit_array.from_string(secret)
+    Error(_) -> {
+      bit_array.from_string("ERROR")
+    }
+  }
+}
+
+fn request_body(req: Request(Connection)) {
+  let body =
+    mist.read_body(req, 1024 * 1024 * 10)
+    |> result.map(fn(req) { req.body })
+
+  case body {
+    Ok(body) -> body
+    // If we can't get the body, an empty string should fail to match
+    // the signature in the header
+    Error(_) -> bit_array.from_string("")
+  }
+}
+```
+
+### Validating the Request
+
+```gleam
+fn is_valid_request(request_body: BitArray, digest: Result(BitArray, Nil)) {
+  case digest {
+    Ok(digest) -> {
+      let signature = expected_signature(request_body)
+      crypto.secure_compare(signature, digest)
+    }
+    Error(_) -> False
+  }
+}
+```
+
+## Conclusion
