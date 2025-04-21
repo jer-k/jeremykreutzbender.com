@@ -5,7 +5,7 @@ template: "post"
 draft: false
 slug: "preloading-nested-active-record-associations-syntax"
 description: |
-  Exploring
+  Exploring a lesser known syntax for preloading nested Active Record associations.
 tags:
   - "ruby-on-rails"
   - "preloading"
@@ -17,7 +17,7 @@ tags:
 _Published on {frontmatter.date}_
 
 I recently opened a Pull Request where I was including nested associations in an
-[ActiveRecord](https://guides.rubyonrails.org/active_record_basics.html) query
+[Active Record](https://guides.rubyonrails.org/active_record_basics.html) query
 and received feedback that syntax was unfamiliar. It hadn't crossed my mind that this syntax would be unfamiliar to
 others so I wrote up an explanation in a comment about what was happening, the Pull Request was approved and the feature
 was shipped. However, that got me thinking that I would like to share the syntax and do a little exploration as to why
@@ -29,7 +29,7 @@ it might have been unfamiliar to others. The query in question looked something 
 User.includes(team: :organization)
 ```
 
-If this looks unfamiliar to to you, let's set up the context.
+If this looks unfamiliar to you, let's set up the context.
 
 ```ruby
 class Organization < ApplicationRecord
@@ -47,13 +47,13 @@ end
 ```
 
 We have three models in a three level hierarchy where `Organization` is at the top, `Team` is in the middle, and `User`
-is at the bottom. The syntax of the query is that that for all the `User` records we look up, we also want to load
+is at the bottom. The syntax of the query is saying for all the `User` records we look up, we also want to load
 the associated `Team` record as well as the `Organization` that the `Team` belongs to. This loading of associated
 records is the resolution to the classic N+1 problem where it could be possible to hit the database multiple times
 as we loop through each `User` record. Let's look at a quick example to clarify the N+1 problem.
 
 ```ruby
-# N+1 problem. We query for the Team and Organization record on every loop
+# N+1 problem. We query the database for the Team and Organization record on every loop
 User.where(...).map do |user|
   {
     name: user.name,
@@ -62,7 +62,7 @@ User.where(...).map do |user|
   }
 end
 
-# No N+1, we have preloaded all the associated records
+# No N+1. We have preloaded all the associated records
 User.includes(team: :organization).where(...).map do |user|
   {
     name: user.name,
@@ -119,10 +119,10 @@ Customer.includes(orders: { books: [:supplier, :author] })
 This example builds on the previous in a more nested manner. We now see that the `Order` class `has_many :books` and
 each `Book` is related to a `supplier` and an `author` via a `belongs_to` or `has_one` association. We know that
 we can encapsulate associations to the same model through the array syntax and that approach is used here to
-preload multiple `Book` associations.
+preload multiple associations to `Book`.
 
-Now that we understand different approaches to the preloading syntax, let's revisit syntax of our original query let's
-revisit it quickly and rewrite it.
+Now that we understand different approaches to the preloading syntax, let's revisit the syntax of our original query
+and rewrite it to match the documentation.
 
 ```ruby
 # Original
@@ -132,13 +132,13 @@ User.includes(team: :organization)
 User.includes(team: [:organization])
 ```
 
-All we're doing in the original omitting the array syntax around `:organization` because we're only loading a single
-association.
+The original query is omitting the array syntax around `:organization` because we're only loading a single
+association and that is perfectly valid syntax!
 
 ## Conclusion
 
 I found an answer to a question on Stack Overflow,
 [Rails - Nested includes on Active Records?](https://stackoverflow.com/a/24397716/1118848) from 2014 that may be
-the source of where I learned this syntax. The answer shows some examples of how build up a structure of extremely
+the source of where I learned this syntax. The answer shows some examples of how to build up a structure of extremely
 nested associations which shouldn't look unfamiliar now that we've covered the basics here. Hopefully this helps
-the next time you're writing or reviewing some ActiveRecord code!
+the next time you're writing or reviewing some Active Record code!
