@@ -9,12 +9,12 @@ const meta = {
   parameters: {},
   tags: ["autodocs"],
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-} satisfies Meta<any>;
+} satisfies Meta<unknown>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const Template: StoryFn<any> = () => (
+const Template: StoryFn<unknown> = () => (
   <React.Fragment>
     <div className="flex flex-row w-full space-x-4">
       <div className="flex flex-col">

@@ -1,4 +1,4 @@
-const { TextDecoder, TextEncoder } = require("util")
+const { TextDecoder, TextEncoder } = require("util");
 
 const nextJest = require("next/jest");
 
@@ -12,14 +12,13 @@ const customJestConfig = {
   testEnvironment: "jest-environment-jsdom",
   setupFilesAfterEnv: ["<rootDir>/.jest/setupEnvVars.js"],
   moduleNameMapper: {
-    '^@/(.*)$': "<rootDir>/$1",
+    "^@/(.*)$": "<rootDir>/$1",
   },
   globals: {
     TextDecoder: TextDecoder,
     TextEncoder: TextEncoder,
-  }
+  },
 };
-
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
 module.exports = createJestConfig(customJestConfig);

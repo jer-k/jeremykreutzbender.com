@@ -4,8 +4,8 @@ import { ErrorResponse } from "resend";
 
 import { sendEmail } from "@/app/actions/emails/send";
 import {
-  contactSchema,
   ContactSchemaValues,
+  contactSchema,
 } from "@/lib/schemas/contact-form-schema";
 
 type ProcessContactFormResponse = {
@@ -27,7 +27,9 @@ export async function processContactForm(
     });
 
     if (sendEmailResult.error) {
-      return { emailError: sendEmailResult.error };
+      return {
+        emailError: sendEmailResult.error,
+      };
     }
 
     return {};

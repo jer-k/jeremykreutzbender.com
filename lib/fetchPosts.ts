@@ -1,10 +1,10 @@
 import path from "node:path";
 
-import { cache, ReactElement } from "react";
+import { ReactElement, cache } from "react";
 
-import matter from "gray-matter";
 import { Post } from "@/types/types";
 import fs from "fs/promises";
+import matter from "gray-matter";
 
 import { thirdPartyPosts } from "@/lib/constants/thirdPartyPosts";
 

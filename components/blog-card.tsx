@@ -4,14 +4,14 @@ import { ExternalLinkIcon } from "lucide-react";
 
 import { Post } from "@/types/types";
 
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardDescription,
   CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 type BlogCardProps = {
   post: Post;

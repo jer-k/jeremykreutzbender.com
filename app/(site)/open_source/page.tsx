@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 
 import { openSourcePullRequests } from "@/lib/github";
 
-import { PullRequestCard } from "@/components/pull-request-card";
 import { Pagination } from "@/components/pagination";
+import { PullRequestCard } from "@/components/pull-request-card";
 
 export const metadata: Metadata = {
   title: "Open Source",
