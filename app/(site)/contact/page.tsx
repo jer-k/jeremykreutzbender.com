@@ -6,6 +6,8 @@ import { GithubIconButton } from "@/components/github-icon-button";
 import { LinkedInIconButton } from "@/components/linkedin-icon-button";
 import { TwitterIconButton } from "@/components/twitter-icon-button";
 
+import sunsetPic from "/public/me/sunset-headshot.png";
+
 export const metadata: Metadata = {
   title: "Contact Me",
   description: "Contact Me",
@@ -43,7 +45,7 @@ export default function Contact() {
                 alt="Contact Image"
                 className="aspect-content rounded-lg object-cover object-center"
                 height="400"
-                src="/me/sunset-headshot.png"
+                src={sunsetPic}
                 width="400"
                 placeholder="blur"
               />

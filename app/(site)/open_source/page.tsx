@@ -31,14 +31,13 @@ export const metadata: Metadata = {
 };
 
 type OpenSourceProps = {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
-  };
+  }>;
 };
 
-export default async function OpenSourcePage({
-  searchParams,
-}: OpenSourceProps) {
+export default async function OpenSourcePage(props: OpenSourceProps) {
+  const searchParams = await props.searchParams;
   const pullRequests = await openSourcePullRequests();
 
   const page = (searchParams.page && parseInt(searchParams.page)) || 1;

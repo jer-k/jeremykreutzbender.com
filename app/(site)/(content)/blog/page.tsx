@@ -35,13 +35,14 @@ export const metadata: Metadata = {
 };
 
 type BlogProps = {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
     tags?: string;
-  };
+  }>;
 };
 
-export default async function Blog({ searchParams }: BlogProps) {
+export default async function Blog(props: BlogProps) {
+  const searchParams = await props.searchParams;
   const posts = await fetchPosts();
   const tags = await fetchTags();
 
