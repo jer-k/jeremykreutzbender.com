@@ -81,6 +81,14 @@ export default function CvPage() {
         <section className="flex min-h-0 flex-col gap-y-3">
           <h2 className="text-xl font-bold">Work Experience</h2>
           <WorkExperienceCard
+            companyName="Vantage"
+            companyUrl="https://vantage.sh"
+            workType="Remote"
+            duration="February, 2025 - Present"
+            title="Staff Software Engineer"
+            description={<></>}
+          />
+          <WorkExperienceCard
             companyName="Release"
             companyUrl="https://release.com"
             workType="Remote"
