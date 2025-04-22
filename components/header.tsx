@@ -1,16 +1,16 @@
 import Link from "next/link";
 
+import { GithubIconButton } from "@/components/github-icon-button";
+import { HighlightLink } from "@/components/highlight-link";
+import { LinkedInIconButton } from "@/components/linkedin-icon-button";
+import { ModeToggle } from "@/components/mode-toggle";
+import { TwitterIconButton } from "@/components/twitter-icon-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ModeToggle } from "@/components/mode-toggle";
-import { GithubIconButton } from "@/components/github-icon-button";
-import { LinkedInIconButton } from "@/components/linkedin-icon-button";
-import { TwitterIconButton } from "@/components/twitter-icon-button";
-import { HighlightLink } from "@/components/highlight-link";
 
 export function Header() {
   return (

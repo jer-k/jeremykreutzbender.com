@@ -2,14 +2,14 @@ import { Suspense } from "react";
 
 import Link from "next/link";
 
-import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { Header } from "@/components/header";
 
-import { Button } from "@/components/ui/button";
-import { BlogCardSkeleton } from "@/components/skeletons/blog-card-skeleton";
 import { BlogCard } from "@/components/blog-card";
 import { Hero } from "@/components/hero";
+import { BlogCardSkeleton } from "@/components/skeletons/blog-card-skeleton";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Button } from "@/components/ui/button";
 
 import { fetchPosts } from "@/lib/fetchPosts";
 

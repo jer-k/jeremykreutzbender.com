@@ -31,3 +31,5 @@ const theme = {
     500: "#FAFAF0",
   },
 };
+
+export { theme };

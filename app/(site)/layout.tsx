@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 
-import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { Header } from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 

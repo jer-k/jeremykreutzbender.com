@@ -18,17 +18,29 @@ export async function GET(request: Request) {
     ).then((res) => res.arrayBuffer());
 
     return new ImageResponse(
-      (
+      <div
+        style={{
+          height: "100%",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "linear-gradient(to bottom right, #FAFAF0, #F8E08E)",
+          fontFamily: "Geist Sans",
+        }}
+      >
         <div
           style={{
-            height: "100%",
-            width: "100%",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            background: "linear-gradient(to bottom right, #FAFAF0, #F8E08E)",
-            fontFamily: "Geist Sans",
+            backgroundColor: "#FAFAF0",
+            width: "80%",
+            height: "80%",
+            borderRadius: "20px",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)",
           }}
         >
           <div
@@ -37,66 +49,52 @@ export async function GET(request: Request) {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: "#FAFAF0",
-              width: "80%",
-              height: "80%",
-              borderRadius: "20px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)",
+              padding: "40px",
+              textAlign: "center",
+              width: "100%",
             }}
           >
-            <div
+            <h1
               style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "40px",
-                textAlign: "center",
-                width: "100%",
+                fontSize: "48px",
+                fontWeight: "bold",
+                color: "#0F0A0A",
+                margin: "0 0 20px 0",
               }}
             >
-              <h1
+              {title}
+            </h1>
+            {description && (
+              <p
                 style={{
-                  fontSize: "48px",
-                  fontWeight: "bold",
+                  fontSize: "24px",
                   color: "#0F0A0A",
                   margin: "0 0 20px 0",
                 }}
               >
-                {title}
-              </h1>
-              {description && (
-                <p
-                  style={{
-                    fontSize: "24px",
-                    color: "#0F0A0A",
-                    margin: "0 0 20px 0",
-                  }}
-                >
-                  {description}
-                </p>
-              )}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  width: "100%",
-                  marginTop: "20px",
-                }}
-              >
+                {description}
+              </p>
+            )}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                width: "100%",
+                marginTop: "20px",
+              }}
+            >
+              <span style={{ fontSize: "18px", color: "#0F0A0A" }}>
+                jeremykreutzbender.com
+              </span>
+              {date && (
                 <span style={{ fontSize: "18px", color: "#0F0A0A" }}>
-                  jeremykreutzbender.com
+                  {date}
                 </span>
-                {date && (
-                  <span style={{ fontSize: "18px", color: "#0F0A0A" }}>
-                    {date}
-                  </span>
-                )}
-              </div>
+              )}
             </div>
           </div>
         </div>
-      ),
+      </div>,
       {
         width: 1200,
         height: 630,
@@ -116,8 +114,7 @@ export async function GET(request: Request) {
         ],
       },
     );
-  } catch (e: any) {
-    console.error(e);
+  } catch (_) {
     return new Response(`Failed to generate the image`, {
       status: 500,
     });

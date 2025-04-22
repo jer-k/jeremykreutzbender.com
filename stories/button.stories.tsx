@@ -15,7 +15,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const Template: StoryFn<typeof Button> = (args) => <Button>Button</Button>;
+const Template: StoryFn<typeof Button> = () => <Button>Button</Button>;
 
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 export const Primary: Story = {

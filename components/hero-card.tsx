@@ -1,11 +1,11 @@
-import { ReactElement } from "react";
 import {
   Card,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import Link from "next/link";
+import { ReactElement } from "react";
 
 type Props = {
   title: string;

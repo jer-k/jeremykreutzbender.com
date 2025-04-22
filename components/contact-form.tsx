@@ -1,8 +1,9 @@
 "use client";
 
-import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SubmitHandler, useForm } from "react-hook-form";
 
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -13,7 +14,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
 import { processContactForm } from "@/app/actions/contact";
