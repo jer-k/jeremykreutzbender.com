@@ -40,7 +40,7 @@ export function Header() {
       <div className="md:hidden flex px-4 md:px-16">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none focus:text-gray-600 dark:focus:text-gray-400">
+            <button className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-hidden focus:text-gray-600 dark:focus:text-gray-400">
               <svg className="h-7 w-7 fill-current" viewBox="0 0 24 24">
                 <path
                   clipRule="evenodd"

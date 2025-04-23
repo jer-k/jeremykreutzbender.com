@@ -64,7 +64,7 @@ export default function CvPage() {
             <AvatarFallback>JK</AvatarFallback>
           </Avatar>
         </div>
-        <section className="flex min-h-0 flex-col gap-y-3 !mt-0">
+        <section className="flex min-h-0 flex-col gap-y-3 mt-0!">
           <Link
             className="text-blue-600 hover:text-blue-800 visited:text-purple-600"
             href="/about"
