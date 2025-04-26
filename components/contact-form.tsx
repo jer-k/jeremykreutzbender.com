@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +15,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
 
 import { processContactForm } from "@/app/actions/contact";
 import {
@@ -23,8 +23,6 @@ import {
 } from "@/lib/schemas/contact-form-schema";
 
 export function ContactForm() {
-  const { toast } = useToast();
-
   const form = useForm<ContactSchemaValues>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
@@ -46,9 +44,7 @@ export function ContactForm() {
   ) => {
     const result = await processContactForm(data);
     if (!(result.emailError || result.formErrors)) {
-      toast({
-        description: "Email sent to Jeremy!",
-      });
+      toast("Email sent to Jeremy!");
       reset();
     } else {
       if (result.formErrors) {
@@ -62,11 +58,7 @@ export function ContactForm() {
           }
         });
       }
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem sending your email.",
-      });
+      toast.error("There was a problem sending your email.");
     }
   };
 
