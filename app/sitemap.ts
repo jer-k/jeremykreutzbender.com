@@ -1,4 +1,4 @@
-import { fetchMdxPosts } from "@/lib/fetchPosts";
+import { fetchMdxPosts } from "@/lib/fetch-posts";
 
 export default async function sitemap() {
   const posts = await fetchMdxPosts();

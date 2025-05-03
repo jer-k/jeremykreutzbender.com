@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { fetchPosts, fetchTags } from "@/lib/fetchPosts";
+import { fetchPosts, fetchTags } from "@/lib/fetch-posts";
 
 import { BlogCard } from "@/components/blog-card";
 import { Pagination } from "@/components/pagination";

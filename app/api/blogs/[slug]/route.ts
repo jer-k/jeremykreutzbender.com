@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { fetchPost } from "@/lib/fetchPosts";
+import { fetchPost } from "@/lib/fetch-posts";
 
 type RouteProps = {
   params: Promise<{

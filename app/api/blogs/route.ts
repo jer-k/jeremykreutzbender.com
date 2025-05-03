@@ -2,7 +2,7 @@ import type { Post } from "@/types/post";
 
 import { type NextRequest, NextResponse } from "next/server";
 
-import { fetchPosts } from "@/lib/fetchPosts";
+import { fetchPosts } from "@/lib/fetch-posts";
 
 const DEFAULT_PAGE_SIZE = 100;
 
