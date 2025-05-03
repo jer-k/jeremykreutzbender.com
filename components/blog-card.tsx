@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { ExternalLinkIcon } from "lucide-react";
 
-import { Post } from "@/types/types";
+import { Post } from "@/types/post";
 
 import { Badge } from "@/components/ui/badge";
 import {

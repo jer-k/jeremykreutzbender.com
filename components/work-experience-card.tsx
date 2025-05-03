@@ -1,31 +1,30 @@
-import Link from "next/link";
-import type { ReactElement } from "react";
+import { Job } from "@/types/cv";
+
+import ReactMarkdown from "react-markdown";
 
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Props = {
-  companyName: string;
-  companyUrl?: string;
-  workType: "On-Site" | "Remote";
-  duration: string;
-  title: string | ReactElement;
-  description: ReactElement;
+  job: Job;
 };
 
-export function WorkExperienceCard({
-  companyName,
-  companyUrl,
-  workType,
-  duration,
-  title,
-  description,
-}: Props) {
+export function WorkExperienceCard({ job }: Props) {
+  const {
+    companyName,
+    companyUrl,
+    workType,
+    duration,
+    title,
+    descriptionMarkdown,
+  } = job;
+
   return (
     <Card className="bg-white py-4">
       <CardHeader className="py-0">
@@ -54,12 +53,9 @@ export function WorkExperienceCard({
           <h4 className="font-mono text-sm leading-none">{title}</h4>
         </div>
       </CardHeader>
-      <CardContent className="py-0 mt-2 text-xs">{description}</CardContent>
-      <CardFooter className="py-0 mt-2 print:hidden">
-        <div className="flex items-center justify-end w-full">
-          {/*<Link className="hover:underline" href={`experience/${companyName.toLowerCase().replace(/\W/, "")}`}><div className="text-xs">Read more about my time at {companyName} &gt;</div></Link>*/}
-        </div>
-      </CardFooter>
+      <CardContent className="prose p-0 ps-4 w-full text-xs">
+        <ReactMarkdown>{descriptionMarkdown}</ReactMarkdown>
+      </CardContent>
     </Card>
   );
 }

@@ -1,13 +1,10 @@
+import type { Metadata } from "next";
+
 import { fetchPosts, fetchTags } from "@/lib/fetchPosts";
 
 import { BlogCard } from "@/components/blog-card";
 import { Pagination } from "@/components/pagination";
 import { TagSelect } from "@/components/tag-select";
-
-import { Button } from "@/components/ui/button";
-
-import type { Metadata } from "next";
-import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Blog",

@@ -15,24 +15,19 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const Template: StoryFn<typeof WorkExperienceCard> = (args) => (
-  <WorkExperienceCard
-    companyName={args.companyName}
-    companyUrl={args.companyUrl}
-    workType={args.workType}
-    duration={args.duration}
-    title={args.title}
-    description={args.description}
-  />
+  <WorkExperienceCard job={args.job} />
 );
 
 export const Primary: Story = {
   render: Template,
   args: {
-    companyName: "Jeremy Kreutzbender's Storybook",
-    companyUrl: "https://storybook.jeremykreutzbender.com/",
-    workType: "Remote",
-    duration: "Present",
-    title: "Storybook Engineer",
-    description: <div>Writing Storybook Components</div>,
+    job: {
+      companyName: "Jeremy Kreutzbender's Storybook",
+      companyUrl: "https://storybook.jeremykreutzbender.com/",
+      workType: "Remote",
+      duration: "Present",
+      title: "Storybook Engineer",
+      descriptionMarkdown: "Writing Storybook Components",
+    },
   },
 };
