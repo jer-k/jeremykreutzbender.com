@@ -4,7 +4,7 @@ import { cvData } from "@/lib/constants/cv-data";
 
 export const runtime = "edge";
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
     const jobs = cvData.jobs;
     return NextResponse.json(jobs);
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     console.error("Error fetching jobs data:", error);
     return NextResponse.json(
       { error: "Internal Server Error fetching jobs data" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
