@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { fetchMdxPosts, fetchPost, postComponents } from "@/lib/fetchPosts";
+import { fetchMdxPosts, fetchPost, postComponents } from "@/lib/fetch-posts";
 
 import type { Metadata } from "next";
 
@@ -16,7 +16,9 @@ export async function generateStaticParams() {
   return posts.map((post) => ({ slug: post.slug }));
 }
 
-export async function generateMetadata(props: BlogPostPageParams): Promise<Metadata> {
+export async function generateMetadata(
+  props: BlogPostPageParams,
+): Promise<Metadata> {
   const params = await props.params;
   const slug = params.slug;
 
@@ -56,9 +58,7 @@ export async function generateMetadata(props: BlogPostPageParams): Promise<Metad
 export default async function BlogPost(props: BlogPostPageParams) {
   const params = await props.params;
 
-  const {
-    slug
-  } = params;
+  const { slug } = params;
 
   const components = await postComponents();
   const postComponent = components[slug];

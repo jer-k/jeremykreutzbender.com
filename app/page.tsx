@@ -11,7 +11,7 @@ import { BlogCardSkeleton } from "@/components/skeletons/blog-card-skeleton";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 
-import { fetchPosts } from "@/lib/fetchPosts";
+import { fetchPosts } from "@/lib/fetch-posts";
 
 export default async function HomePage() {
   const posts = await fetchPosts();
