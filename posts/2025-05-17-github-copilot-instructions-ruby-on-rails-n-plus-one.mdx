@@ -1,0 +1,177 @@
+---
+title: GitHub CoPilot Instructions Can Catch Ruby On Rails N+1 Queries
+date: "2025-05-17"
+template: "post"
+draft: false
+slug: "github-copilot-instructions-ruby-on-rails-n-plus-one"
+description: |
+
+tags:
+  - "ruby-on-rails"
+  - "github"
+  - "copilot"
+  - "active-record"
+  - "n+1"
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+I was recently helping investigate a customer issue at work and one of my coworkers tracked down the issue to
+a repeated database call while looping through a very large CSV file. It wasn't the typical N+1 scenario that we
+come across when building Ruby on Rails applications but the outcome was the same, the code was executing slower
+than desired. We were able to fix this problem by memoizing the database call
+and everything started working again but it got me thinking, is there a way to catch these sort of problems ahead
+of time?
+
+My first thought was that we could attempt to write a [Rubocop](https://github.com/rubocop/rubocop) rule but this
+problem is pretty nuanced. The rule would need to be able to understand all the code around it to see if a database
+call was being repeated over and over. However, AI is great at understanding the context of how code is being called
+and at work we've recently started having [GitHub CoPilot](https://github.com/features/copilot) review all of our
+Pull Requests. I wondered if it might be possible to give CoPilot instructions on some specific things to look for
+and it turns out that GitHub has released a feature exactly for this,
+[CoPilot Instrunctions](https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot)!
+I tried this feature out and wrote up instructions on how CoPilot can spot this issue and if it does, instructed it
+to leave a comment on the Pull Request to fix the issue. And it actually worked in a test Pull Request! With that in
+mind I wanted to share more information about this feature and show how it can be used to catch the typical N+1 problem
+in Rails.
+
+## copilot-instructions.md Example
+
+To use the CoPilot Instructions feature, add a `.github/copilot-instrunctions.md` file to your repository. There aren't
+a lot of examples out there yet and I'm not sure if there are specific ways to format the instructions that may help
+CoPilot differentiate between different instructions (like a header to split between instructions). Here is an
+example from the documentation.
+
+```text:.github/copilot-instructions.md
+We use Bazel for managing our Java dependencies, not Maven, so when talking about Java packages,
+always give me instructions and code samples that use Bazel.
+
+We always write JavaScript with double quotes and tabs for indentation, so when your responses
+include JavaScript code, please follow those conventions.
+
+Our team uses Jira for tracking items of work.
+```
+
+As you can see the different types of instructions are only split by a line break and no special headers or syntax
+has been added. I still wonder if we have longer instruction sets, as you'll see in my example below, if some
+sort of indicator that a set of instructions has finished would be helpful.
+
+## Testing Without Instructions
+
+I spun up a brand new Rails application, scaffolded an `Account` and `User` models, and then wrote
+the following code.
+
+```ruby:users_controller.rb
+# GET /users or /users.json
+def index
+  @users = User.all
+  respond_to do |format|
+    format.html  # index.html.erb
+    format.json  do
+      render json: @users.map do |user|
+        {
+          name: user.name,
+          account_name: user.account.name
+        }
+      end
+    end
+  end
+end
+```
+
+I committed this to a branch, pushed it up to GitHub, opened a Pull Request, and finally requested a review
+by CoPilot. At this point the repository did not have any instructions added; I did this as a baseline check to
+see what CoPilot thought about this code. Here is the comment it left.
+
+![Github Copilot comment with no instructions](/post_images/github-copilot-instructions-ruby-on-rails-n-plus-one/copilot-no-instructions.png)
+
+For the purposes of testing out these instructions, this result is great! We can see that CoPilot had a suggestion
+but it did not indicate anything about an N+1 query. Now let's move onto adding the instructions and seeing
+what type of results we get.
+
+## N+1 Instructions
+
+````text:.github/copilot-instructions.md
+When reviewing Pull Requests, please look for situations that cause an N+1 query.
+An example of an N+1 query is when an ActiveRecord model accesses an association in
+a loop without that association have been preloaded. It will look like this
+```ruby
+def index
+  @users_hash = User.all.map do |user|
+    {
+      name: user.name,
+      account_name: user.account.name # This is an N+1
+    }
+  end
+end
+```
+
+When you see this type of situation, you need to leave a comment on the offending code!
+The comment should say something like "An N+1 query was noticed with the User model.
+You can fix this by doing User.includes(:account)"
+````
+
+Those are the instructions that I came up with. I wanted to be explicit and add an example of what exactly an
+N+1 query is so that I wasn't leaving any ambiguity around what we want CoPilot to look for. I committed these
+instructions and wanted to give CoPilot a bit of a challenge because the example in the instructions looks almost
+exactly like the code I added to the `UsersController` above. For a bit of a more challenging problem I updated
+the `User` partial to add an N+1. Because the offending N+1 code in the partial isn't directly encompassed in a loop,
+like in `UsersController`, I was curious to see if CoPilot would notice it. Here are the changes I made.
+
+```ruby:app/views/users/_user.html.erb
+<div id="<%= dom_id user %>">
+  <p>
+    <strong>Name:</strong>
+    <%= user.name %>
+  </p>
+
+  <p>
+    <strong>Account:</strong>
+    <%= user.account.id %>
+  </p>
+
+  <p>
+    <strong>Account Name:</strong>
+    <%= user.account.name %>
+  </p>
+
+</div>
+```
+
+Again I pushed all that up, opened a Pull Request, and requested a review from CoPilot. Here is the comment it left.
+
+![Github Copilot comment instructions but low confidence](/post_images/github-copilot-instructions-ruby-on-rails-n-plus-one/copilot-instructions-1.png)
+
+These results are positive, but not perfect. CoPilot actually caught both N+1s which is amazing, but it thought the
+comments were "low confidence". Those easily could have been missed by not expanding the very small toggle to display
+them. Let's try to fix this problem and update the prompt and letting CoPilot know that if it finds any N+1s,
+it should be confident in those findings and leave comments.
+
+## Added CoPilot Confidence
+
+```text:.github/copilot-instructions.md
+... Everything above this last paragraph is the same ...
+
+When you see this type of situation, you need to leave a comment on the offending code!
+Do NOT leave "low confidence" comments, leave real comments on the offending lines of code.
+The comment should say something like "An N+1 query was noticed with the User model.
+You can fix this by doing User.includes(:account)"
+```
+
+I pushed this new wording up and opened a new Pull Request. Here is the comment that it left.
+
+![Github Copilot comment instructions with confidence](/post_images/github-copilot-instructions-ruby-on-rails-n-plus-one/copilot-instructions-2.png)
+
+I was blown away when I saw this. We are able to get detailed feedback on the exact lines of code that
+would cause N+1s all with the click of a button!
+
+## Conclusion
+
+I'm super excited about this new CoPilot feature and I think it unlocks an amazing avenue to catching
+problems that are specific to programming languages, frameworks, and even patterns in a given repository.
+As with all things AI, we saw that prompt writing does play a factor in the type of results that we get so
+remember to take the time to write clear and specific instructions when writing CoPilot instructions.
+Send me an email on the [Contact](/contact) page with the prompt and the CoPilot comment that helps out
+the most when using the feature!
