@@ -1,0 +1,286 @@
+---
+title: My Thoughts and Experiences with Vibe Coding (Mid 2025)
+date: "2025-05-22"
+template: "post"
+draft: false
+slug: "thoughts-and-experiences-vibe-coding-mid-2025"
+description: |
+  I've spent a bit of time doing some vibe coding and I wanted to share my thoughts
+  about what went well and what didn't go well.
+tags:
+  - "ai"
+  - "programming"
+  - "opinion"
+  - "thoughts"
+  - "experiences"
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+I've been reflecting on the changes I've made in my approach to programming related to using more AI tools
+and I wanted to share some thoughts I had on vibe coding. For context,
+[Wikipedia](https://en.wikipedia.org/wiki/Vibe_coding) describes it
+> Vibe coding (or vibecoding) is a programming paradigm dependent on artificial intelligence (AI), where a person
+> describes a problem in a few sentences as a prompt to a large language model (LLM) tuned for coding. The
+> LLM generates software, shifting the programmer's role from manual coding to guiding, testing, and refining the
+> AI-generated source code.
+
+I want to add to the description that my personal take on vibe coding is that there is a lot less upfront reading
+and understanding of the code being generated and much more going with the flow to get something working. Going with
+the flow of the code being generated and trying to get to an initial point of the code working is an amazing way
+to get a product or feature started. The Wikipedia article agrees with this take
+
+> A key part of the definition of vibe coding is that the user accepts code without full understanding. AI researcher
+> Simon Willison said: "If an LLM wrote every line of your code, but you've reviewed, tested, and understood it all,
+> that's not vibe coding in my book—that's using an LLM as a typing assistant."
+
+With all that said, I want to cover a couple anecdotal experiences with vibe coding and describe what went well
+and what didn't go well with each one. We'll touch on how it's easy to be left with a lot of code you don't understand,
+why generating a set of tasks helps to keep the LLM on track, and how new programming languages are more accessible
+than ever.
+
+## LSP For SQL Dialect
+
+The first project I wanted to try vibe coding on was an attempt to create an
+[LSP](https://microsoft.github.io/language-server-protocol/) for a SQL-like dialect.
+A key point of this project is that it is meant to go to production, have others
+install it, and be open source. To me, that means I needed to understand how everything works, at least for
+the first version.
+
+The language is a subset of SQL capabilities that can only read data and
+doesn't have to use `SELECT`. An example query looks like this.
+
+```sql
+(
+  kubernetes.cluster_id IN ('production', 'staging')
+  AND ((kubernetes.namespace = 'kube-system') OR (kubernetes.namespace = 'default'))
+)
+```
+
+Starting this project having no experience with what it takes to write an LSP, I knew that I would need
+a set of steps to have the LLM follow. Without that, I wouldn't have any idea if the all the LSP
+functionality was being created. This is the prompt I started off with.
+
+> I want to write an LSP that will conform to https://microsoft.github.io/language-server-protocol/. I want
+> to write the project in Ruby as well. The language we'll be writing for this is a small subset of SQL. Can
+> you outline a set of steps to implement this LSP that we can work together on. Some example steps would
+> initializing a project or defining the language characteristics.
+
+This is the set of steps that was returned.
+
+> I'll help you create an LSP using Ruby. Here's a suggested breakdown of steps we can work through together:
+>
+> 1. Project Setup
+>    - Initialize a new Ruby project
+>    - Set up necessary gems (like language_server-protocol)
+>    - Create basic project structure
+>    - Set up testing framework
+>
+> 2. Define Language Specification
+>    - Document the syntax and grammar
+>    - Define allowed operations
+>    - Specify keywords and operators
+>    - Define data types
+>    - Document any special rules or constraints
+>
+> 3. Implement Basic LSP Infrastructure
+>    - Initialize connection handling
+>    - Implement basic message handling
+>    - Set up JSON-RPC communication
+>    - Implement initialization request/response
+>
+> 4. Core LSP Features Implementation
+>    - Text document synchronization
+>    - Diagnostics
+>    - Completion
+>    - Hover
+>    - Go to definition
+>    - Symbol search
+>
+> 5. SQL-Specific Features
+>    - Parser implementation
+>    - Syntax validation
+>    - Semantic analysis
+>    - Query validation
+>
+> Would you like to start with step 1 or would you prefer to begin with step 2 so I can better understand
+> the language we're working with?
+
+### What Went Well
+
+This was the first time I had tried out this approach of generating a list of steps for the LLM to follow instead
+of prompting on the go. The steps gave LLM the framework to not get lost and continue working towards a goal.
+After completing a bullet point, I would ask the LLM to review the list of steps and add check marks to everything
+that had been completed. Typically in its response, the LLM would suggest some of the bullet points to work on next
+and that pattern is how I progressed through this set of initial steps. I've since adopted this pattern into all my
+LLM usage where I'm setting out on a larger task. My favorite sentence to add is "We don't need to write any code right
+now! We're only generating a list of steps that we need to complete."
+
+In going through the steps, I generated classes for all the LSP features as well as a passing test suite for each one.
+It appeared that features like autocomplete, hover tooltips, and errors for invalid syntax were all in
+place and ready to go. As each feature got checked off and the tests continued to pass, I grew more and more excited
+to run the LSP on a real file, not just simulate syntax in tests.
+
+The next step was to create a VSCode extension and try the LSP for real. I wrote a prompt explaining that I wanted to
+make the extension and the LLM was able to generate a second folder in the project containing all the Typescript
+code needed to generate the extension. I ran the script to generate the extension, installed it into VSCode, and
+created a file to start playing around with the autocomplete features. And then nothing worked. No autocomplete,
+no underlining incorrect syntax, no hover information.
+
+The whole time I had a false sense that everything was working due to all the tests passing but after seeing
+nothing work in VSCode, I needed to figure out what was going on. Thankfully I was able to prompt the LLM about
+how to add logging to the extension and how to view those logs in VSCode. I came to find out the extension was
+immediately crashing when it started.
+
+### What Didn't Go Well
+
+After finding out the VSCode extension was immediately crashing, I needed to start debugging what was going on and
+I realized that I didn't know where any of the code was located or how any of it intertwined. Throughout the
+initial process of building everything, I had blindly accepted code, checked that tests worked, and moved on without
+spending any time understanding what had been generated. I was definitely embracing the good vibes and it felt
+great from a productivity standpoint but I ended up having to do a ton of work to start the debugging process.
+
+To start, I spent a lot of time reading through all the generated code to understand what it was doing.
+Because Ruby is my primary language of choice, I was able to understand everything, however had I chosen
+a different language for this project, it would have taken me substantially longer. After getting a grasp on it all,
+I manually refactored everything into a mental model that made sense to me. Now the project was in a place where
+I could start adding logging and debugging what was going on only to discover there were a plethora of problems.
+
+I started a second iteration of vibe coding that followed a pattern of fix a bug, compile VSCode extension, install
+extension, see logs for a new bug, feed bug back into the LLM. New code would be generated, I understand and apply any
+additional manual edits to that code, and repeat. As I paid closer attention to the code being generated I noticed many
+of the features that I thought had been previously completed were actually lacking in their implementation. Following
+this new pattern led to a far more successful iteration and I did not run into any further major issues.
+
+### Takeaways
+
+* A large list of steps or tasks is extremely useful as it can be referenced over and over to guide work
+* Building a project that is based on a specification, like an LSP, allows the LLM to confidently generate code and tests
+* Moving from task to task without reviewing the code being written leads to a huge knowledge gap when
+debugging needs to occur
+
+## API Endpoints For My Personal Website (Next.js)
+
+With all the hype for [Model Context Proptocols](https://github.com/modelcontextprotocol) (MCP) an interesting
+idea caught my eye, which was to build a personal MCP. The premise of a personal MCP is a way for someone
+to ask questions about me and the LLM to be able to use the MCP to better answer those questions. An example
+I thought of would be someone asking "What topics does Jeremy blog about?" An API endpoint could provide
+all the metadata about my blog post posts so that is what I set out to build. An awesome
+thing about Next.js is that not only can it render the contents of this website but it can also act
+as an API server. All my blog content is already checked into this repository so building an API to
+return that data would be no problem at all.
+
+### What Went Well
+
+I had started working on building these APIs before I realized that this would be a perfect opportunity to let an
+LLM take over the work. There were only a handful of endpoints that needed to be implemented and none were very
+complex so there isn't a lot to say here. The LLM ended up being able to finish everything rather quickly as it was
+able to examine what I had already implemented and then apply that to the rest of the endpoints.
+
+This leads me to believe that when vibe coding on an existing project, loading similar examples of what
+I want to get done into the context will make the experience go smoother. I don't want to let LLM generate code
+that doesn't match what already exists or to generate code in places it shouldn't.
+
+### What Didn't Go Well
+
+The only issue I ran into when testing the APIs was that I had written a route as `/api/blogs/slug/route.ts` and
+quickly realized it needed to be `/api/blogs/[slug]/route.ts`. This was my fault, I had pre-written all the routes and
+didn't ask the LLM to generate any of the files. Otherwise, all the code that was generated worked as expected.
+
+### Takeaways
+
+* Giving explicit context with existing files or code references up front seems to work best
+* Small, well defined tasks ensure that the code being generated stays contained to a single area of the project
+* Having prior experience with what is being generated, in this case it was Next.js API routes, is beneficial when testing the generated code afterwards
+
+## Git TUI In Go
+
+For my last experience, after I started writing this article I decided I want to give in fully to vibes and
+see if I could get a project working by letting the agent do all of the coding. I recalled a friend of mine
+talking about [lazygit](https://github.com/jesseduffield/lazygit) and thought that a TUI to view git commits
+would be a perfect type of project for this experiment. I don't really know Go so my ability to make changes
+to this project would be pretty limited and that is exactly what I wanted! I decided there would be no
+manual changes from me and anything that needed to be fixed would be done via prompts. The end result
+was [go-git-tui-vibes](https://github.com/jer-k/go-git-tui-vibes).
+
+I initialized an empty directory and wrote this prompt.
+
+> This is a blank project called `go-git-tui`. I don't have a ton of experience
+> with Go, but I've been wanting to learn. What I want to build is a TUI (Terminal UI) application that has one
+> function, which is to view the git commits of a repository in a carousel fashion. Imagine each commit being a
+> fixed width wide and we display all the information about it vertically.
+> At the bottom of the box, I want a colored dot. If you take the 6 characters of a commit sha, it is a valid
+> hex color so the colored dot will be based off that. I want all the dots displayed on the screen to have a
+> line connecting them together. The line should be a gradient of the two hex colors.
+> Finally, we will show as many commits as possible on the screen (based on the width of each commit box and the
+> width of the terminal window) and users should be able to scroll using the arrow keys.
+>
+> Before you write any code, can you come up with a plan for implementing this project?
+
+Throughout the day, I would write prompts to make changes and go back to doing something else. As the project was
+getting closer to completion, I spent a focused 30 minutes prompting fix some issues get the project to a place
+I felt happy in stopping at. The result was the project worked but the look didn't quite match my initial description;
+it was close but I wouldn't ship this UI to customers.
+
+## What Went Well
+
+I would say that ending up with a working piece of software means this experience went well! Here is the end
+result of the TUI.
+
+![go-git-tui](/post_images/thoughts-on-vibe-coding/go-git-tui.png)
+
+While the project was relatively simple and is by no means production ready, the fact that it is written in a
+language I don't know and I didn't have to manually edit anything is very exciting to me. Now don't go jumping
+to conclusions, I'm **not** trying to say that AI is going to replace software engineering jobs or anything like
+that. This result is exciting to me because it showcases a new way of learning. I now have a working program in Go
+that I can start tinkering with and learning from. I've always found it daunting to try to dive into a huge open
+source repository and try to learn from it. I tried to learn Go by doing this with Docker's
+[buildx](https://github.com/docker/buildx) repository when I was running into weird bugs on my build server and
+it didn't go well.
+
+The other part of this experiment that I felt went really well was the asynchronous nature in which the project
+was built. As I mentioned before, throughout the day I would write a prompt and go back to doing something else.
+This allowed me to make progress on multiple things at once and all I had to do when I came back to this project
+was rebuild and run it to see what changed in the TUI. I would pick out something that was wrong, write a prompt,
+and then go back to doing something else. Sometimes I would come right back and repeat the process, other times it
+would be an hour before I made it back. Either way, I was really happy with the way it progressed and it leads me
+to believe that leaning in on this asynchronous path **might** be an amazing productivity boost.
+
+## What Didn't Go Well
+
+This experiment really suffered from a two steps forward, one step backward process. It really
+felt like every time I would write a prompt to make a tiny adjustment to the TUI, the LLM would attempt to fix what
+I asked and break something else in the process. Attempting to get the line with a gradient to connect the dots
+in the commit boxes was probably 10 to 15 prompts of the line moving and breaking things. The line would
+move down and the boxes would suddenly have extra vertical whitespace or the border of the boxes
+would be messed up. I really wanted to jump into the code and figure it out myself but I was also curious to see
+what result I could get through only prompting. In the end, I didn't get the exact result I wanted but the commit
+boxes looked fine so I called it quits at that point.
+
+### Takeaways
+
+* It is possible to create small contained projects from scratch that work
+* When trying to solve a very specific task, it is possible to stumble creating a two steps forward, one step back process
+* There is potential for learning programming languages or how features of a language work from building projects as
+an alternative to tutorials
+
+## Conclusion
+
+These three projects have helped me learn a lot about what the future of programming may look like. I think we'll all take
+different approaches and use LLMs in different ways that suit our individual and even project level needs. Some of us
+will value the velocity that vibe coding can achieve while others will sacrifice some of that speed for a better
+understanding of the code that is generated. Both approaches will be viable, it will come down to personal preference.
+Currently, my personal preference on vibe coding is that it isn't for me for projects that I intend to maintain for long
+periods of time. I want to understand the code that is being committed so that if a problem arises and I need to debug
+something I'm ready to dive in. Or if a co-worker asks me a question about what the code is doing, I won't be reading
+through the code for the first time myself. I want to go back to a quote from the start of this article.
+
+> Simon Willison said: "If an LLM wrote every line of your code, but you've reviewed, tested, and understood it all,
+> that's not vibe coding in my book—that's using an LLM as a typing assistant."
+
+This summary perfectly encapsulates my current view. I want to use the LLM as an assistant to help me generate code
+but I also want to understand that code, to make stylistic adjustments, and be cognizant of how that code intertwines
+into the rest of the project. The capabilities of LLMs have changed a lot over the past year so I hope to revisit this
+topic in the future to see if my view has stayed consistent or will have changed.
