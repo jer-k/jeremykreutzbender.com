@@ -51,7 +51,12 @@ export const mdxComponents: MDXComponents = {
   img: (props) => (
     <Image
       sizes="100vw"
-      style={{ width: "100%", height: "auto" }}
+      style={{
+        width: "100%",
+        height: "auto",
+        marginTop: "16px",
+        marginBottom: "16px",
+      }}
       width={450}
       height={450}
       placeholder="blur"
