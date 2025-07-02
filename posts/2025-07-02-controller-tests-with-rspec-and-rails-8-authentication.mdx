@@ -1,0 +1,177 @@
+---
+title: Controller Tests with RSpec and Rails 8 Authentication
+date: "2025-07-02"
+template: "post"
+draft: false
+slug: "controller-tests-with-rspec-and-rails-8-authentication"
+description: |
+  How to authenticate a User in Controller tests when using RSpec and Rails 8 authentication.
+tags:
+  - "ruby-on-rails"
+  - "authentication"
+  - "rspec"
+  - "tests"
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+We're all writing tests for our side projects right? We're ensuring that code is reliable for
+for all those users we have! I recently decided that my project, all it's users (hint: that's only me)
+would benefit from some controller tests and I realized that I didn't have anything set up in the
+tests to authenticate a `User`. That poses a bit of a problem in writing any useful tests, however
+since all the authentication code already exists in our repository it is only matter of adding a
+helper method to our test environment. Thankfully the Rails community was two steps ahead of me
+and had already delivered on a solution. Let's do a quick walkthrough of what has changed in the
+Rails 8 authentication generator, how we can apply those changes to RSpec, and wrap up with a passing
+controller test.
+
+## Test Helper - Rails 8 Authentication Generator
+
+Having been a long time [devise](https://github.com/heartcombo/devise) user, I'm accustomed to throwing
+a `login_user` call at the top of a controller test and being on my way. However, we're not using `devise` anymore
+and I wondered if anyone had implemented a similar solution for the Rails 8 authentication generator? I
+googled (in this day and age?!) _rails 8 authentication tests_ and the top result was a GitHub issue on the
+Rails repository, [Controller testing new authentication generator.](https://github.com/rails/rails/issues/53207)
+This seemed like a good place to start so I read through all the comments and there are a ton of helpful insights.
+At the end of the discussion, a Pull Request was opened
+[Add login_as(user) testing helper when generating authentication](https://github.com/rails/rails/pull/53708).
+This is pretty exciting and it means that the authentication generator wasn't a one and done piece of work.
+The Rails team and community see it as a core piece of the framework and something that can and will evolve
+over time. The Pull Request is a small 44 lines of change so take a quick look at it but the actual helper
+function can be seen below.
+
+```ruby
+module SessionTestHelper
+  def sign_in_as(user)
+    Current.session = user.sessions.create!
+
+    ActionDispatch::TestRequest.create.cookie_jar.tap do |cookie_jar|
+      cookie_jar.signed[:session_id] = Current.session.id
+      cookies[:session_id] = cookie_jar[:session_id]
+    end
+  end
+
+  def sign_out
+    Current.session&.destroy!
+    cookies.delete(:session_id)
+  end
+end
+```
+
+## Adding the Test Helper to RSpec
+
+The generator code in the Pull Request makes assumptions that we're using [Minitest](https://github.com/minitest/minitest),
+which is the default testing framework so that's expected. However, I've been a long time RSpec user so I wanted to adapt
+the helper function to my RSpec setup. Here's the file I created.
+
+```ruby:spec/support/authentication_helpers.rb
+# Lifted from https://github.com/rails/rails/pull/53708 - Add login_as(user) testing helper when generating authentication
+RSpec.shared_context "authentication helpers" do
+  def sign_in_as(user)
+    Current.session = user.sessions.create!
+
+    ActionDispatch::TestRequest.create.cookie_jar.tap do |cookie_jar|
+      cookie_jar.signed[:session_id] = Current.session.id
+      cookies[:session_id] = cookie_jar[:session_id]
+    end
+  end
+
+  def sign_out
+    Current.session&.destroy!
+    cookies.delete(:session_id)
+  end
+end
+
+RSpec.configure { |config| config.include_context "authentication helpers" }
+```
+
+Note that I didn't change any of the code for `sign_in_as` or `sign_out`. The main difference is removing
+`module SessionTestHelper` and replacing with `RSpec.shared_context "authentication helpers" do` along with the
+final line `RSpec.configure { |config| config.include_context "authentication helpers" }`. There is one
+more piece that is needed, which is to include this context in all our tests.
+
+```ruby:spec/rails_helper.rb
+Dir[Rails.root.join("spec", "support", "**", "*.rb")].each { |f| require f }
+```
+
+Now we're able to use this authentication helper! Let's write a quick test to ensure everything is working
+as expected.
+
+## Example Test
+
+In one of my previous posts about using the authentication generator,
+[Adding Email Address Verification in Rails 8](./adding-email-address-verification-in-rails-8), we set up
+a `UsersController` to create new users and an `EmailAddressVerificationsController` to have the user
+confirm the email address they used. As I alluded to in the beginning of this post, I hadn't written any
+tests for my project using that code so let's go ahead and write some tests for the
+`EmailAddressVerificationsController`.
+
+```ruby:spec/controllers/email_address_verifications_controller_spec.rb
+require "rails_helper"
+
+RSpec.describe EmailAddressVerificationsController do
+  let(:user) { FactoryBot.create(:user) }
+  let(:other_user) { FactoryBot.create(:user) }
+
+  before(:each) do
+    sign_in_as(user)
+  end
+
+  describe "#show" do
+    context "when the verification token is valid and user matches" do
+      it "verifies the user and returns success" do
+        get :show, params: { token: user.email_address_verification_token }
+
+        expect(response).to have_http_status(:ok)
+        # Add expectation around rendered JSON or redirected path
+      end
+    end
+
+    context "when the verification token belongs to a different user" do
+      it "returns an error for user mismatch" do
+        get :show, params: { token: other_user.email_address_verification_token }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        # Add expectation around rendered JSON or redirected path
+      end
+    end
+  end
+
+  describe "#resend" do
+    it "resends the verification email" do
+      expect { post :resend }.to have_enqueued_mail(UserMailer, :verify_email_address)
+
+      expect(response).to have_http_status(:ok)
+      # Add expectation around rendered JSON or redirected path
+    end
+  end
+end
+```
+
+One difference between this setup and the `login_user` method, which takes no arguments, from `devise` is that
+we have to reference a created `User` record and in RSpec that means `sign_in_as` has to be called inside
+of a scoping block. If we remove the `before(:each)` and try to call it, we see the following error.
+
+> An error occurred while loading ./spec/controllers/email_address_verifications_controller_spec.rb.
+>
+> Failure/Error: sign_in_as(user)
+>
+>   `user` is not available on an example group (e.g. a `describe` or `context` block). It is only available from within
+> individual examples (e.g. `it` blocks) or from constructs that run in the scope of an example (e.g. `before`, `let`, etc).
+
+Let's go ahead and verify that all the tests are passing.
+
+```
+rspec spec/controllers/email_address_verifications_controller_spec.rb
+...
+
+3 examples, 0 failures
+```
+
+## Conclusion
+
+The Rails community is awesome and I was so happy to see this addition to the authentication generator was
+community driven. I hope that the RSpec users in the community who haven't started writing any tests yet are
+able to benefit from this post. Happy testing!
