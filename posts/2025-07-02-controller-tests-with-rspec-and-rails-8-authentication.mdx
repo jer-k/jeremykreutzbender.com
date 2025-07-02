@@ -29,7 +29,7 @@ controller test.
 
 ## Test Helper - Rails 8 Authentication Generator
 
-Coming from being a long time [devise](https://github.com/heartcombo/devise) user, I'm accustomed to throwing
+Having been a long time [devise](https://github.com/heartcombo/devise) user, I'm accustomed to throwing
 a `login_user` call at the top of a controller test and being on my way. However, we're not using `devise` anymore
 and I wondered if anyone had implemented a similar solution for the Rails 8 authentication generator? I
 googled (in this day and age?!) _rails 8 authentication tests_ and the top result was a GitHub issue on the
@@ -38,9 +38,9 @@ This seemed like a good place to start so I read through all the comments and th
 At the end of the discussion, a Pull Request was opened
 [Add login_as(user) testing helper when generating authentication](https://github.com/rails/rails/pull/53708).
 This is pretty exciting and it means that the authentication generator wasn't a one and done piece of work.
-The Rails team and community sees it as a core piece of the framework and something that can and will evolve
-over time. The Pull Request is a small 44 lines of change so take a quick look but the actual helper function
-can be seen below.
+The Rails team and community see it as a core piece of the framework and something that can and will evolve
+over time. The Pull Request is a small 44 lines of change so take a quick look at it but the actual helper
+function can be seen below.
 
 ```ruby
 module SessionTestHelper
@@ -155,7 +155,9 @@ we have to reference a created `User` record and in RSpec that means `sign_in_as
 of a scoping block. If we remove the `before(:each)` and try to call it, we see the following error.
 
 > An error occurred while loading ./spec/controllers/email_address_verifications_controller_spec.rb.
+>
 > Failure/Error: sign_in_as(user)
+>
 >   `user` is not available on an example group (e.g. a `describe` or `context` block). It is only available from within
 > individual examples (e.g. `it` blocks) or from constructs that run in the scope of an example (e.g. `before`, `let`, etc).
 
@@ -171,5 +173,5 @@ rspec spec/controllers/email_address_verifications_controller_spec.rb
 ## Conclusion
 
 The Rails community is awesome and I was so happy to see this addition to the authentication generator was
-community driven. I hope that the RSpec users in the community who haven't started writing any tests yet able
-to benefit from this post. Happy testing!
+community driven. I hope that the RSpec users in the community who haven't started writing any tests yet are
+able to benefit from this post. Happy testing!
