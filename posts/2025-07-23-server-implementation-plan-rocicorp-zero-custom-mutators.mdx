@@ -236,7 +236,7 @@ function handleHttpRequest(httpRequest):
 ## Processing Mutations
 
 Now that we've finished setting up our endpoint, the next step is to set up a loop
-to process all the mutations that are being sent to us. There a lot to cover here
+to process all the mutations that are being sent to us. There isn't a lot to cover here
 except for one important piece. While we're looping and processing each individual
 mutation, if we ever run into an `oooMutation` error, we have to stop processing
 the entire batch and return the payload we've built up. Even if an `oooMutation`
@@ -261,6 +261,16 @@ function processAllMutations(request):
 ```
 
 ## Processing a Single Mutation
+
+Inside of our loop, we have to process each individual mutation. To do
+so there are two steps we have to take. The first is to do a check
+that the mutation payload we recieved in properly ordered and if
+everything checks out, we'll then dispatch the mutation to apply
+the changes to the record in the database. In this individual
+processing we want to catch specific errors thrown, like the previously
+mentioned `oooMutation` error and construct a response object
+that the looping process can check against. If everything process
+fine, then we only need to return an empty object.
 
 ### Pseudocode Implementation
 
@@ -287,15 +297,33 @@ function processOneMutation(mutation):
 
 ## Validating Mutation Data
 
+To validate the order of the mutation, there are a few steps we need to go through.
+The first will be to create a database table which can hold these mutation records.
+We want to be able to open a transaction and atomically do the required checks; if
+anything fails we'll throw an error and exit the transactions without applying any changes.
+
+The checks that we're required to do are scoped to the `clientID` and the first check
+is to see if we've already processed this mutation. This likely happens when an error
+occurs and Zero retries a batch of mutations; we don't want to re-apply any changes
+that we've already done so it makes sense to skip them! The other required check
+is looking for mutations that have come in out of order. The last thing we want
+is to apply changes in the wrong order and then our users end up seeing an incorrect
+value when the syncing is finished. Distributed systems aren't
+100% perfect so my assumption is that there is a scenario where mutations get bundled
+together in the wrong order, sent to the server, we'll throw our `oooMutation` error,
+send the data back to Zero and then Zero will fix the ordering and retry, but that's
+just a guess. If both checks pass then we go ahead and update the `mutationID`, save
+the record, and continue our processing.
+
 ### Pseudocode Implementation
 
 ```
-function checkMutationOrder(clientId, mutationId):
+function checkMutationOrder(clientID, mutationId):
   // Start a database transaction - this must be atomic!
   database.transaction:
 
     // Find the client's current state
-    record = database.findOrCreate("client_mutation", clientId)
+    record = database.findOrCreate("client_mutation", clientID)
     currentLast = record.last_mutation_id
 
     // Check if we already processed this
@@ -382,6 +410,9 @@ function handleUserUpdate(attributes):
 
 ## Conclusion
 
-
+We made it through the whole implementation plan and I hope you're as excited about
+Custom Mutators as I am. If you write your own implementation in a different language be
+sure to share your learnings with Zero community! I'll be following up this post with
+another post showing my Ruby on Rails implementation.
 
 <ZeroPosts currentSlug={frontmatter.slug} />
