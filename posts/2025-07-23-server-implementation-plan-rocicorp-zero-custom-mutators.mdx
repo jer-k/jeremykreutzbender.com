@@ -1,0 +1,387 @@
+---
+title: Server Implementation Plan For Rocicorp's Zero - Custom Mutators
+date: "2025-07-23"
+template: "post"
+draft: false
+slug: "server-implementation-plan-rocicorp-zero-custom-mutators"
+description: |
+  A language agnostic overview of what a server implementation looks like for Custom Mutators
+tags:
+  - "zero"
+  - "custom-mutators"
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+It's been a minute since I wrote anything about [Zero](https://zero.rocicorp.dev) but I've
+finally gotten back to working on my project that is using it. A lot changed between the time
+I took a break, where I was on the `0.11` release, to starting back up and updating to the `0.20`
+release. In the middle of those was the long awaited release of
+[0.18 - Custom Mutators](https://zero.rocicorp.dev/docs/release-notes/0.18). I encourage reading
+through the [Custom Mutators Documentation](https://zero.rocicorp.dev/docs/custom-mutators) to
+get acquainted with the details but if this blog post is has caught your attention then I'm
+guessing you're already well versed on what Custom Mutators are.
+
+After I finished my upgrade to `0.20` I started investigating how I could use Custom Mutators. The
+Zero team has made it extremely easy to use Custom Mutators if the project is fullstack
+[Typescript](https://www.typescriptlang.org/), however if the project is using a different language
+for the server code there is some work to be done. My project is using
+[Ruby on Rails](https://rubyonrails.org/) so I started my adventure on figuring out how to implement
+Custom Mutators on my own; the aforementioned documentation states adventure is doable and even
+gives a small example in [Go](https://go.dev/).
+
+> The server implementation runs on your server, in your push endpoint, against your database.
+> In principle, it can be written in any language and use any data access library. For example you
+> could have the following Go-based server implementation of the same mutator
+
+While my implementation is in Ruby on Rails, I wanted to share what I learned while doing my
+implementation in a more language agnostic way. I'm positive the Zero team will have their own
+write-up or maybe even SDKs at some point but for the time being I hope this helps anyone else
+who is excited about Custom Mutators and isn't building a fullstack Typescript app. What follows
+is a lot of words and some psuedo-code examples to help solidify the ideas. Let's dive in!
+
+## High Level Abstract
+
+At a high level the flow of the Custom Mutators server implementation is going to be that
+we receive an HTTP request with a list of mutations that need to be run on our server. There
+are a handful of steps we'll need to go through to properly process them so let's turn those
+steps down into a list.
+
+* HTTP request comes in with mutations
+  * Validate the request
+* Process the list of muations and capture the results
+  * For each mutation in the list
+    * Check if it's the next expected mutation ID for this client
+    * If out of order, stop and return error (client will retry)
+    * If duplicate, skip it
+    * Otherwise, run a mutator and write data to the database
+    * Update the mutation tracking
+* Return all the results
+
+We're going to break each of these steps out into their own section in this post in an order
+that that I hope makes logical sense from an implementation standpoint. Remember that there
+isn't any real code being written here but we'll jot down some pseudocode to solidify the concepts.
+
+## HTTP Request and Endpoint
+
+The start of this implementation is to add an endpoint to our server which will receive and process
+requests sent from Zero. This endpoint needs to set up to receive a `POST` request and respond back
+with a payload indicating which mutations were successfully applied and which mutations failed
+to be applied.
+
+### `PushRequest` schema
+
+```
+PushRequest:
+  - clientGroupID: number
+  - mutations: Array<Mutation>
+  - pushVersion: number // Will be 1
+  - timestamp: number
+  - requestID: number
+
+// Each mutation looks like:
+Mutation:
+  - type: string // Will be "custom"
+  - id: number // sequential number (1, 2, 3, 4...)
+  - clientID: number
+  - name: string // Will be "namespace|mutatorName" like "book|update"
+  - args: Array<Record<string, any>>
+  - timestamp: number
+```
+
+Here's a real world example from my implementation to help solidify the structure.
+
+```json
+{
+  clientGroupID: "9au3tfpauegocajuba",
+  timestamp: 1753139962914,
+  mutations: [
+    {
+      type: "custom",
+      id: => 2,
+      clientID: "gjjtc2mm95ofvleq33",
+      name: "book|update",
+      timestamp: 1753139962891,
+      args: [ { id: 2040, name: "Updated Book Name" } ]
+    }
+  ],
+  pushVersion: 1,
+  requestID: "gjjtc2mm95ofvleq33-cb52fe85-9",
+  schema: "zero_0",
+  appID: "zero"
+}
+```
+
+### Additional `PushRequest` Parameters
+
+One last note on the `PushRequest` schema is there is functionality built in to pass any additional
+parameters from the client to server.
+
+```ts
+const z = new Zero({
+  push: {
+    queryParams: {
+      workspaceID: "42",
+    },
+  },
+});
+```
+
+When configuring Zero on the client, we can add in the `push` key and nest the additional parameters under the
+`queryParams` key. These parameters will show up as top level keys so the structure from above would have
+the `workspaceID` appended to the end like so.
+
+```json
+{
+  ... // All the other parameters
+  requestID: "gjjtc2mm95ofvleq33-cb52fe85-9",
+  schema: "zero_0",
+  appID: "zero",
+  workspaceID: 42
+}
+```
+
+### HTTP Endpoint
+
+How the endpoint is implemented is going to be vastly different depending on which framework or library
+is being used. The single requirement for the endpoint is that is accepts a `POST` request. I set up
+my route to be `POST zero/mutations/push` however it does not have to be that nested.
+
+### HTTP Endpoint Validation
+
+There are a handful of ways that we can achieve validating the requests that we're receiving from Zero. Let's
+start off with the `AUTHORIZATION` header. Zero includes the JWT that we're using on the client in the
+these requests so the first step in validating the request should be to decode the JWT and ensure that it is
+valid. After decoding it, we'll have access to any data that was originally encoded, such as a user ID, so
+we'll know who performed the mutation on the client. We'll want to use that user information to ensure relational
+integerity of the data being mutated.
+
+The next step in validation is optional, but I think it's an important one as well. In the
+[zero-cache Config Documentation](https://zero.rocicorp.dev/docs/zero-cache-config) there is an option to set
+`ZERO_PUSH_API_KEY` which is a secret key that will be included in the `X-API-KEY` header. We can include that
+secret as an environment variable in our server and check the header against the environment variable to ensure
+the request is coming from our own Zero instance.
+
+In a similar fashion, and again optional, we can customize our Zero application ID by setting [ZERO_APP_ID](https://zero.rocicorp.dev/docs/zero-cache-config#app-id). In the request payload above, we saw `appID: "zero"`,
+which is the default but we should configure this TODO FINISH
+
+### `PushResponse` Schema
+
+The endpoint needs to respond with a `200` when processing is successful or with a `401` or `403` if you would
+like Zero to re-authenticate and then try the mutations again. Any other response code returned and Zero will
+wait for 5 seconds and then re-send the request. In the case where everything was successful, we need to return
+a response structure that matches the `PushResponse` schema.
+
+```
+PushResponse:
+  * mutations: Array<Mutation>
+
+// Each mutation looks like:
+Mutation:
+  * id: MutationId
+  * result: MutationResult
+
+MutationId:
+  * clientID: string
+  * id: string
+
+// Return an empty object ({}) if the result is valid
+MutationResult:
+  * details?: string
+  * error: "oooMutation" | "alreadyProcessed"
+```
+
+Here's are some real world examples from my implementation to help solidify the structure.
+First is a successful result, second is a result with errors where the `details` is an error
+message I came up with.
+
+```json
+{
+  mutations: [
+    { id: { clientID: "gjjtc2mm95ofvleq33", id: 1 }, result: {} },
+    { id: { clientID: "gjjtc2mm95ofvleq33", id: 2 }, result: {} }
+  ]
+}
+```
+
+```json
+{
+  id: { clientID: "gjjtc2mm95ofvleq33", id: 3 },
+  result: {
+    details: "Client gjjtc2mm95ofvleq33 sent mutation ID 3 but expected 2",
+    error: "oooMutation"
+  }
+}
+```
+
+### Pseudocode Implementation
+
+```
+function handleHttpRequest(httpRequest):
+  try:
+    validateRequest(httpRequest)
+
+    body = parseJSON(httpRequest.body)
+
+    response = processAllMutations(body)
+
+    return httpResponse(200, response)
+
+  catch any error as e:
+    return httpResponse(500, {error: "zeroPusher", details: e.message})
+```
+
+## Processing Mutations
+
+Now that we've finished setting up our endpoint, the next step is to set up a loop
+to process all the mutations that are being sent to us. There a lot to cover here
+except for one important piece. While we're looping and processing each individual
+mutation, if we ever run into an `oooMutation` error, we have to stop processing
+the entire batch and return the payload we've built up. Even if an `oooMutation`
+occurs, we still need return the data as a `200` response.
+
+### Pseudocode Implementation
+
+```
+function processAllMutations(request):
+  responses = []
+
+  for each mutation in request.mutations:
+    response = processOneMutation(mutation)
+    responses.add(response)
+
+    // If we run into a mutation that has an oooMutation error,
+    // we have to stop processing and send the result back to Zero.
+    if response.result.error == "oooMutation":
+      break
+
+  return {mutations: responses}
+```
+
+## Processing a Single Mutation
+
+### Pseudocode Implementation
+
+```
+function processOneMutation(mutation):
+  mutationId = {clientID: mutation.clientID, id: mutation.id}
+
+  try:
+    checkMutationOrder(mutation.clientID, mutation.id)
+
+    dispatchToBusinessLogic(mutation)
+
+    return {id: mutationId, result: {}}
+
+  catch OutOfOrderError as e:
+    return {id: mutationId, result: {error: "oooMutation", details: e.message}}
+
+  catch AlreadyProcessedError as e:
+    return {id: mutationId, result: {error: "alreadyProcessed", details: e.message}}
+
+  catch any other error as e:
+    return {id: mutationId, result: {error: "app", details: e.message}}
+```
+
+## Validating Mutation Data
+
+### Pseudocode Implementation
+
+```
+function checkMutationOrder(clientId, mutationId):
+  // Start a database transaction - this must be atomic!
+  database.transaction:
+
+    // Find the client's current state
+    record = database.findOrCreate("client_mutation", clientId)
+    currentLast = record.last_mutation_id
+
+    // Check if we already processed this
+    if mutationId < currentLast:
+      throw AlreadyProcessedError("already did mutation " + mutationId)
+
+    // Check if we're missing some mutations
+    if mutationId > currentLast + 1:
+      throw OutOfOrderError("expected " + (currentLast + 1) + " but got " + mutationId)
+
+    // All good! Update our tracking
+    record.last_mutation_id = mutationId
+    database.save(record)
+```
+
+## Dispatching to a Mutator
+
+Now that everything has been validated, we can dispatch the changes to a mutator
+function. Likely the easiest way to get started with this will be to create a
+`switch` statement with all the different mutators we implement. As the list
+grows we might want to modularize this. The name of the mutation will look
+like `namespace|action` and in the case of these examples it is `book|update`.
+We'll start off by using a `switch` statement and then all we need to do is
+pass in the `mutation.args` to our mutator.
+
+### Pseudocode Implementation
+
+```
+function dispatchToBusinessLogic(mutation):
+  mutatorName = mutation.name
+  args = mutation.args
+
+  switch mutatorName:
+    case "book|update":
+      handleUserUpdate(args[0])
+    default:
+      throw error("unknown mutator: " + mutatorName)
+```
+
+## Running a Mutator
+
+We finally made it; we're ready to change some data in our database! We
+passed in `args[0]` which if we refer back the example payload was
+`{ id: 2040, name: "Updated Name" }`. We'll want to use the information from
+the `AUTHORIZATION` header to ensure referential itegrity between the object
+being mutated and the authorized user. If it's a valid relation, we'll apply
+our changes and then return a result indicating that everything worked.
+
+One thing to remember is to run this whole block in a transaction to allow
+for rollbacks if any of the data is invalid. Having an open transaction
+also allows us to do any additional work we desire. The feature is called
+*Custom* Mutators for a reason!
+
+### Additional Mutator Actions
+
+The additional work we want to do could be anything from sending emails to
+creating additional records on an audit log table or just emitting metrics.
+Whatever additional work our application desires, we've made it to the point
+where all that can happen. If there isn't any additional work to be done,
+that's okay too. The option is always there in the future
+
+### Pseudocode Implementation
+
+```
+function handleUserUpdate(attributes):
+  // Get the user record from the AUTHORIZATION header, that may require passing
+  // that data all the way
+  user = database.find("user", userId)
+
+  // Ensure the User has referential integrity to actually modify this object
+  book = database.find("book", attributes["id"]).joins("users").where("users", "id", user.id)
+
+  if book:
+    database.transaction:
+      book.update(attributes[:name])
+
+      // Do any additional work desired
+      database.create("audit_log", book, "updated", attributes["name"])
+
+      return true
+  else
+    return false
+```
+
+## Conclusion
+
+
+
+<ZeroPosts currentSlug={frontmatter.slug} />

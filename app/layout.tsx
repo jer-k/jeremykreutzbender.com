@@ -10,7 +10,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://jeremykreutzbender.com"),
   title: {
-    template: "%s | Jeremy Kreutzbender",
+    template: "%s",
     default: "Jeremy Kreutzbender",
   },
   description: "A website by Jeremy Kreutzbender",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: `/api/og??title=${encodeURIComponent(
+        url: `/api/og?title=${encodeURIComponent(
           "Jeremy Kreutzbender's site",
         )}`,
         width: 960,
