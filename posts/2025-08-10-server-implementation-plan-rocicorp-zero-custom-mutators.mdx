@@ -205,11 +205,15 @@ message I came up with.
 
 ```json
 {
-  id: { clientID: "gjjtc2mm95ofvleq33", id: 3 },
-  result: {
-    details: "Client gjjtc2mm95ofvleq33 sent mutation ID 3 but expected 2",
-    error: "oooMutation"
-  }
+  mutations: [
+   {
+     id: { clientID: "gjjtc2mm95ofvleq33", id: 3 },
+     result: {
+       details: "Client gjjtc2mm95ofvleq33 sent mutation ID 3 but expected 2",
+       error: "oooMutation"
+     }
+   }
+  ]
 }
 ```
 
@@ -273,23 +277,23 @@ fine, then we only need to return an empty object.
 
 ```
 function processOneMutation(mutation):
-  mutationId = {clientID: mutation.clientID, id: mutation.id}
+  mutationInfo = {clientID: mutation.clientID, id: mutation.id}
 
   try:
     checkMutationOrder(mutation.clientID, mutation.id)
 
     dispatchToBusinessLogic(mutation)
 
-    return {id: mutationId, result: {}}
+    return {id: mutationInfo, result: {}}
 
   catch OutOfOrderError as e:
-    return {id: mutationId, result: {error: "oooMutation", details: e.message}}
+    return {id: mutationInfo, result: {error: "oooMutation", details: e.message}}
 
   catch AlreadyProcessedError as e:
-    return {id: mutationId, result: {error: "alreadyProcessed", details: e.message}}
+    return {id: mutationInfo, result: {error: "alreadyProcessed", details: e.message}}
 
   catch any other error as e:
-    return {id: mutationId, result: {error: "app", details: e.message}}
+    return {id: mutationInfo, result: {error: "app", details: e.message}}
 ```
 
 ## Validating Mutation Data
