@@ -1,6 +1,6 @@
 ---
 title: Server Implementation Plan For Rocicorp's Zero - Custom Mutators
-date: "2025-07-23"
+date: "2025-08-10"
 template: "post"
 draft: false
 slug: "server-implementation-plan-rocicorp-zero-custom-mutators"
@@ -15,8 +15,8 @@ tags:
 
 _Published on {frontmatter.date}_
 
-It's been a minute since I wrote anything about [Zero](https://zero.rocicorp.dev) but I've
-finally gotten back to working on my project that is using it. A lot changed between the time
+It's been a minute since I wrote anything about [Zero](https://zero.rocicorp.dev) but I
+finally got back to working on my project that is using it. A lot changed between the time
 I took a break, where I was on the `0.11` release, to starting back up and updating to the `0.20`
 release. In the middle of those was the long awaited release of
 [0.18 - Custom Mutators](https://zero.rocicorp.dev/docs/release-notes/0.18). I encourage reading
@@ -38,20 +38,20 @@ gives a small example in [Go](https://go.dev/).
 
 While my implementation is in Ruby on Rails, I wanted to share what I learned while doing my
 implementation in a more language agnostic way. I'm positive the Zero team will have their own
-write-up or maybe even SDKs at some point but for the time being I hope this helps anyone else
+write-up or maybe even SDKs at some point. Until then, I hope this helps anyone else
 who is excited about Custom Mutators and isn't building a fullstack Typescript app. What follows
-is a lot of words and some psuedo-code examples to help solidify the ideas. Let's dive in!
+is an explanation, with psuedo-code examples, on how to implement Custom Mutators. Let's dive in!
 
 ## High Level Abstract
 
-At a high level the flow of the Custom Mutators server implementation is going to be that
-we receive an HTTP request with a list of mutations that need to be run on our server. There
+At a high level the flow of the Custom Mutators server implementation is going to start with
+receiving an HTTP request with a list of mutations that need to be run on our server. There
 are a handful of steps we'll need to go through to properly process them so let's turn those
 steps down into a list.
 
 * HTTP request comes in with mutations
   * Validate the request
-* Process the list of muations and capture the results
+* Process the list of mutations and capture the results
   * For each mutation in the list
     * Check if it's the next expected mutation ID for this client
     * If out of order, stop and return error (client will retry)
@@ -61,13 +61,13 @@ steps down into a list.
 * Return all the results
 
 We're going to break each of these steps out into their own section in this post in an order
-that that I hope makes logical sense from an implementation standpoint. Remember that there
+that I hope makes logical sense from an implementation standpoint. Remember that there
 isn't any real code being written here but we'll jot down some pseudocode to solidify the concepts.
 
 ## HTTP Request and Endpoint
 
 The start of this implementation is to add an endpoint to our server which will receive and process
-requests sent from Zero. This endpoint needs to set up to receive a `POST` request and respond back
+requests sent from Zero. This endpoint needs to be set up to receive a `POST` request and respond back
 with a payload indicating which mutations were successfully applied and which mutations failed
 to be applied.
 
@@ -146,26 +146,23 @@ the `workspaceID` appended to the end like so.
 ### HTTP Endpoint
 
 How the endpoint is implemented is going to be vastly different depending on which framework or library
-is being used. The single requirement for the endpoint is that is accepts a `POST` request. I set up
+is being used. The single requirement for the endpoint is that it accepts a `POST` request. I set up
 my route to be `POST zero/mutations/push` however it does not have to be that nested.
 
 ### HTTP Endpoint Validation
 
 There are a handful of ways that we can achieve validating the requests that we're receiving from Zero. Let's
-start off with the `AUTHORIZATION` header. Zero includes the JWT that we're using on the client in the
-these requests so the first step in validating the request should be to decode the JWT and ensure that it is
+start off with the `AUTHORIZATION` header. Zero includes the JWT that we're using on the client in these
+requests so the first step in validating should be to decode the JWT and ensure that it is
 valid. After decoding it, we'll have access to any data that was originally encoded, such as a user ID, so
 we'll know who performed the mutation on the client. We'll want to use that user information to ensure relational
-integerity of the data being mutated.
+integrity of the data being mutated.
 
 The next step in validation is optional, but I think it's an important one as well. In the
 [zero-cache Config Documentation](https://zero.rocicorp.dev/docs/zero-cache-config) there is an option to set
 `ZERO_PUSH_API_KEY` which is a secret key that will be included in the `X-API-KEY` header. We can include that
 secret as an environment variable in our server and check the header against the environment variable to ensure
 the request is coming from our own Zero instance.
-
-In a similar fashion, and again optional, we can customize our Zero application ID by setting [ZERO_APP_ID](https://zero.rocicorp.dev/docs/zero-cache-config#app-id). In the request payload above, we saw `appID: "zero"`,
-which is the default but we should configure this TODO FINISH
 
 ### `PushResponse` Schema
 
@@ -193,7 +190,7 @@ MutationResult:
   * error: "oooMutation" | "alreadyProcessed"
 ```
 
-Here's are some real world examples from my implementation to help solidify the structure.
+Here are some real world examples from my implementation to help solidify the structure.
 First is a successful result, second is a result with errors where the `details` is an error
 message I came up with.
 
@@ -240,7 +237,7 @@ to process all the mutations that are being sent to us. There isn't a lot to cov
 except for one important piece. While we're looping and processing each individual
 mutation, if we ever run into an `oooMutation` error, we have to stop processing
 the entire batch and return the payload we've built up. Even if an `oooMutation`
-occurs, we still need return the data as a `200` response.
+occurs, we still need to return the data as a `200` response.
 
 ### Pseudocode Implementation
 
@@ -264,12 +261,12 @@ function processAllMutations(request):
 
 Inside of our loop, we have to process each individual mutation. To do
 so there are two steps we have to take. The first is to do a check
-that the mutation payload we recieved in properly ordered and if
+that the mutation payload we received is properly ordered and if
 everything checks out, we'll then dispatch the mutation to apply
 the changes to the record in the database. In this individual
 processing we want to catch specific errors thrown, like the previously
 mentioned `oooMutation` error and construct a response object
-that the looping process can check against. If everything process
+that the looping process can check against. If everything processes
 fine, then we only need to return an empty object.
 
 ### Pseudocode Implementation
@@ -308,12 +305,8 @@ occurs and Zero retries a batch of mutations; we don't want to re-apply any chan
 that we've already done so it makes sense to skip them! The other required check
 is looking for mutations that have come in out of order. The last thing we want
 is to apply changes in the wrong order and then our users end up seeing an incorrect
-value when the syncing is finished. Distributed systems aren't
-100% perfect so my assumption is that there is a scenario where mutations get bundled
-together in the wrong order, sent to the server, we'll throw our `oooMutation` error,
-send the data back to Zero and then Zero will fix the ordering and retry, but that's
-just a guess. If both checks pass then we go ahead and update the `mutationID`, save
-the record, and continue our processing.
+value when the syncing is finished. If both checks pass then we go ahead and update the
+`mutationID`, save the record, and continue our processing.
 
 ### Pseudocode Implementation
 
@@ -343,8 +336,7 @@ function checkMutationOrder(clientID, mutationId):
 
 Now that everything has been validated, we can dispatch the changes to a mutator
 function. Likely the easiest way to get started with this will be to create a
-`switch` statement with all the different mutators we implement. As the list
-grows we might want to modularize this. The name of the mutation will look
+`switch` statement with all the different mutators we implement. The name of the mutation will look
 like `namespace|action` and in the case of these examples it is `book|update`.
 We'll start off by using a `switch` statement and then all we need to do is
 pass in the `mutation.args` to our mutator.
@@ -368,7 +360,7 @@ function dispatchToBusinessLogic(mutation):
 We finally made it; we're ready to change some data in our database! We
 passed in `args[0]` which if we refer back the example payload was
 `{ id: 2040, name: "Updated Name" }`. We'll want to use the information from
-the `AUTHORIZATION` header to ensure referential itegrity between the object
+the `AUTHORIZATION` header to ensure referential integrity between the object
 being mutated and the authorized user. If it's a valid relation, we'll apply
 our changes and then return a result indicating that everything worked.
 
@@ -380,10 +372,10 @@ also allows us to do any additional work we desire. The feature is called
 ### Additional Mutator Actions
 
 The additional work we want to do could be anything from sending emails to
-creating additional records on an audit log table or just emitting metrics.
+creating additional records on an audit log table or emitting metrics.
 Whatever additional work our application desires, we've made it to the point
 where all that can happen. If there isn't any additional work to be done,
-that's okay too. The option is always there in the future
+that's okay too. The option is always there in the future.
 
 ### Pseudocode Implementation
 
@@ -412,7 +404,7 @@ function handleUserUpdate(attributes):
 
 We made it through the whole implementation plan and I hope you're as excited about
 Custom Mutators as I am. If you write your own implementation in a different language be
-sure to share your learnings with Zero community! I'll be following up this post with
+sure to share your learnings with the Zero community! I'll be following up this post with
 another post showing my Ruby on Rails implementation.
 
 <ZeroPosts currentSlug={frontmatter.slug} />
