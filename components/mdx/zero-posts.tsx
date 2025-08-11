@@ -3,8 +3,8 @@ const titlesAndSlugs = {
     "setting-up-rocicorp-zero-with-rails",
   "Using PostgreSQL Functions with Rocicorp's Zero and Ruby on Rails":
     "using-postgresql-functions-with-rocicorp-zero-and-rails",
-  // "Manage Rocicorp Zero Schema Migrations with Ruby on Rails":
-  //   "manage-rocicorp-zero-schema-migrations-with-rails",
+  "Server Implementation Plan For Rocicorp's Zero - Custom Mutators":
+    "server-implementation-plan-rocicorp-zero-custom-mutators",
 };
 
 const prodUrl = "https://jeremykreutzbender.com/blog";
