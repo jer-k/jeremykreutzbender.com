@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
+import { validateApiKey } from "@/lib/auth";
 import { fetchPost } from "@/lib/fetch-posts";
 
 type RouteProps = {
@@ -8,7 +9,11 @@ type RouteProps = {
   }>;
 };
 
-export async function GET(_request: NextRequest, { params }: RouteProps) {
+export async function GET(request: NextRequest, { params }: RouteProps) {
+  const authError = validateApiKey(request);
+  if (authError) {
+    return authError;
+  }
   try {
     const { slug } = await params;
 

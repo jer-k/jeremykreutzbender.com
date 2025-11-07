@@ -2,6 +2,7 @@ import type { Post } from "@/types/post";
 
 import { type NextRequest, NextResponse } from "next/server";
 
+import { validateApiKey } from "@/lib/auth";
 import { fetchPosts } from "@/lib/fetch-posts";
 
 const DEFAULT_PAGE_SIZE = 100;
@@ -9,6 +10,10 @@ const DEFAULT_PAGE_SIZE = 100;
 type ApiPost = Omit<Post, "content" | "draft">;
 
 export async function GET(request: NextRequest) {
+  const authError = validateApiKey(request);
+  if (authError) {
+    return authError;
+  }
   try {
     const posts = await fetchPosts();
 
