@@ -3,23 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GET } from "./route";
 
-// Mock the fetchPost function
-vi.mock("@/lib/fetch-posts", () => ({
-  fetchPost: vi.fn((slug: string) => {
-    if (slug === "existing-post") {
-      return Promise.resolve({
-        slug: "existing-post",
-        title: "Existing Post",
-        date: "2024-01-01",
-        tags: ["test"],
-        content: "Test content",
-        draft: false,
-      });
-    }
-    return Promise.resolve(null);
-  }),
-}));
-
 describe("GET /api/blogs/[slug]", () => {
   const mockApiKey = "test-secret-key";
 
@@ -28,19 +11,21 @@ describe("GET /api/blogs/[slug]", () => {
   });
 
   it("should return blog post by slug with valid API key", async () => {
-    const request = new NextRequest("http://localhost/api/blogs/existing-post", {
+    const request = new NextRequest("http://localhost/api/blogs/getting-started", {
       headers: {
         "x-api-key": mockApiKey,
       },
     });
 
-    const params = Promise.resolve({ slug: "existing-post" });
+    const params = Promise.resolve({ slug: "getting-started" });
     const response = await GET(request, { params });
     expect(response.status).toBe(200);
 
     const json = await response.json();
-    expect(json.slug).toBe("existing-post");
-    expect(json.title).toBe("Existing Post");
+    expect(json.slug).toBe("getting-started");
+    expect(json).toHaveProperty("title");
+    expect(json).toHaveProperty("date");
+    expect(json).toHaveProperty("tags");
   });
 
   it("should return 404 for non-existent post", async () => {

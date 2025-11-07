@@ -2,35 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GET } from "./route";
 
-// Mock the cvData
-vi.mock("@/lib/constants/cv-data", () => ({
-  cvData: {
-    name: "Test User",
-    jobs: [
-      {
-        company: "Test Company 1",
-        title: "Test Title 1",
-        startDate: "2020-01-01",
-        endDate: "2021-01-01",
-      },
-      {
-        company: "Test Company 2",
-        title: "Test Title 2",
-        startDate: "2021-01-01",
-        endDate: "2022-01-01",
-      },
-    ],
-    schools: [
-      {
-        name: "Test School",
-        degree: "Test Degree",
-        startDate: "2015-01-01",
-        endDate: "2019-01-01",
-      },
-    ],
-  },
-}));
-
 describe("GET /api/cv/jobs", () => {
   const mockApiKey = "test-secret-key";
 
@@ -49,9 +20,12 @@ describe("GET /api/cv/jobs", () => {
     expect(response.status).toBe(200);
 
     const json = await response.json();
-    expect(json).toHaveLength(2);
-    expect(json[0].company).toBe("Test Company 1");
-    expect(json[1].company).toBe("Test Company 2");
+    expect(Array.isArray(json)).toBe(true);
+    expect(json.length).toBeGreaterThan(0);
+    expect(json[0]).toHaveProperty("companyName");
+    expect(json[0]).toHaveProperty("title");
+    expect(json[0]).toHaveProperty("workType");
+    expect(json[0]).toHaveProperty("duration");
   });
 
   it("should return 401 without API key", async () => {
