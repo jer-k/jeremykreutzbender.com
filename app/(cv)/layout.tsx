@@ -1,7 +1,11 @@
+"use client";
+
 import type { ReactNode } from "react";
 
 import { Info, MoveLeft } from "lucide-react";
+import { useTheme } from "next-themes";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 
 import {
   Popover,
@@ -10,6 +14,20 @@ import {
 } from "@/components/ui/popover";
 
 export default function CvLayout({ children }: { children: ReactNode }) {
+  const { theme, setTheme } = useTheme();
+  const previousThemeRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    previousThemeRef.current = theme;
+    setTheme("light");
+
+    return () => {
+      if (previousThemeRef.current && previousThemeRef.current !== "light") {
+        setTheme(previousThemeRef.current);
+      }
+    };
+  }, [theme, setTheme]);
+
   return (
     <div className="bg-white">
       <header className="print:hidden">

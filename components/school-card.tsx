@@ -57,7 +57,8 @@ export function SchoolCard({ school }: { school: School }) {
           </a>
         </p>
         <p>
-          {degree} - {achievement}
+          {degree ? `${degree} - ` : ""}
+          {achievement}
         </p>
       </CardContent>
     </Card>

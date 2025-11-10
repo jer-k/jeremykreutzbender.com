@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { GlobeIcon } from "lucide-react";
 import Link from "next/link";
 
+import { ProjectCard } from "@/components/project-card";
 import { SchoolCard } from "@/components/school-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -75,36 +76,14 @@ export default function CvPage() {
         <section className="flex min-h-0 flex-col gap-y-3">
           <h2 className="text-xl font-bold">Work Experience</h2>
           {jobs.map((job) => (
-            <WorkExperienceCard job={job} />
+            <WorkExperienceCard key={job.title} job={job} />
           ))}
         </section>
         <section className="flex min-h-0 flex-col gap-y-3">
           <h2 className="text-xl font-bold">Projects</h2>
-          <Card className="bg-white py-4">
-            <CardHeader className="py-0">
-              <a
-                className="text-blue-600 hover:text-blue-800 visited:text-purple-600"
-                href="https://jeremykreutzbender.com"
-                target="_blank"
-                rel="noreferrer"
-              >
-                jeremykreutzbender.com
-              </a>
-            </CardHeader>
-            <CardContent className="py-0 mt-2 text-xs">
-              <ul className="list-disc ps-4">
-                <li>
-                  Personal website (you&apos;re on it right now!) built with
-                  Next.js App Router, React, and Typescript
-                </li>
-                <li>
-                  I&apos;m using this website as a platform for writing blog
-                  posts, learning Typescript, and a playground to try out new
-                  features in React and Next.js
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
+          {projects.map((project) => (
+            <ProjectCard key={project.name} project={project} />
+          ))}
         </section>
         <section className="flex flex-col min-h-0">
           <h2 className="text-l font-bold">Languages</h2>
@@ -129,7 +108,7 @@ export default function CvPage() {
         <section className="flex min-h-0 flex-col gap-y-3">
           <h2 className="text-xl font-bold">Education</h2>
           {schools.map((school) => {
-            return <SchoolCard school={school} />;
+            return <SchoolCard key={school.institutionName} school={school} />;
           })}
         </section>
       </section>

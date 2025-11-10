@@ -4,12 +4,6 @@ import ReactMarkdown from "react-markdown";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 type Props = {
   job: Job;
@@ -53,7 +47,7 @@ export function WorkExperienceCard({ job }: Props) {
           <h4 className="font-mono text-sm leading-none">{title}</h4>
         </div>
       </CardHeader>
-      <CardContent className="prose p-0 ps-4 w-full text-xs">
+      <CardContent className="prose prose-li:marker:text-black p-0 ps-4 w-full text-xs">
         <ReactMarkdown>{descriptionMarkdown}</ReactMarkdown>
       </CardContent>
     </Card>

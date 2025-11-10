@@ -1,3 +1,5 @@
+import ReactMarkdown from "react-markdown";
+
 import type { Project } from "@/types/cv";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -17,18 +19,8 @@ export function ProjectCard({ project }: { project: Project }) {
           {name}
         </a>
       </CardHeader>
-      <CardContent className="py-0 mt-2 text-xs">
-        <ul className="list-disc ps-4">
-          <li>
-            Personal website (you&apos;re on it right now!) built with Next.js
-            App Router, React, and Typescript
-          </li>
-          <li>
-            I&apos;m using this website as a platform for writing blog posts,
-            learning Typescript, and a playground to try out new features in
-            React and Next.js
-          </li>
-        </ul>
+      <CardContent className="prose prose-li:marker:text-black p-0 ps-4 w-full text-xs">
+        <ReactMarkdown>{descriptionMarkdown}</ReactMarkdown>
       </CardContent>
     </Card>
   );
