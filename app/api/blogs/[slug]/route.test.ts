@@ -26,9 +26,12 @@ describe("GET /api/blogs/[slug]", () => {
 
     const json = await response.json();
     expect(json.slug).toBe("getting-started");
-    expect(json).toHaveProperty("title");
-    expect(json).toHaveProperty("date");
-    expect(json).toHaveProperty("tags");
+    expect(json["title"]).toEqual(
+      "Getting Started - Another Attempt at Blogging",
+    );
+    expect(json["date"]).toEqual("2018-02-17");
+    expect(json["tags"]).toEqual(["blogging"]);
+    expect(json["content"]).toBeTypeOf("string");
   });
 
   it("should return 404 for non-existent post", async () => {
