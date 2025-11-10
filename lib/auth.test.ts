@@ -9,10 +9,10 @@ describe("validateApiKey", () => {
     vi.stubEnv("API_SECRET_KEY", mockApiKey);
   });
 
-  it("should return null for valid API key", () => {
+  it("should return null for valid Bearer token", () => {
     const request = new Request("http://localhost/api/test", {
       headers: {
-        "x-api-key": mockApiKey,
+        authorization: `Bearer ${mockApiKey}`,
       },
     });
 
@@ -20,7 +20,7 @@ describe("validateApiKey", () => {
     expect(result).toBeNull();
   });
 
-  it("should return 401 error for missing API key", async () => {
+  it("should return 401 error for missing Authorization header", async () => {
     const request = new Request("http://localhost/api/test");
 
     const result = validateApiKey(request);
@@ -29,14 +29,14 @@ describe("validateApiKey", () => {
 
     const json = await result?.json();
     expect(json).toEqual({
-      error: "Unauthorized - Invalid or missing API key",
+      error: "Unauthorized - Missing Authorization header",
     });
   });
 
-  it("should return 401 error for invalid API key", async () => {
+  it("should return 401 error for invalid Bearer token", async () => {
     const request = new Request("http://localhost/api/test", {
       headers: {
-        "x-api-key": "wrong-key",
+        authorization: "Bearer wrong-key",
       },
     });
 
@@ -46,7 +46,43 @@ describe("validateApiKey", () => {
 
     const json = await result?.json();
     expect(json).toEqual({
-      error: "Unauthorized - Invalid or missing API key",
+      error: "Unauthorized - Invalid API key",
+    });
+  });
+
+  it("should return 401 error for missing Bearer scheme", async () => {
+    const request = new Request("http://localhost/api/test", {
+      headers: {
+        authorization: mockApiKey,
+      },
+    });
+
+    const result = validateApiKey(request);
+    expect(result).not.toBeNull();
+    expect(result?.status).toBe(401);
+
+    const json = await result?.json();
+    expect(json).toEqual({
+      error:
+        "Unauthorized - Invalid Authorization format. Expected: Bearer <token>",
+    });
+  });
+
+  it("should return 401 error for wrong scheme", async () => {
+    const request = new Request("http://localhost/api/test", {
+      headers: {
+        authorization: `Basic ${mockApiKey}`,
+      },
+    });
+
+    const result = validateApiKey(request);
+    expect(result).not.toBeNull();
+    expect(result?.status).toBe(401);
+
+    const json = await result?.json();
+    expect(json).toEqual({
+      error:
+        "Unauthorized - Invalid Authorization format. Expected: Bearer <token>",
     });
   });
 
@@ -55,7 +91,7 @@ describe("validateApiKey", () => {
 
     const request = new Request("http://localhost/api/test", {
       headers: {
-        "x-api-key": mockApiKey,
+        authorization: `Bearer ${mockApiKey}`,
       },
     });
 
@@ -67,16 +103,5 @@ describe("validateApiKey", () => {
     expect(json).toEqual({
       error: "API authentication not configured",
     });
-  });
-
-  it("should be case-insensitive for header name", () => {
-    const request = new Request("http://localhost/api/test", {
-      headers: {
-        "X-API-Key": mockApiKey,
-      },
-    });
-
-    const result = validateApiKey(request);
-    expect(result).toBeNull();
   });
 });

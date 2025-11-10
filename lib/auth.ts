@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 
-const API_KEY_HEADER = "x-api-key";
-
 export function validateApiKey(request: Request): NextResponse | null {
-  const apiKey = request.headers.get(API_KEY_HEADER);
+  const authHeader = request.headers.get("authorization");
   const expectedKey = process.env.API_SECRET_KEY;
 
   if (!expectedKey) {
@@ -14,9 +12,28 @@ export function validateApiKey(request: Request): NextResponse | null {
     );
   }
 
-  if (!apiKey || apiKey !== expectedKey) {
+  if (!authHeader) {
     return NextResponse.json(
-      { error: "Unauthorized - Invalid or missing API key" },
+      { error: "Unauthorized - Missing Authorization header" },
+      { status: 401 },
+    );
+  }
+
+  const [scheme, token] = authHeader.split(" ");
+
+  if (scheme !== "Bearer" || !token) {
+    return NextResponse.json(
+      {
+        error:
+          "Unauthorized - Invalid Authorization format. Expected: Bearer <token>",
+      },
+      { status: 401 },
+    );
+  }
+
+  if (token !== expectedKey) {
+    return NextResponse.json(
+      { error: "Unauthorized - Invalid API key" },
       { status: 401 },
     );
   }

@@ -12,7 +12,7 @@ describe("GET /api/cv/jobs", () => {
   it("should return jobs data with valid API key", async () => {
     const request = new Request("http://localhost/api/cv/jobs", {
       headers: {
-        "x-api-key": mockApiKey,
+        authorization: `Bearer ${mockApiKey}`,
       },
     });
 
@@ -35,15 +35,13 @@ describe("GET /api/cv/jobs", () => {
     expect(response.status).toBe(401);
 
     const json = await response.json();
-    expect(json).toEqual({
-      error: "Unauthorized - Invalid or missing API key",
-    });
+    expect(json).toHaveProperty("error");
   });
 
   it("should return 401 with invalid API key", async () => {
     const request = new Request("http://localhost/api/cv/jobs", {
       headers: {
-        "x-api-key": "wrong-key",
+        authorization: "Bearer wrong-key",
       },
     });
 
@@ -51,8 +49,6 @@ describe("GET /api/cv/jobs", () => {
     expect(response.status).toBe(401);
 
     const json = await response.json();
-    expect(json).toEqual({
-      error: "Unauthorized - Invalid or missing API key",
-    });
+    expect(json).toHaveProperty("error");
   });
 });

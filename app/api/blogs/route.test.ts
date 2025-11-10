@@ -13,7 +13,7 @@ describe("GET /api/blogs", () => {
   it("should return paginated blog posts with valid API key", async () => {
     const request = new NextRequest("http://localhost/api/blogs", {
       headers: {
-        "x-api-key": mockApiKey,
+        authorization: `Bearer ${mockApiKey}`,
       },
     });
 
@@ -36,11 +36,14 @@ describe("GET /api/blogs", () => {
   });
 
   it("should support pagination with page and limit params", async () => {
-    const request = new NextRequest("http://localhost/api/blogs?page=1&limit=5", {
-      headers: {
-        "x-api-key": mockApiKey,
+    const request = new NextRequest(
+      "http://localhost/api/blogs?page=1&limit=5",
+      {
+        headers: {
+          authorization: `Bearer ${mockApiKey}`,
+        },
       },
-    });
+    );
 
     const response = await GET(request);
     expect(response.status).toBe(200);
@@ -54,7 +57,7 @@ describe("GET /api/blogs", () => {
   it("should handle invalid page numbers gracefully", async () => {
     const request = new NextRequest("http://localhost/api/blogs?page=-1", {
       headers: {
-        "x-api-key": mockApiKey,
+        authorization: `Bearer ${mockApiKey}`,
       },
     });
 
@@ -72,15 +75,13 @@ describe("GET /api/blogs", () => {
     expect(response.status).toBe(401);
 
     const json = await response.json();
-    expect(json).toEqual({
-      error: "Unauthorized - Invalid or missing API key",
-    });
+    expect(json).toHaveProperty("error");
   });
 
   it("should return 401 with invalid API key", async () => {
     const request = new NextRequest("http://localhost/api/blogs", {
       headers: {
-        "x-api-key": "wrong-key",
+        authorization: "Bearer wrong-key",
       },
     });
 

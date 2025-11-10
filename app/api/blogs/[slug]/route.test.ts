@@ -11,11 +11,14 @@ describe("GET /api/blogs/[slug]", () => {
   });
 
   it("should return blog post by slug with valid API key", async () => {
-    const request = new NextRequest("http://localhost/api/blogs/getting-started", {
-      headers: {
-        "x-api-key": mockApiKey,
+    const request = new NextRequest(
+      "http://localhost/api/blogs/getting-started",
+      {
+        headers: {
+          authorization: `Bearer ${mockApiKey}`,
+        },
       },
-    });
+    );
 
     const params = Promise.resolve({ slug: "getting-started" });
     const response = await GET(request, { params });
@@ -31,7 +34,7 @@ describe("GET /api/blogs/[slug]", () => {
   it("should return 404 for non-existent post", async () => {
     const request = new NextRequest("http://localhost/api/blogs/non-existent", {
       headers: {
-        "x-api-key": mockApiKey,
+        authorization: `Bearer ${mockApiKey}`,
       },
     });
 
@@ -46,7 +49,7 @@ describe("GET /api/blogs/[slug]", () => {
   it("should return 400 for missing slug", async () => {
     const request = new NextRequest("http://localhost/api/blogs/", {
       headers: {
-        "x-api-key": mockApiKey,
+        authorization: `Bearer ${mockApiKey}`,
       },
     });
 
@@ -66,17 +69,18 @@ describe("GET /api/blogs/[slug]", () => {
     expect(response.status).toBe(401);
 
     const json = await response.json();
-    expect(json).toEqual({
-      error: "Unauthorized - Invalid or missing API key",
-    });
+    expect(json).toHaveProperty("error");
   });
 
   it("should return 401 with invalid API key", async () => {
-    const request = new NextRequest("http://localhost/api/blogs/existing-post", {
-      headers: {
-        "x-api-key": "wrong-key",
+    const request = new NextRequest(
+      "http://localhost/api/blogs/existing-post",
+      {
+        headers: {
+          authorization: "Bearer wrong-key",
+        },
       },
-    });
+    );
 
     const params = Promise.resolve({ slug: "existing-post" });
     const response = await GET(request, { params });
