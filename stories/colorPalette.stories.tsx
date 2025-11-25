@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Tweet } from "react-tweet";
 
-import type { Meta, StoryFn, StoryObj } from "@storybook/react";
+import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs";
 
 const meta = {
   title: "ColorPalette",

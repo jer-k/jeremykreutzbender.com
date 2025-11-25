@@ -3,10 +3,11 @@
 ## Commands
 - **Build**: `npm run build`
 - **Lint**: `npm run lint` (uses Biome)
-- **Test**: `npm test` (Jest with Next.js)
+- **Test**: `npm test` (Vitest with jsdom)
 - **Single test**: `npm test -- path/to/test.test.ts`
-- **Dev**: `npm run dev -p 6001`
-- **Typecheck**: `tsc --noEmit` (runs on pre-commit)
+- **Dev**: `npm run dev` (runs on port 6001)
+- **Typecheck**: `npm run typecheck` (runs on pre-commit)
+- **Storybook**: `npm run storybook` (port 6006)
 
 ## Code Style
 - **Formatting**: 2 spaces, double quotes, Biome formatter
@@ -17,3 +18,4 @@
 - **UI**: Follow shadcn/ui patterns with class-variance-authority
 - **Error handling**: No explicit `any` types, use proper TypeScript types
 - **File naming**: kebab-case for files, PascalCase for components
+- **Pre-commit**: Runs Biome check and typecheck on staged files

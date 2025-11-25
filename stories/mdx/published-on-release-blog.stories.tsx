@@ -1,4 +1,4 @@
-import type { Meta, StoryFn, StoryObj } from "@storybook/react";
+import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs";
 
 import { PublishedOnReleaseBlog } from "@/components/mdx/published-on-release-blog";
 
