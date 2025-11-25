@@ -1,4 +1,4 @@
-import type { Meta, StoryFn, StoryObj } from "@storybook/react";
+import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs";
 
 import { HighlightLink } from "@/components/highlight-link";
 

@@ -1,6 +1,6 @@
-import type { Meta, StoryFn, StoryObj } from "@storybook/react";
+import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs";
 
-import { INITIAL_VIEWPORTS } from "@storybook/addon-viewport";
+import { INITIAL_VIEWPORTS } from "storybook/viewport";
 
 import { Header } from "@/components/header";
 
