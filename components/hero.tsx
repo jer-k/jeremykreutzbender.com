@@ -2,7 +2,7 @@ import Image from "next/image";
 
 import { HeroCard } from "@/components/hero-card";
 
-import heroPic from "/public/me/new-zealand.jpg";
+import heroPic from "@/public/me/new-zealand.jpg";
 
 export function Hero() {
   return (
