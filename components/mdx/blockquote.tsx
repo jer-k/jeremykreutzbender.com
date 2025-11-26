@@ -1,6 +1,5 @@
-import type { PropsWithChildren } from "react";
-
 import clsx from "clsx";
+import type { PropsWithChildren } from "react";
 
 type Props = {
   noMargin?: boolean;

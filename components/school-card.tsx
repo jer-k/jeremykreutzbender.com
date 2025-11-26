@@ -1,8 +1,7 @@
-import type { School } from "@/types/cv";
-
 import { GlobeIcon } from "lucide-react";
-
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
+import type { School } from "@/types/cv";
 
 export function SchoolCard({ school }: { school: School }) {
   const {

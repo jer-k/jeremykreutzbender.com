@@ -4,7 +4,7 @@ import { nonempty } from "@/lib/zod/nonempty";
 
 export const contactSchema = zod.object({
   fullName: zod.string().pipe(nonempty()),
-  emailAddress: zod.string().email().pipe(nonempty()),
+  emailAddress: zod.email().pipe(nonempty()),
   message: zod
     .string()
     .pipe(nonempty(6, "Message must be thoughtful and at least 6 characters")),

@@ -1,7 +1,6 @@
 import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs";
 
 import { PullRequestCard } from "@/components/pull-request-card";
-import { ReactNode } from "react";
 
 const meta = {
   title: "PullRequestCard",

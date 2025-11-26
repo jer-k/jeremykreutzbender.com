@@ -1,8 +1,5 @@
-import Link from "next/link";
-
 import { ExternalLinkIcon } from "lucide-react";
-
-import { Post } from "@/types/post";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -12,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Post } from "@/types/post";
 
 type BlogCardProps = {
   post: Post;

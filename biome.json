@@ -1,26 +1,34 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
   "files": {
     "ignoreUnknown": false,
-    "ignore": [".next/*", ".next/**/*", "storybook-static/*"]
+    "includes": [
+      "**",
+      "!**/.next/**/*",
+      "!**/.next/**/*",
+      "!**/storybook-static/**/*"
+    ]
   },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
     "indentWidth": 2
   },
-  "organizeImports": { "enabled": true },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": false,
       "complexity": { "noUselessTypeConstraint": "error" },
       "correctness": {
-        "noUnusedVariables": "error",
+        "noUnusedVariables": "error"
+      },
+      "style": {
+        "noNamespace": "error",
+        "useAsConstAssertion": "error",
         "useArrayLiterals": "off"
       },
-      "style": { "noNamespace": "error", "useAsConstAssertion": "error" },
       "suspicious": {
         "noExplicitAny": "error",
         "noExtraNonNullAssertion": "error",
@@ -33,7 +41,7 @@
   "javascript": { "formatter": { "quoteStyle": "double" } },
   "overrides": [
     {
-      "include": ["*.ts", "*.tsx", "*.mts", "*.cts"],
+      "includes": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
       "linter": {
         "rules": {
           "correctness": {
@@ -41,15 +49,12 @@
             "noGlobalObjectCalls": "off",
             "noInvalidBuiltinInstantiation": "off",
             "noInvalidConstructorSuper": "off",
-            "noNewSymbol": "off",
             "noSetterReturn": "off",
             "noUndeclaredVariables": "off",
             "noUnreachable": "off",
             "noUnreachableSuper": "off"
           },
           "style": {
-            "noArguments": "error",
-            "noVar": "error",
             "useConst": "error"
           },
           "suspicious": {
@@ -60,7 +65,11 @@
             "noImportAssign": "off",
             "noRedeclare": "off",
             "noUnsafeNegation": "off",
-            "useGetterReturn": "off"
+            "useGetterReturn": "off",
+            "noVar": "error"
+          },
+          "complexity": {
+            "noArguments": "error"
           }
         }
       }
