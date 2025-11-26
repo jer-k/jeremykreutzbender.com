@@ -18,7 +18,7 @@
     "@mdx-js/loader": "3.1.1",
     "@mdx-js/react": "3.1.1",
     "@next/mdx": "16.0.4",
-    "@octokit/graphql": "^7.0.2",
+    "@octokit/graphql": "^9.0.3",
     "@octokit/plugin-paginate-graphql": "^4.0.0",
     "@radix-ui/react-avatar": "1.1.6",
     "@radix-ui/react-dialog": "1.1.10",
