@@ -1,11 +1,10 @@
 import "server-only";
 
+import { Octokit } from "@octokit/core";
+import { paginateGraphQL } from "@octokit/plugin-paginate-graphql";
 import { ReactNode } from "react";
 
-import { Octokit } from "@octokit/core";
-import { paginateGraphql } from "@octokit/plugin-paginate-graphql";
-
-const MyOctokit = Octokit.plugin(paginateGraphql);
+const MyOctokit = Octokit.plugin(paginateGraphQL);
 
 const octokit = new MyOctokit({ auth: process.env.GITHUB_API_TOKEN });
 
@@ -42,7 +41,7 @@ const pullRequestsQuery = `query openSourcePullRequests($cursor: String) {
           name
           nameWithOwner
           url
-          owner { 
+          owner {
             id
             login
           }

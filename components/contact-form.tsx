@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 
+import { processContactForm } from "@/app/actions/contact";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,8 +16,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-
-import { processContactForm } from "@/app/actions/contact";
 import {
   ContactSchemaValues,
   contactSchema,

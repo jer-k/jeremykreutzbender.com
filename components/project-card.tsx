@@ -1,8 +1,7 @@
 import ReactMarkdown from "react-markdown";
 
-import type { Project } from "@/types/cv";
-
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import type { Project } from "@/types/cv";
 
 export function ProjectCard({ project }: { project: Project }) {
   const { name, url, descriptionMarkdown } = project;

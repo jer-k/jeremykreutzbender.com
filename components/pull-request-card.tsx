@@ -2,7 +2,6 @@ import dayjs from "dayjs";
 import { GitMerge } from "lucide-react";
 
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-
 import type { PullRequest } from "@/lib/github";
 
 type PullRequestCardProps = {
