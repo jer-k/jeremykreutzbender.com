@@ -125,9 +125,6 @@
 }
 
 @layer base {
-  body {
-    @apply bg-background text-foreground;
-  }
 }
 
 /* Target the light mode div that follows the title */
