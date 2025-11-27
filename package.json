@@ -57,6 +57,7 @@
     "resend": "4.4.0",
     "server-only": "^0.0.1",
     "shadcn-ui": "^0.8.0",
+    "sonner": "^2.0.7",
     "zod": "^4.1.13"
   },
   "devDependencies": {
