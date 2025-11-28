@@ -5,10 +5,15 @@ type Props = {
 };
 export function LinkedInIconButton({ href }: Props) {
   return (
-    <a href={href} target="_blank">
-      <Button className="p-0" variant="link">
+    <Button
+      asChild
+      variant="link"
+      size="icon"
+      className="hover:text-primary/90"
+    >
+      <a href={href} target="_blank" rel="noopener noreferrer">
         <svg
-          className="h-6 w-6 text-primary hover:text-primary/70 dark:text-bright dark:hover:text-bright/70"
+          className="size-6"
           fill="none"
           height="24"
           stroke="currentColor"
@@ -24,7 +29,7 @@ export function LinkedInIconButton({ href }: Props) {
           <circle cx="4" cy="4" r="2" />
         </svg>
         <span className="sr-only">LinkedIn</span>
-      </Button>
-    </a>
+      </a>
+    </Button>
   );
 }

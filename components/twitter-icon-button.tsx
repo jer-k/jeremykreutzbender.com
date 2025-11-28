@@ -5,10 +5,15 @@ type Props = {
 };
 export function TwitterIconButton({ href }: Props) {
   return (
-    <a href={href} target="_blank">
-      <Button className="p-0" variant="link">
+    <Button
+      asChild
+      variant="link"
+      size="icon"
+      className="hover:text-primary/90"
+    >
+      <a href={href} target="_blank" rel="noopener noreferrer">
         <svg
-          className="h-6 w-6 text-primary hover:text-primary/70 dark:text-bright dark:hover:text-bright/70"
+          className="size-6"
           fill="none"
           height="24"
           stroke="currentColor"
@@ -22,7 +27,7 @@ export function TwitterIconButton({ href }: Props) {
           <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
         </svg>
         <span className="sr-only">Twitter</span>
-      </Button>
-    </a>
+      </a>
+    </Button>
   );
 }
