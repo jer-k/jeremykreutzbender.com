@@ -1,6 +1,6 @@
 import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs";
 
-import { WorkExperienceCard } from "@/components/work-experience-card";
+import { WorkExperienceCard } from "@/components/cv/work-experience-card";
 
 const meta = {
   title: "WorkExperienceCard",
