@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 
 type Props = {
   children: ReactNode;

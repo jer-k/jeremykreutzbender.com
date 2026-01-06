@@ -55,11 +55,11 @@ export function TagSelect({ tags }: { tags: string[] }) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between h-auto min-h-[2.5rem] py-2"
+          className="w-full justify-between h-auto min-h-10 py-2"
         >
           {selectedTags.length > 0 ? (
             <>
-              <div className="flex flex-wrap gap-1 max-h-[4.5rem] overflow-y-auto pr-2 w-full">
+              <div className="flex flex-wrap gap-1 max-h-18 overflow-y-auto pr-2 w-full">
                 {selectedTags.map((tag) => (
                   <Badge key={tag} variant="secondary" className="text-xs">
                     {tag}

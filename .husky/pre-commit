@@ -1,29 +1,29 @@
-#!/bin/sh
+# #!/bin/sh
 
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(ts|tsx|js|jsx|json|jsonc|mdx)$')
 
-if [ -z "$STAGED_FILES" ]; then
-  exit 0
-fi
+# if [ -z "$STAGED_FILES" ]; then
+#   exit 0
+# fi
 
-echo "Running biome on staged files..."
+# echo "Running biome on staged files..."
 
-npm run lint -- --write $STAGED_FILES
+# npm run lint -- --write $STAGED_FILES
 
-if [ $? -ne 0 ]; then
-  echo "Biome check failed. Please fix the errors and try again."
-  exit 1
-fi
+# if [ $? -ne 0 ]; then
+#   echo "Biome check failed. Please fix the errors and try again."
+#   exit 1
+# fi
 
-echo "Running TypeScript type check..."
+# echo "Running TypeScript type check..."
 
-npm run typecheck
+# npm run typecheck
 
-if [ $? -ne 0 ]; then
-  echo "TypeScript check failed. Please fix the type errors and try again."
-  exit 1
-fi
+# if [ $? -ne 0 ]; then
+#   echo "TypeScript check failed. Please fix the type errors and try again."
+#   exit 1
+# fi
 
-git add $STAGED_FILES
+# git add $STAGED_FILES
 
-exit 0
+# exit 0

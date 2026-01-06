@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-
-import { openSourcePullRequests } from "@/lib/github";
-
 import { Pagination } from "@/components/pagination";
 import { PullRequestCard } from "@/components/pull-request-card";
+import { openSourcePullRequests } from "@/lib/github";
 
 export const metadata: Metadata = {
   title: "Open Source",
@@ -50,7 +48,7 @@ export default async function OpenSourcePage(props: OpenSourceProps) {
         Open Source Contributions
       </h1>
       <div className="prose">
-        <div className="flex flex-col space-y-6 not-prose">
+        <div className="flex flex-col space-y-6 not-prose w-full">
           {pullRequests.slice(start, start + 10).map((pullRequest) => (
             <PullRequestCard
               key={pullRequest.number}

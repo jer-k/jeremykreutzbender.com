@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 
-import { fetchPosts, fetchTags } from "@/lib/fetch-posts";
-
 import { BlogCard } from "@/components/blog-card";
 import { Pagination } from "@/components/pagination";
 import { TagSelect } from "@/components/tag-select";
+import { fetchPosts, fetchTags } from "@/lib/fetch-posts";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -63,7 +62,7 @@ export default async function Blog(props: BlogProps) {
       <div className="w-full">
         <TagSelect tags={tags} />
       </div>
-      <div className="flex flex-col space-y-4 not-prose">
+      <div className="flex flex-col space-y-4 not-prose w-full">
         {filteredPosts.slice(start, start + 10).map((post) => (
           <BlogCard key={post.slug} post={post} />
         ))}

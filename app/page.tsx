@@ -1,11 +1,8 @@
-import { Suspense } from "react";
-
 import Link from "next/link";
-
+import { Suspense } from "react";
+import { BlogCard } from "@/components/blog-card";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-
-import { BlogCard } from "@/components/blog-card";
 import { Hero } from "@/components/hero";
 import { BlogCardSkeleton } from "@/components/skeletons/blog-card-skeleton";
 import { Button } from "@/components/ui/button";
@@ -23,8 +20,8 @@ export default async function HomePage() {
           <Hero />
         </section>
         <section className="md:w-full md:flex md:justify-center">
-          <div className="prose">
-            <div className="flex flex-col space-y-4 not-prose">
+          <div className="prose w-full">
+            <div className="flex flex-col space-y-4 not-prose w-full">
               <h2 className="text-3xl text-primary dark:text-bright font-bold tracking-tighter text-center sm:text-4xl">
                 Latest Blog Posts
               </h2>

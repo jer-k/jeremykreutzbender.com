@@ -1,14 +1,12 @@
-import type { Metadata } from "next";
-
 import { GlobeIcon } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 
-import { ProjectCard } from "@/components/project-card";
-import { SchoolCard } from "@/components/school-card";
+import { ProjectCard } from "@/components/cv/project-card";
+import { SchoolCard } from "@/components/cv/school-card";
+import { WorkExperienceCard } from "@/components/cv/work-experience-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { WorkExperienceCard } from "@/components/work-experience-card";
 
 import { cvData } from "@/lib/constants/cv-data";
 
@@ -42,7 +40,7 @@ export default function CvPage() {
   return (
     <main className="pb-2">
       <section className="mx-auto w-full max-w-2xl space-y-4 bg-white print:space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-0">
           <div className="flex-1 space-y-1.5">
             <h1 className="text-2xl font-bold">{personalInfo.name}</h1>
             <p className="max-w-md items-center text-pretty font-mono text-xs text-muted-foreground">
@@ -62,7 +60,7 @@ export default function CvPage() {
             <AvatarFallback>{personalInfo.avatarFallback}</AvatarFallback>
           </Avatar>
         </div>
-        <section className="flex min-h-0 flex-col gap-y-3 !mt-0">
+        <section className="flex min-h-0 flex-col gap-y-3 mt-0!">
           <Link
             className="text-blue-600 hover:text-blue-800 visited:text-purple-600"
             href="/about"
