@@ -56,7 +56,7 @@ export function BlogCard({ post }: BlogCardProps) {
   const card = (
     <Card className="shadow-lg hover:shadow-xl hover:scale-101">
       <CardHeader className="pb-0">
-        <CardTitle className="text-primary dark:text-bright">
+        <CardTitle className="text-primary text-2xl font-semibold leading-none tracking-tight dark:text-bright">
           {post.title}
         </CardTitle>
         <CardDescription>{post.description}</CardDescription>

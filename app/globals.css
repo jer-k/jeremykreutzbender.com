@@ -70,22 +70,6 @@
   --color-solarized-dark: var(--solarized-dark);
   --color-solarized-dark-darkened: var(--solarized-dark-darkened);
   --color-solarized-dark-foreground: var(--solarized-dark-foreground);
-  --color-bright-97: var(--bright-97);
-  --color-bright-96: var(--bright-96);
-  --color-bright-95: var(--bright-95);
-  --color-bright-94: var(--bright-94);
-  --color-yellow-dark-05: var(--yellow-dark-05);
-  --color-yellow-dark-15: var(--yellow-dark-15);
-  --color-yellow-mid-40: var(--yellow-mid-40);
-  --color-teal-light-90: var(--teal-light-90);
-  --color-teal-light-85: var(--teal-light-85);
-  --color-teal-mid-70: var(--teal-mid-70);
-  --color-teal-dark-09: var(--teal-dark-09);
-  --color-teal-dark-14: var(--teal-dark-14);
-  --color-teal-dark-17: var(--teal-dark-17);
-  --color-teal-dark-25: var(--teal-dark-25);
-  --color-teal-mid-45: var(--teal-mid-45);
-  --color-teal-mid-60: var(--teal-mid-60);
 }
 
 :root {
