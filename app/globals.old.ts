@@ -1,3 +1,25 @@
+// @tailwind base;
+// @tailwind components;
+// @tailwind utilities;
+
+// /*
+//   https://zippystarter.com/tools/shadcn-ui-theme-generator  to adjust colors
+//   Colors from https://twitter.com/pjscow/status/1732809863288213630
+
+//   Hex values for the colors
+
+//   #0F0A0A Midnight
+//   #0F2021 Twilight
+//   #0F3538 Dusk
+//   #496767 Cloud
+//   #87A19E Fog
+//   #FF6600 Radiance
+//   #FF9200 Warmth
+//   #FFBE00 Shine
+//   #F8E08E Gleam
+//   #FAFAF0 Bright
+//  */
+
 // @layer base {
 //   :root {
 //     --midnight: 0 20% 4.9%;
@@ -100,4 +122,52 @@
 //     --warning: 48 96% 89%;
 //     --warning-foreground: 38 92% 50%;
 //   }
+// }
+
+// @layer base {
+//   * {
+//     @apply border-border;
+//   }
+//   body {
+//     @apply bg-background text-foreground;
+//   }
+// }
+
+// /* Target the light mode div that follows the title */
+// .rehype-code-title
+//   + div[data-bright-theme="solarized-dark"]
+//   + div[data-bright-theme="solarized-light"] {
+//   margin: 0 !important;
+//   margin-bottom: 1em !important;
+// }
+
+// .rehype-code-title
+//   + div[data-bright-theme="solarized-dark"]
+//   + div[data-bright-theme="solarized-light"] {
+//   border-radius: 0 !important;
+// }
+// .rehype-code-title
+//   + div[data-bright-theme="solarized-dark"]
+//   + div[data-bright-theme="solarized-light"]
+//   pre {
+//   border-radius: 0 !important;
+//   border-bottom-left-radius: 0.375rem !important;
+//   border-bottom-right-radius: 0.375rem !important;
+//   padding: 0 0 1em 0 !important;
+// }
+
+// /* Target the dark mode div that follows the title */
+// .dark .rehype-code-title + div[data-bright-theme="solarized-dark"] {
+//   margin: 0 !important;
+//   margin-bottom: 1em !important;
+// }
+
+// .dark .rehype-code-title + div[data-bright-theme="solarized-dark"] {
+//   border-radius: 0 !important;
+// }
+// .dark .rehype-code-title + div[data-bright-theme="solarized-dark"] pre {
+//   border-radius: 0 !important;
+//   border-bottom-left-radius: 0.375rem !important;
+//   border-bottom-right-radius: 0.375rem !important;
+//   padding: 0 0 1em 0 !important;
 // }
