@@ -6,11 +6,13 @@ import { Toaster } from "@/components/ui/sonner";
 
 type Props = {
   children: ReactNode;
+  hero?: ReactNode;
 };
-export default function SiteLayout({ children }: Props) {
+export default function SiteLayout({ children, hero }: Props) {
   return (
     <>
       <Header />
+      {hero}
       <main className="flex flex-col justify-between px-16 pt-4">
         {children}
       </main>

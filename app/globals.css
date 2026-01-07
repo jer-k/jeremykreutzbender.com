@@ -217,9 +217,7 @@
 }
 
 /* Target the light mode div that follows the title */
-.rehype-code-title
-  + div[data-bright-theme="solarized-dark"]
-  + div[data-bright-theme="solarized-light"] {
+.rehype-code-title + div[data-bright-theme="solarized-light"] {
   margin: 0 !important;
   margin-bottom: 1em !important;
 }

@@ -1,9 +1,7 @@
-import type { Post } from "@/types/post";
-
 import { type NextRequest, NextResponse } from "next/server";
-
 import { validateApiKey } from "@/lib/auth";
 import { fetchPosts } from "@/lib/fetch-posts";
+import type { Post } from "@/types/post";
 
 const DEFAULT_PAGE_SIZE = 100;
 

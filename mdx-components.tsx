@@ -1,8 +1,7 @@
-import Image, { type ImageProps } from "next/image";
-
 import { Code } from "bright";
+import type { MDXComponents } from "mdx/types";
+import Image, { type ImageProps } from "next/image";
 import { Tweet } from "react-tweet";
-
 import { Aside } from "@/components/mdx/aside";
 import { BasicDiv } from "@/components/mdx/basic-div";
 import { Blockquote } from "@/components/mdx/blockquote";
@@ -13,8 +12,6 @@ import { InlineCodeBlock } from "@/components/mdx/inline-code-block";
 import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
 import { PublishedOnReleaseBlog } from "@/components/mdx/published-on-release-blog";
 import { ZeroPosts } from "@/components/mdx/zero-posts";
-
-import type { MDXComponents } from "mdx/types";
 
 Code.theme = {
   dark: "solarized-dark",
