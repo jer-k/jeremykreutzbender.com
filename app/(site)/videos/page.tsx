@@ -1,6 +1,5 @@
-import { Progress } from "@/components/ui/progress";
-
 import type { Metadata } from "next";
+import { Progress } from "@/components/ui/progress";
 
 export const metadata: Metadata = {
   title: "Videos",

@@ -55,14 +55,11 @@ export default async function Blog(props: BlogProps) {
   const numPages = Math.ceil(filteredPosts.length / 10);
 
   return (
-    <div className="flex flex-col items-center space-y-6">
-      <h1 className="text-primary dark:text-bright font-bold text-3xl">
-        Blog Posts
-      </h1>
-      <div className="w-full">
+    <div className="flex flex-col">
+      <div className="w-full max-w-4xl">
         <TagSelect tags={tags} />
       </div>
-      <div className="flex flex-col space-y-4 not-prose w-full">
+      <div className="flex flex-col divide-y divide-border/30 not-prose w-full max-w-4xl">
         {filteredPosts.slice(start, start + 10).map((post) => (
           <BlogCard key={post.slug} post={post} />
         ))}
