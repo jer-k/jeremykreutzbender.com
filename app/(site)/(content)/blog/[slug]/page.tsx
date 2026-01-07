@@ -1,8 +1,6 @@
-import { notFound } from "next/navigation";
-
-import { fetchMdxPosts, fetchPost, postComponents } from "@/lib/fetch-posts";
-
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { fetchMdxPosts, fetchPost, postComponents } from "@/lib/fetch-posts";
 
 type BlogPostPageParams = {
   params: Promise<{
@@ -64,5 +62,9 @@ export default async function BlogPost(props: BlogPostPageParams) {
   const postComponent = components[slug];
 
   if (!postComponent) return notFound();
-  return postComponent();
+  return (
+    <div className="w-full flex justify-center">
+      <div className="prose">{postComponent()}</div>
+    </div>
+  );
 }

@@ -1,10 +1,9 @@
 "use client";
 
-import type { ReactNode } from "react";
-
 import { Info, MoveLeft } from "lucide-react";
-import { useTheme } from "next-themes";
 import Link from "next/link";
+import { useTheme } from "next-themes";
+import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
 
 import {
