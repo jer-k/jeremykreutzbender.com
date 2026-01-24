@@ -11,13 +11,9 @@ export function PageHero({ title, subtitle, children }: PageHeroProps) {
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-col items-center py-8">
-        <h1 className="text-primary dark:text-bright font-bold text-3xl text-center">
-          {title}
-        </h1>
+        <h1 className="font-bold text-3xl text-center">{title}</h1>
         {subtitle && (
-          <h2 className="text-primary dark:text-bright font-semibold text-xl text-center">
-            {subtitle}
-          </h2>
+          <h2 className="font-semibold text-xl text-center">{subtitle}</h2>
         )}
         {children}
       </div>

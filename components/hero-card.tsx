@@ -23,7 +23,7 @@ export function HeroCard({
   const card = (
     <Card className="w-full shadow-lg hover:shadow-xl hover:scale-101">
       <CardHeader className="p-4">
-        <CardTitle className="text-primary dark:text-bright">{title}</CardTitle>
+        <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
     </Card>
