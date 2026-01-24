@@ -22,7 +22,7 @@ export default async function HomePage() {
         <section className="md:w-full md:flex md:justify-center">
           <div className="prose w-full">
             <div className="flex flex-col space-y-4 not-prose w-full">
-              <h2 className="text-3xl text-primary dark:text-bright font-bold tracking-tighter text-center sm:text-4xl">
+              <h2 className="text-3xl font-bold tracking-tighter text-center sm:text-4xl">
                 Latest Blog Posts
               </h2>
               <div className="flex flex-col mt-8 space-y-6">

@@ -8,7 +8,7 @@ export function TwitterIconButton({ href }: Props) {
     <Button
       variant="link"
       size="icon"
-      className="hover:text-primary/90"
+      className="hover:text/90"
       nativeButton={false}
       render={
         <a href={href} target="_blank" rel="noopener noreferrer">
