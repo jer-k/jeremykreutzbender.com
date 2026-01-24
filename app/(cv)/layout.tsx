@@ -36,9 +36,7 @@ export default function CvLayout({ children }: { children: ReactNode }) {
               <MoveLeft />
             </Link>
             <Popover>
-              <PopoverTrigger asChild>
-                <Info className="cursor-pointer" />
-              </PopoverTrigger>
+              <PopoverTrigger render={<Info className="cursor-pointer" />} />
               <PopoverContent className="bg-white w-80 mr-4">
                 <p>
                   This is my interactive CV, which encompasses everything

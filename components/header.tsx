@@ -39,43 +39,55 @@ export function Header() {
       </div>
       <div className="md:hidden flex px-4 md:px-16">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-hidden focus:text-gray-600 dark:focus:text-gray-400">
-              <svg className="h-7 w-7 fill-current" viewBox="0 0 24 24">
-                <path
-                  clipRule="evenodd"
-                  d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z"
-                  fillRule="evenodd"
-                />
-              </svg>
-            </button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <button className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-hidden focus:text-gray-600 dark:focus:text-gray-400">
+                <svg className="h-7 w-7 fill-current" viewBox="0 0 24 24">
+                  <path
+                    clipRule="evenodd"
+                    d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z"
+                    fillRule="evenodd"
+                  />
+                </svg>
+              </button>
+            }
+          />
           <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link aria-label="Home" href="/">
-                Home
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link aria-label="Blog" href="/blog">
-                Blog
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link aria-label="Contact" href="/cv">
-                CV
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link aria-label="Open Source" href="/open_source">
-                Open Source
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link aria-label="Contact" href="/contact">
-                Contact
-              </Link>
-            </DropdownMenuItem>
+            <DropdownMenuItem
+              render={
+                <Link aria-label="Home" href="/">
+                  Home
+                </Link>
+              }
+            />
+            <DropdownMenuItem
+              render={
+                <Link aria-label="Blog" href="/blog">
+                  Blog
+                </Link>
+              }
+            />
+            <DropdownMenuItem
+              render={
+                <Link aria-label="Contact" href="/cv">
+                  CV
+                </Link>
+              }
+            />
+            <DropdownMenuItem
+              render={
+                <Link aria-label="Open Source" href="/open_source">
+                  Open Source
+                </Link>
+              }
+            />
+            <DropdownMenuItem
+              render={
+                <Link aria-label="Contact" href="/contact">
+                  Contact
+                </Link>
+              }
+            />
             {/*<DropdownMenuItem asChild>
               <Link aria-label="About" href="/about">
                 About
