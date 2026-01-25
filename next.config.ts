@@ -3,7 +3,25 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
-  // Optionally, add any other Next.js config below
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/blog/:slug",
+          destination: "/api/markdown/blog/:slug",
+          has: [
+            {
+              type: "header",
+              key: "accept",
+              value: "(.*)text/markdown(.*)",
+            },
+          ],
+        },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
 };
 
 const withMDX = createMDX({
