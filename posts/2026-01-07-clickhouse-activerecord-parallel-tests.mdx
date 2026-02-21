@@ -1,0 +1,63 @@
+---
+title: Parallel Tests for ClickHouse work by default in Rails 8.1
+date: "2026-01-07"
+template: "post"
+draft: false
+slug: "clickhouse-activerecord-parallel-tests"
+description: |
+ A change in Rails 8.1 allows parallel tests to work by default when using ClickHouse
+tags:
+  - "ruby-on-rails"
+  - "active-record"
+  - "clickhouse"
+  - "testing"
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+Earlier this year, I opened an issue
+[Parallel Testing does not work out of the box (database naming is not valid)](https://github.com/PNixx/clickhouse-activerecord/issues/211) on the [clickhouse-activerecord](https://github.com/PNixx/clickhouse-activerecord) gem describing
+how Rails parallel testing did not work on a brand new Rails application with the gem installed. At at my job,
+we extensively use ClickHouse and have a handful of monkey patches to get our parallel tests running. I was curious
+as to why we had to make these changes and decided to do a bit of digging. Ultimately I was happy to find that
+the solution was far upstream of the `clickhouse-activerecord` gem and had actually been implemented at the
+time I opened my issue; it just so happens that the fix didn't land until Rails 8.1. Although I'm a bit late,
+Rails 8.1 has been released for a few months now, I wanted to write up a little summary.
+
+## Pre-Rails 8.1
+
+To go about digging into what was happening I set up a new Rails application,
+[rails-clickhouse-testing](https://github.com/jer-k/rails-clickhouse-testing) and configured ClickHouse as a
+second database. I created a dummy table and model and set up a dummy test that looked like this
+
+```ruby
+require "test_helper"
+
+class ClickhouseReportTest < ActiveSupport::TestCase
+  def test_data_insertion_with_valid_params
+    assert_equal 1, 1
+  end
+
+  def test_data_insertion_with_invalid_params
+    assert_equal 1, 1
+  end
+
+  def test_query_execution_performance
+    assert_equal 1, 1
+  end
+```
+
+Except that those type of tests repeat until there are 500 of them. With all of that in place, I could run
+`rails test` and see if things were going to work. You know by now that it wasn't going to work, but let's look
+at the result.
+
+> ActiveRecord::ActiveRecordError: Response code: 400:
+Code: 62. DB::Exception: Syntax error: failed at position 43 ('-'): -2. Expected one of: UUID, ON, storage definition, ENGINE, PARTITION BY, PRIMARY KEY, ORDER BY, SAMPLE BY, TTL, COMMENT, table overrides declaration list, table override declaration, TABLE OVERRIDE, INTO OUTFILE, FORMAT, SETTINGS, end of query. (SYNTAX_ERROR) (version 24.12.1.1614 (official build))
+
+What is happening is that when Rails generates database table names for [Parallel Testing](https://guides.rubyonrails.org/testing.html#parallel-testing) it follows the convention `<database-name>-<N>`.
+
+> For example, if you have 2 workers the tests will create test-database-0 and test-database-1 respectively.
+
+In this case we're attempting to create multiple databases with the name `clickhouse_testing_ch-<N>`.
