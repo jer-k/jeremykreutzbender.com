@@ -1,0 +1,194 @@
+---
+title: Setting Up a GitHub API Client in Ruby using a GitHub App
+date: "2025-03-18"
+template: "post"
+draft: false
+slug: "github-api-client-with-github-app"
+description: |
+  Using a GitHub App to authenticate to GitHub's API is a great way to add
+  fine grained permissions and never worry about expiring OAuth tokens.
+tags:
+  - "github"
+  - "ruby"
+  - "api"
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+Outline
+* Intro
+* Service Accounts
+* GitHub App
+* Fine Grained Permissions
+* Code
+* Conclusion
+
+I recently built another API client to get data from GitHub using a [GitHub App](https://docs.github.com/en/apps/overview)
+to facilitate the authentication. Iince I had just implemented the same thing for the third or fourth time,
+I thought I should share how I've been going about doing it. Years ago, after I migrated a GitHub OAuth App
+to a GitHub App, I've found the experience of using GitHub's API to be a great experience for myself and users of the
+product I've been working on. If you want to read about the differences between the two, GitHub's documentation
+page [Differences between GitHub Apps and OAuth apps](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps)
+goes into great detail. I'll also be going through some details below as well. However, if you're familiar with OAuth,
+GitHub Apps, and the nuances that go with them feel free to skip ahead to the
+[Implementing a API client in Ruby](#implementing-an-api-client-in-ruby) section.
+With that said, let's discuss some upsides and downs to using regular OAuth, a Service Account with OAuth,
+API Tokens, and  GitHub Apps to authenticate to GitHub's API.
+
+## Use a GitHub User's OAuth
+
+I would say that this is the most commonly understood approach and will be the quickest to onboard new users.
+I think most people are familiar with landing on a website and seeing a 'Login with Website' button. After
+clicking the button, the user is taken through the OAuth flow and lands in the application as an authenticated
+user. Behind the scenes that application is now storing two tokens: one used to authenticate to the API and the
+other is  used to refresh the authentication token when it expires. This is straightforward approach, but a
+downfall of it is that if the tokens ever get out of sync with what the server expects then API access is lost.
+If that happens, the user will need to be prompted to go through the OAuth flow again, which isn't ideal.
+
+Another downside, especially in GitHub's case, is when a user leaves a GitHub organization and API access
+to that organization is lost.
+
+
+If we want to use OAuth to authenticate to GitHub's API that is a perfectly acceptable approach. They provide
+the concept of an [OAuth App](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
+
+
+## Create and Use a Service Account
+
+Now that we've explored a traditional OAuth approach and understand the biggest risk being that our user leaves
+their GitHub organization and we lose access to information about that organization, let's explore another
+alternative of using a service account. If you are unfamiliar with what a service account is, there is a
+[Wikipedia](https://en.wikipedia.org/wiki/Service_account) entry which defines it as:
+
+> A service account or application account is a digital identity used by an application software or service to
+> interact with other applications or the operating system. They are often used for machine to machine
+> communication (M2M), for example for application programming interfaces (API).
+
+Or more plainly put, it is an account not tied to an individual person. To create one, someone at a company
+will likely create a new email address, say `githubserviceaccount@somecompany.com`, and then go to GitHub
+and create a new account. Then they'll be logged into GitHub on that account and go to the application they
+want to create an OAuth connection with. They'll click the 'Login with GitHub' button and now they have
+registered user in that application that will never leave their GitHub organization.
+
+This is a great solution but it does come with a few downsides. The first being that if something goes
+wrong with the tokens, logging back into the service account is a bit of hassle. Someone will need to
+log out of their primary GitHub account, find the email address and password used for the service account,
+log in to the service account on Github, go to the application and finally complete the OAuth flow. That
+is a lot of steps to fix an issue.
+
+## API Token
+
+## Benefits of a GitHub App
+
+## Implementing a API client in Ruby
+
+<Aside heading="This section">
+  I'm planning on following up this post with another that will explain how to manage installations
+  of a GitHub App into many organizations. There is a bit of work to do there and I felt like it
+  would make this post far too long. The order of the posts in terms of code implementation is backwards
+  but it wouldn't make sense for someone to implement all the code to manage the installations without
+  first understanding why they would want to build a client using a GitHub App.
+</Aside>
+
+We'll be using the [octokit.rb](https://github.com/octokit/octokit.rb) gem to facilitate setting up the client and
+making API calls. Let's start out by getting all the initialization pieces in place and then we'll add in a call
+to fetch all the respositories that belong to an organization.
+
+```ruby:app/models/github/client.rb
+module Github
+  class Client
+    attr_reader :installation_identifier, :organization_identifier
+    def initialize(installation_identifier, organization_identifier)
+      @installation_identifier = installation_identifier
+      @organization_identifier = organization_identifier
+    end
+
+    private
+
+    def octokit
+      @octokit ||= Octokit::Client.new(access_token:, auto_paginate: true)
+    end
+
+    def access_token
+      bearer_client.create_app_installation_access_token(installation_id)[:token]
+    end
+
+    def bearer_client
+      Octokit::Client.new(bearer_token: jwt)
+    end
+
+    def jwt
+      current = Time.current.to_f.floor
+      key = {
+        iat: current,
+        exp: current + (10 * 60) - 30,
+        iss: ENV["GITHUB_APP_CLIENT_ID"]
+      }
+      JWT.encode(key, github_app_private_key, "RS256")
+    end
+
+    def github_app_private_key
+      OpenSSL::PKey::RSA.new(ENV["GITHUB_APP_PRIVATE_KEY"])
+    end
+  end
+end
+```
+
+There is a lot of code here so we'll break it all down. We're going to start from the bottom up as each
+method gets called by the one above it.
+
+### #github_app_private_key
+
+We're starting off with the
+
+### #jwt
+
+[Generating a JSON Web Token (JWT) for a GitHub App](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-json-web-token-jwt-for-a-github-app)
+
+[jwt](https://github.com/jwt/ruby-jwt) gem
+
+### Make It Work; Make It Simple
+
+Now that we know how it all works, let's simplify it. While writing the last section I came across an article,
+[Scripting with the REST API and Ruby](https://docs.github.com/en/rest/guides/scripting-with-the-rest-api-and-ruby), in
+the GitHub documentation with a section,
+[Authenticating with a GitHub App](https://docs.github.com/en/rest/guides/scripting-with-the-rest-api-and-ruby?apiVersion=2022-11-28#authenticating-with-a-github-app),
+showing none of the `jwt` work we did above is actually required. The code block shown in the documentation is as follows.
+
+```ruby
+require 'octokit'
+
+app = Octokit::Client.new(
+  client_id: APP_ID,
+  client_secret: PRIVATE_KEY,
+  installation_id: INSTALLATION_ID
+)
+
+octokit = Octokit::Client.new(bearer_token: app.create_app_installation.access_token)
+```
+
+
+
+
+Now that we've gone through all the initialization code, let's go ahead and add an API call.
+
+```ruby:app/models/github/client.rb
+module Github
+  class Client
+    def repositories
+      octokit.repositories
+    end
+  end
+end
+```
+
+## Conclusion
+
+I hope this helped show the benefits of using a GitHub App to authenticate to GitHub's API. I think
+the approach makes sense once it is understood and hopefully this post helped to shed light on all
+the nuances. I'm also excited that through writing this I learned I could simplify the client code and
+am going to apply those changes to my repositories that. Finally, be on the lookout for a followup to
+this post where I'll go into detail about how to set up a callback route on the GitHub app so that
+the installation information can be saved and accessed at any time.
