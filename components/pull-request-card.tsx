@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
 import { GitMerge } from "lucide-react";
 
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import type { PullRequest } from "@/lib/github";
 
 type PullRequestCardProps = {
@@ -10,56 +9,33 @@ type PullRequestCardProps = {
 
 export function PullRequestCard({ pullRequest }: PullRequestCardProps) {
   return (
-    <article className="w-full">
-      <Card className="relative block">
-        <a
-          className="absolute inset-0"
-          href={pullRequest.permalink}
-          target="_blank"
-        />
-        <CardTitle className="flex flex-row p-6 pb-2 space-x-2">
-          <GitMerge className="stroke-purple-500" />
-          <div>{pullRequest.title}</div>
-        </CardTitle>
-        <CardContent>
-          <div className="flex flex-col items-start space-y-4">
-            <div>
-              <div className="flex flex-row items-center space-x-1">
-                <div className="font-semibold">Repository</div>
-                <a
-                  className="text-blue-600 z-50"
-                  href={pullRequest.repository.url}
-                  target="_blank"
-                >
-                  {pullRequest.repository.nameWithOwner}
-                </a>
-              </div>
-              <div className="flex flex-row items-center space-x-1">
-                <div className="font-semibold">#{pullRequest.number}</div>
-                <div>by</div>
-                <a
-                  className="text-blue-600 z-50"
-                  href="https://github.com/jer-k"
-                  target="_blank"
-                >
-                  jer-k
-                </a>
-                <div>|</div>
-                <div className="font-semibold">
-                  {dayjs(pullRequest.createdAt).format("YYYY-MM-DD")}
-                </div>
-              </div>
-            </div>
+    <a
+      href={pullRequest.permalink}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block"
+    >
+      <article className="group py-4">
+        <div className="flex flex-col gap-3">
+          <div>
+            <h3 className="text-2xl font-semibold group-hover:underline flex items-start gap-2">
+              <GitMerge className="h-5 w-5 shrink-0 stroke-purple-500 mt-1.5" />
+              {pullRequest.title}
+            </h3>
             {pullRequest.bodyHTML && (
-              <div className="text-sm text-muted-foreground w-full">
-                <div
-                  dangerouslySetInnerHTML={{ __html: pullRequest.bodyHTML }}
-                />
-              </div>
+              <div
+                className="text-muted-foreground mt-2 line-clamp-3 prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: pullRequest.bodyHTML }}
+              />
             )}
           </div>
-        </CardContent>
-      </Card>
-    </article>
+          <div className="flex flex-row gap-2 text-sm">
+            <span>{dayjs(pullRequest.createdAt).format("YYYY-MM-DD")}</span>
+            <span>{pullRequest.repository.nameWithOwner}</span>
+            <span>#{pullRequest.number}</span>
+          </div>
+        </div>
+      </article>
+    </a>
   );
 }

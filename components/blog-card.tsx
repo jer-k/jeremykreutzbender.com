@@ -2,13 +2,6 @@ import { ExternalLinkIcon } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Post } from "@/types/post";
 
 type BlogCardProps = {
@@ -27,49 +20,43 @@ export function BlogCard({ post }: BlogCardProps) {
     href = `/blog/${post.slug}`;
   }
 
-  const cardFooter = externalLink ? (
-    <CardFooter className="pt-2 pb-6">
-      <div className="flex flex-row items-center justify-between w-full">
-        <div className="flex flex-row space-x-2 items-center ">
-          <p>{host}</p>
-          <ExternalLinkIcon className="h-4 w-4" />
+  const content = (
+    <article className="group py-4">
+      <div className="flex flex-col gap-3">
+        <div>
+          <h3 className="text-2xl font-semibold group-hover:underline">
+            {post.title}
+          </h3>
+          <p className="text-muted-foreground mt-2">{post.description}</p>
         </div>
-        <div className="flex text-xs">{post.date}</div>
+        <div className="flex flex-col items-start justify-start gap-2 text-sm">
+          <div className="flex flex-row gap-2">
+            <span className="text-muted-foreground">{post.date}</span>
+            {externalLink && (
+              <>
+                <span className="text-muted-foreground">{host}</span>
+                <ExternalLinkIcon className="h-4 w-4 text-muted-foreground" />
+              </>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-2 items-center justify-end">
+            {post.tags.map((tag) => (
+              <Badge variant="secondary" key={tag}>
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        </div>
       </div>
-    </CardFooter>
-  ) : (
-    <CardFooter className="pt-2 pb-6">
-      <div className="flex flex-col gap-2 w-full">
-        <div className="flex flex-row items-center justify-end w-full">
-          <div className="flex text-xs">{post.date}</div>
-        </div>
-        <div className="flex flex-row items-center justify-end gap-2 w-full">
-          {post.tags.map((tag) => (
-            <Badge variant="secondary" key={tag}>
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      </div>
-    </CardFooter>
-  );
-  const card = (
-    <Card className="shadow-lg hover:shadow-xl hover:scale-101">
-      <CardHeader className="pb-0">
-        <CardTitle className="text-primary text-2xl font-semibold leading-none tracking-tight dark:text-bright">
-          {post.title}
-        </CardTitle>
-        <CardDescription>{post.description}</CardDescription>
-      </CardHeader>
-      {cardFooter}
-    </Card>
+    </article>
   );
 
   return externalLink ? (
-    <a href={href} target="_blank">
-      {card}
+    <a href={href} target="_blank" rel="noopener noreferrer">
+      {content}
     </a>
   ) : (
-    <Link href={href}>{card}</Link>
+    <Link href={href}>{content}</Link>
   );
 }

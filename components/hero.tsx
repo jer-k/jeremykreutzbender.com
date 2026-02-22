@@ -17,13 +17,13 @@ export function Hero() {
         />
       </div>
       <div className="flex flex-col items-start space-y-2 [grid-area:header]">
-        <h1 className="text-primary dark:text-bright font-bold tracking-tighter text-4xl lg:text-5xl">
+        <h1 className="font-bold tracking-tighter text-4xl lg:text-5xl">
           Jeremy Kreutzbender
         </h1>
-        <h3 className="text-primary dark:text-bright font-bold tracking-tighter text-2xl lg:text-3xl">
+        <h3 className="font-bold tracking-tighter text-2xl lg:text-3xl">
           Product Engineer
         </h3>
-        <p className="text-primary dark:text-bright">
+        <p>
           Hello from Portland, OR and welcome to my website! My software journey
           currently has me learning as much as I can about delivering great user
           experiences through product engineering.
