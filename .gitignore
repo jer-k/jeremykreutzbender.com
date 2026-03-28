@@ -51,4 +51,5 @@ yarn-error.log
 !**/.yarn/releases
 
 .claude/*
+.agents/*
 tmp/*
