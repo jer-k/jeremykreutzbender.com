@@ -17,7 +17,9 @@ export default function CvLayout({ children }: { children: ReactNode }) {
   const previousThemeRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    previousThemeRef.current = theme;
+    if (previousThemeRef.current === undefined) {
+      previousThemeRef.current = theme;
+    }
     setTheme("light");
 
     return () => {
