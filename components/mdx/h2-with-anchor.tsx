@@ -5,7 +5,7 @@ type Props = {
 } & PropsWithChildren;
 export function H2WithAnchor({ id, children }: Props) {
   return (
-    <h2 className="group" id={id}>
+    <h2 className="group mt-4 mb-2" id={id}>
       {children}
       <a
         aria-label={id}

@@ -214,6 +214,15 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  h1 code,
+  h2 code,
+  h3 code,
+  h4 code,
+  h5 code,
+  h6 code {
+    font-size: inherit !important;
+  }
 }
 
 /* Target the light mode div that follows the title */
