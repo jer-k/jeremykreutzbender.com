@@ -1,0 +1,93 @@
+---
+title: Clone 3rd party dependencies for AI Coding Agents
+date: "2026-03-28"
+template: "post"
+draft: false
+slug: "clone-3rd-party-depenendcies-for-ai-coding-agents"
+description: |
+  A quick tip on how AI coding agents excel when all dependencies are cloned locally. We'll examine a
+  practical explanation of implementing a feature in the Ruby on Rails ClickHouse adapter gem.
+tags:
+  - "ai"
+  - "agents"
+  - "clickhouse"
+  - "active-record"
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+I've previously did some work on the [clickhouse-activerecord](https://github.com/PNixx/clickhouse-activerecord)
+gem and I wanted to share a tip I came across for helping coding agents. I came across this tip while
+on [x](x.com). It came from [Michael Arnaldi](https://x.com/MichaelArnaldi), who is the founder of the company
+behind [Effect](https://github.com/effect-ts/effect), a Typescript library. Effect is a very different way of
+writing Typescript and newcomers were messaging him asking for the best way to solve problems with Effect.
+His answer to these questions was to clone Effect into their project and let the agent read Effect's source code.
+This is a particular nuance of the Typescript ecosystem where not all libraries ship their full source code;
+sometimes the source is shipped in a minified manner and only the public API is accessible through the code
+in `node_modules/`. While we don't have that issue in [Ruby on Rails](https://rubyonrails.org/), in my particular
+case, I was working on a gem which is an adapter to `ActiveRecord` so there isn't a need to have the `ActiveRecord`
+code in the gem itself.
+
+If you find yourself working on a project interfacing with 3rd party dependency and the coding agent is struggling
+to help, clone that dependency into your project. In all my projects I have a `tmp/` directory with
+everything inside it added it `.gitignore` and that is where I'll clone these dependencies into. You'll want to add
+explicit instructions prompt to look in `tmp/<dependency>` because by default the coding agent will ignore it. I hope
+this helps on the next project you work on and if you're interested in a real world application of this approach, I've
+written up how I used it to add a feature to the `clickhouse-activerecord` gem.
+
+## Practical Example - `clickhouse-activerecord`
+
+At work, we have a handful of monkey patches to the `clickhouse-activerecord` gem and we're currently stuck on
+an older version of the gem due to incompatible changes. I made it a goal for myself to get us onto the latest
+version of the gem and remove as many of the patches as possible. Some of these patches are candidates to be
+upstreamed to the gem and others were added due to issues we ran into. The first one I aimed to tackle was a patch
+in our testing suite to use [database-cleaner](https://github.com/DatabaseCleaner/database_cleaner) to truncate the ClickHouse tables. Using `database-cleaner` works, but we're currently maintaining a hardcoded list of tables in `test_helper.rb` to skip specific tables that cannot be truncated.
+
+```ruby
+DatabaseCleaner.strategy = [:truncation, except: %w[widgets, ...]]
+```
+
+ClickHouse has a set of table engines that cannot be truncated and the gem was not taking that into account. Those
+engines can be seen in the [Truncate Table documentation](https://clickhouse.com/docs/managing-data/truncate).
+Additionally, one other type of engine that cannot be truncated is a
+[Dictionary](https://clickhouse.com/docs/dictionary), which isn't exactly a table but behaves like one and
+we use them a lot at work. Now that we have the
+background established, lets set out on figuring out how to implement this. Because we have the whole Rails
+repository in our `tmp/` folder, we should have no problem looking up how other database engines handle truncation.
+I can ask a question like this.
+
+> How does the mysql adapter in ActiveRecord handle truncation? Look in `tmp/rails` to find the ActiveRecord code.
+
+The answer I got pointed me exactly where I needed to go.
+
+> Here's how the MySQL adapter handles truncation:
+>
+> Two distinct paths
+>
+> 1. `truncate` / `truncate_tables` (abstract base in `database_statements.rb`)
+> ...
+> 2. `empty_all_tables` (MySQL-specific override in `abstract_mysql-adapater`)
+> ...
+
+The entrypoint to the truncation is
+[ActiveRecord::ConnectionAdapters::DatabaseStatements](https://github.com/rails/rails/blob/main/activerecord/lib/active_record/connection_adapters/abstract/database_statements.rb) and it's `#truncate_tables` method.
+My initial approach was to override `#truncate_tables` and add in our special cases. However, as I was reading
+through the code in `#truncate_tables`, I noticed it was calling out to another method, `#build_truncate_statements`.
+A quick search for where `#build_truncate_statements` is defined showed there is a definition in the
+`DatabaseStatements` class as well as an override in
+[ActiveRecord::ConnectionAdapters::PostgreSQL::DatabaseStatements](https://github.com/rails/rails/blob/main/activerecord/lib/active_record/connection_adapters/postgresql/database_statements.rb)
+class. After taking a look at the Postgres override, it was clear all I needed to do was add my own
+`#build_truncate_statements` to `clickhouse-activerecord` and that is what I did. The full Pull Request for my
+changes can be found here,
+[SchemaStatements#truncate_tables skips engines that cannot be truncated](https://github.com/PNixx/clickhouse-activerecord/pull/226).
+With the change, truncation will now work out of the box on all types of ClickHouse tables.
+
+## Conclusion
+
+The harder part in programming, in my opinion, is first discovering what I don't know about the problem I'm facing.
+Once that discovery has happened, building the solution is straight forward. If I had known about the
+`build_truncate_statements` method from the get go, the amount of time this PR took would have been greatly reduced.
+However, with this approach of having the cloned dependency in my `tmp/` directory, I've greatly reduced the amount
+of time spent on that discovery.
