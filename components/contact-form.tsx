@@ -67,7 +67,7 @@ export function ContactForm() {
     <Form {...form}>
       <form
         id="contact-form"
-        className="w-2/3 space-y-6"
+        className="space-y-6"
         onSubmit={handleSubmit(onSubmit)}
       >
         <FormField
