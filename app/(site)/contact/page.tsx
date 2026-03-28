@@ -35,40 +35,36 @@ export const metadata: Metadata = {
 
 export default function Contact() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <main className="flex-1">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid gap-12 lg:grid-cols-3 lg:gap-20">
-            <div className="space-y-8 lg:pr-8">
-              <Image
-                priority
-                alt="Contact Image"
-                className="aspect-content rounded-lg object-cover object-center"
-                height="400"
-                src={sunsetPic}
-                width="400"
-                placeholder="blur"
-              />
-              <p>
-                Feel free to reach out if you have a comment or question about
-                something I&apos;ve written or recorded, or if you just want to
-                connect.
-              </p>
-              <p>You can also find me on various social sites, linked below.</p>
-            </div>
-            <div className="lg:col-span-2">
-              <ContactForm />
-            </div>
-          </div>
-          <div className="flex space-x-4">
-            <TwitterIconButton href={"https://twitter.com/J_Kreutzbender"} />
-            <LinkedInIconButton
-              href={"https://www.linkedin.com/in/jeremykreutzbender/"}
-            />
-            <GithubIconButton href={"https://github.com/jer-k"} />
+    <div className="max-w-4xl mx-auto w-full py-8 px-4">
+      <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+        <div className="flex flex-col items-center md:items-start gap-4 md:w-1/3">
+          <Image
+            priority
+            alt="Contact Image"
+            className="rounded-lg object-cover w-48 h-48 md:w-full md:h-auto md:aspect-square"
+            src={sunsetPic}
+            width={400}
+            height={400}
+            placeholder="blur"
+          />
+          <p className="text-center md:text-left">
+            Feel free to reach out if you have a comment or question about
+            something I&apos;ve written or recorded, or if you just want to
+            connect.
+          </p>
+          <p className="text-center md:text-left">
+            You can also find me on various social sites, linked below.
+          </p>
+          <div className="flex gap-2">
+            <TwitterIconButton href="https://twitter.com/J_Kreutzbender" />
+            <LinkedInIconButton href="https://www.linkedin.com/in/jeremykreutzbender/" />
+            <GithubIconButton href="https://github.com/jer-k" />
           </div>
         </div>
-      </main>
+        <div className="md:w-2/3">
+          <ContactForm />
+        </div>
+      </div>
     </div>
   );
 }
