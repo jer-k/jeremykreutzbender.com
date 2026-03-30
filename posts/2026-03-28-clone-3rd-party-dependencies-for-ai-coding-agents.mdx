@@ -3,7 +3,7 @@ title: Clone 3rd party dependencies for AI Coding Agents
 date: "2026-03-28"
 template: "post"
 draft: false
-slug: "clone-3rd-party-depenendcies-for-ai-coding-agents"
+slug: "clone-3rd-party-dependencies-for-ai-coding-agents"
 description: |
   A quick tip on how AI coding agents excel when all dependencies are cloned locally. We'll examine a
   practical explanation of implementing a feature in the Ruby on Rails ClickHouse adapter gem.
@@ -18,9 +18,9 @@ tags:
 
 _Published on {frontmatter.date}_
 
-I've previously did some work on the [clickhouse-activerecord](https://github.com/PNixx/clickhouse-activerecord)
+I've previously done some work on the [clickhouse-activerecord](https://github.com/PNixx/clickhouse-activerecord)
 gem and I wanted to share a tip I came across for helping coding agents. I came across this tip while
-on [x](x.com). It came from [Michael Arnaldi](https://x.com/MichaelArnaldi), who is the founder of the company
+on [x](https://x.com). It came from [Michael Arnaldi](https://x.com/MichaelArnaldi), who is the founder of the company
 behind [Effect](https://github.com/effect-ts/effect), a Typescript library. Effect is a very different way of
 writing Typescript and newcomers were messaging him asking for the best way to solve problems with Effect.
 His answer to these questions was to clone Effect into their project and let the agent read Effect's source code.
@@ -32,10 +32,10 @@ code in the gem itself.
 
 If you find yourself working on a project interfacing with 3rd party dependency and the coding agent is struggling
 to help, clone that dependency into your project. In all my projects I have a `tmp/` directory with
-everything inside it added it `.gitignore` and that is where I'll clone these dependencies into. You'll want to add
-explicit instructions prompt to look in `tmp/<dependency>` because by default the coding agent will ignore it. I hope
-this helps on the next project you work on and if you're interested in a real world application of this approach, I've
-written up how I used it to add a feature to the `clickhouse-activerecord` gem.
+everything inside it added to `.gitignore` and that is where I'll clone these dependencies into. You'll want to add
+explicit instructions in the prompt to look in `tmp/<dependency>` because by default the coding agent will ignore it.
+I hope this helps on the next project you work on and if you're interested in a real world application of this
+approach, I've written up how I used it to add a feature to the `clickhouse-activerecord` gem.
 
 ## Practical Example - `clickhouse-activerecord`
 
@@ -46,17 +46,16 @@ upstreamed to the gem and others were added due to issues we ran into. The first
 in our testing suite to use [database-cleaner](https://github.com/DatabaseCleaner/database_cleaner) to truncate the ClickHouse tables. Using `database-cleaner` works, but we're currently maintaining a hardcoded list of tables in `test_helper.rb` to skip specific tables that cannot be truncated.
 
 ```ruby
-DatabaseCleaner.strategy = [:truncation, except: %w[widgets, ...]]
+DatabaseCleaner.strategy = [:truncation, except: %w[widgets ...]]
 ```
 
 ClickHouse has a set of table engines that cannot be truncated and the gem was not taking that into account. Those
 engines can be seen in the [Truncate Table documentation](https://clickhouse.com/docs/managing-data/truncate).
 Additionally, one other type of engine that cannot be truncated is a
 [Dictionary](https://clickhouse.com/docs/dictionary), which isn't exactly a table but behaves like one and
-we use them a lot at work. Now that we have the
-background established, lets set out on figuring out how to implement this. Because we have the whole Rails
-repository in our `tmp/` folder, we should have no problem looking up how other database engines handle truncation.
-I can ask a question like this.
+we use them a lot at work. Now that we have the background established, let's set out on figuring out how to
+implement this. Because we have the whole Rails repository in our `tmp/` folder, we should have no problem
+looking up how other database engines handle truncation. I can ask a question like this.
 
 > How does the mysql adapter in ActiveRecord handle truncation? Look in `tmp/rails` to find the ActiveRecord code.
 
@@ -87,7 +86,7 @@ With the change, truncation will now work out of the box on all types of ClickHo
 ## Conclusion
 
 The harder part in programming, in my opinion, is first discovering what I don't know about the problem I'm facing.
-Once that discovery has happened, building the solution is straight forward. If I had known about the
-`build_truncate_statements` method from the get go, the amount of time this PR took would have been greatly reduced.
+Once that discovery has happened, building the solution is straightforward. If I had known about the
+`build_truncate_statements` method from the get-go, the amount of time this PR took would have been greatly reduced.
 However, with this approach of having the cloned dependency in my `tmp/` directory, I've greatly reduced the amount
 of time spent on that discovery.
