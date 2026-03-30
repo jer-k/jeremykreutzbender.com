@@ -25,10 +25,10 @@ behind [Effect](https://github.com/effect-ts/effect), a Typescript library. Effe
 writing Typescript and newcomers were messaging him asking for the best way to solve problems with Effect.
 His answer to these questions was to clone Effect into their project and let the agent read Effect's source code.
 This is a particular nuance of the Typescript ecosystem where not all libraries ship their full source code;
-sometimes the source is shipped in a minified manner and only the public API is accessible through the code
-in `node_modules/`. While we don't have that issue in [Ruby on Rails](https://rubyonrails.org/), in my particular
-case, I was working on a gem which is an adapter to `ActiveRecord` so there isn't a need to have the `ActiveRecord`
-code in the gem itself.
+sometimes only the compiled JavaScript and type declarations are shipped, so only the public API is accessible
+through the code in `node_modules/`. While we don't have that issue in [Ruby on Rails](https://rubyonrails.org/),
+in my particular case, I was working on a gem which is an adapter to `ActiveRecord` so there isn't a need to
+have the `ActiveRecord` code in the gem itself.
 
 If you find yourself working on a project interfacing with 3rd party dependency and the coding agent is struggling
 to help, clone that dependency into your project. In all my projects I have a `tmp/` directory with
