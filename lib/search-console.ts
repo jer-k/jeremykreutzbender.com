@@ -14,7 +14,7 @@ const searchconsole = google.searchconsole({ version: "v1", auth });
 
 const SITE_URL = "sc-domain:jeremykreutzbender.com";
 
-export async function fetchTopQueries(days = 28, limit = 20) {
+export async function fetchTopQueries(days = 30, limit = 20) {
   const endDate = new Date();
   endDate.setDate(endDate.getDate() - 3); // data has 2-3 day delay
   const startDate = new Date(endDate);
@@ -39,7 +39,7 @@ export async function fetchTopQueries(days = 28, limit = 20) {
   }));
 }
 
-export async function fetchTopPages(days = 28, limit = 20) {
+export async function fetchTopPages(days = 30, limit = 20) {
   const endDate = new Date();
   endDate.setDate(endDate.getDate() - 3);
   const startDate = new Date(endDate);
@@ -64,7 +64,7 @@ export async function fetchTopPages(days = 28, limit = 20) {
   }));
 }
 
-export async function fetchSearchSummary(days = 28) {
+export async function fetchSearchSummary(days = 30) {
   const endDate = new Date();
   endDate.setDate(endDate.getDate() - 3);
   const startDate = new Date(endDate);

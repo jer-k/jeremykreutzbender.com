@@ -68,7 +68,7 @@ describe("GET /api/search-stats/top-queries", () => {
 
     const json = await response.json();
     expect(json).toHaveProperty("queries");
-    expect(json).toHaveProperty("days", 28);
+    expect(json).toHaveProperty("days", 30);
     expect(json).toHaveProperty("total", 2);
     expect(Array.isArray(json.queries)).toBe(true);
     expect(json.queries[0]).toHaveProperty("query");
@@ -121,7 +121,7 @@ describe("GET /api/search-stats/top-pages", () => {
 
     const json = await response.json();
     expect(json).toHaveProperty("pages");
-    expect(json).toHaveProperty("days", 28);
+    expect(json).toHaveProperty("days", 30);
     expect(json).toHaveProperty("total", 2);
     expect(json.pages[0]).toHaveProperty("page");
     expect(json.pages[0]).toHaveProperty("clicks");

@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const searchParams = request.nextUrl.searchParams;
-    const days = parseInt(searchParams.get("days") ?? "28") || 28;
+    const days = parseInt(searchParams.get("days") ?? "30") || 30;
     const limit = parseInt(searchParams.get("limit") ?? "20") || 20;
 
     const pages = await fetchTopPages(days, limit);
