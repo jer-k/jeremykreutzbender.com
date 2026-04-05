@@ -59,12 +59,12 @@ export default async function Blog(props: BlogProps) {
       <div className="w-full max-w-4xl">
         <TagSelect tags={tags} />
       </div>
-      <div className="flex flex-col divide-y divide-border/30 not-prose w-full max-w-4xl">
+      <div className="flex flex-col divide-y divide-border w-full">
         {filteredPosts.slice(start, start + 25).map((post) => (
           <BlogCard key={post.slug} post={post} />
         ))}
-        <Pagination page={page} numPages={numPages} path="blog" />
       </div>
+      <Pagination page={page} numPages={numPages} path="blog" />
     </div>
   );
 }
