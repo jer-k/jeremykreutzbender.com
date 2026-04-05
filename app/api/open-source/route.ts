@@ -1,19 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server";
+
 import { validateApiKey } from "@/lib/auth";
-import { fetchPosts } from "@/lib/fetch-posts";
-import type { Post } from "@/types/post";
+import { openSourcePullRequests } from "@/lib/github";
 
 const DEFAULT_PAGE_SIZE = 100;
-
-type ApiPost = Omit<Post, "content" | "draft">;
 
 export async function GET(request: NextRequest) {
   const authError = validateApiKey(request);
   if (authError) {
     return authError;
   }
+
   try {
-    const posts = await fetchPosts();
+    const pullRequests = await openSourcePullRequests();
 
     const searchParams = request.nextUrl.searchParams;
     const pageParam = searchParams.get("page");
@@ -29,31 +28,26 @@ export async function GET(request: NextRequest) {
       limit = DEFAULT_PAGE_SIZE;
     }
 
-    const totalPosts = posts.length;
-    const totalPages = Math.ceil(totalPosts / limit);
+    const total = pullRequests.length;
+    const totalPages = Math.ceil(total / limit);
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
 
-    const paginatedPosts: ApiPost[] = posts
+    const paginatedPRs = pullRequests
       .slice(startIndex, endIndex)
-      .map((post) => {
-        const { content: _content, draft: _draft, ...rest } = post;
-        return rest;
-      });
+      .map(({ bodyHTML: _bodyHTML, ...rest }) => rest);
 
-    const response = {
-      posts: paginatedPosts,
+    return NextResponse.json({
+      pullRequests: paginatedPRs,
       pagination: {
-        page: page,
-        limit: limit,
-        totalPosts: posts.length,
-        totalPages: totalPages,
+        page,
+        limit,
+        total,
+        totalPages,
       },
-    };
-
-    return NextResponse.json(response);
+    });
   } catch (error) {
-    console.error("Error fetching or processing blog posts:", error);
+    console.error("Error fetching open source pull requests:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },

@@ -5,6 +5,7 @@ import { ContactForm } from "@/components/contact-form";
 import { GithubIconButton } from "@/components/github-icon-button";
 import { LinkedInIconButton } from "@/components/linkedin-icon-button";
 import { TwitterIconButton } from "@/components/twitter-icon-button";
+import { socialLinks } from "@/lib/constants/social-links";
 
 import sunsetPic from "@/public/me/sunset-headshot.png";
 
@@ -61,11 +62,9 @@ export default function Contact() {
             </div>
           </div>
           <div className="flex space-x-4">
-            <TwitterIconButton href={"https://twitter.com/J_Kreutzbender"} />
-            <LinkedInIconButton
-              href={"https://www.linkedin.com/in/jeremykreutzbender/"}
-            />
-            <GithubIconButton href={"https://github.com/jer-k"} />
+            <TwitterIconButton href={socialLinks.twitter} />
+            <LinkedInIconButton href={socialLinks.linkedin} />
+            <GithubIconButton href={socialLinks.github.profile} />
           </div>
         </div>
       </main>

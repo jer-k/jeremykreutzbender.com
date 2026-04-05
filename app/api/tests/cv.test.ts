@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GET } from "./route";
+import { GET } from "@/app/api/cv/route";
 
 describe("GET /api/cv", () => {
   const mockApiKey = "test-secret-key";

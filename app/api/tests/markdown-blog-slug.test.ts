@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { describe, expect, it } from "vitest";
 
-import { GET } from "./route";
+import { GET } from "@/app/api/markdown/blog/[slug]/route";
 
 describe("GET /api/markdown/blog/[slug]", () => {
   it("should return markdown content for existing post", async () => {
@@ -126,7 +126,9 @@ describe("GET /api/markdown/blog/[slug]", () => {
       },
     );
 
-    const params = Promise.resolve({ slug: "cache-bundle-install-with-buildkit" });
+    const params = Promise.resolve({
+      slug: "cache-bundle-install-with-buildkit",
+    });
     const response = await GET(request, { params });
 
     // Should return 200 with local content, not redirect
