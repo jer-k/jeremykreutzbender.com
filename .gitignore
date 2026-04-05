@@ -52,4 +52,5 @@ yarn-error.log
 
 .claude/*
 .agents/*
+skills-lock.json
 tmp/*
