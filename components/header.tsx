@@ -5,6 +5,7 @@ import { HighlightLink } from "@/components/highlight-link";
 import { LinkedInIconButton } from "@/components/linkedin-icon-button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { TwitterIconButton } from "@/components/twitter-icon-button";
+import { socialLinks } from "@/lib/constants/social-links";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,13 +26,9 @@ export function Header() {
             <HighlightLink label="Contact" href="/contact" />
             {/*<HighlightLink label="About" href="/about" />*/}
             <div className="flex flex-row items-center space-x-2">
-              <GithubIconButton
-                href={"https://github.com/jer-k/jeremykreutzbender.com"}
-              />
-              <TwitterIconButton href={"https://twitter.com/J_Kreutzbender"} />
-              <LinkedInIconButton
-                href={"https://www.linkedin.com/in/jeremykreutzbender/"}
-              />
+              <GithubIconButton href={socialLinks.github.repo} />
+              <TwitterIconButton href={socialLinks.twitter} />
+              <LinkedInIconButton href={socialLinks.linkedin} />
               <ModeToggle />
             </div>
           </div>

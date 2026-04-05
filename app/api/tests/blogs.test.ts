@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GET } from "./route";
+import { GET } from "@/app/api/blogs/route";
 
 describe("GET /api/blogs", () => {
   const mockApiKey = "test-secret-key";

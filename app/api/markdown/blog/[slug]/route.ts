@@ -1,9 +1,8 @@
-import fs from "fs/promises";
 import path from "node:path";
-
+import fs from "fs/promises";
+import { NextResponse } from "next/server";
 import { fetchPost } from "@/lib/fetch-posts";
 import { Post } from "@/types/post";
-import { NextResponse } from "next/server";
 
 type RouteParams = {
   params: Promise<{
