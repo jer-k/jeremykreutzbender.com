@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ReactNode } from "react";
+import { ReactNode, ViewTransition } from "react";
 
 type PageHeroProps = {
   title: string;
@@ -11,7 +11,9 @@ export function PageHero({ title, subtitle, children }: PageHeroProps) {
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-col items-center py-8">
-        <h1 className="font-bold text-3xl text-center">{title}</h1>
+        <ViewTransition name="page-hero-title" share="morph" default="none">
+          <h1 className="font-bold text-3xl text-center">{title}</h1>
+        </ViewTransition>
         {subtitle && (
           <h2 className="font-semibold text-xl text-center">{subtitle}</h2>
         )}

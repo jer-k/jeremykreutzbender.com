@@ -1,5 +1,8 @@
+"use client";
+
 import { ExternalLinkIcon } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { addTransitionType, startTransition } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Post } from "@/types/post";
@@ -9,6 +12,8 @@ type BlogCardProps = {
 };
 
 export function BlogCard({ post }: BlogCardProps) {
+  const router = useRouter();
+
   let href;
   let host;
   let externalLink = false;
@@ -40,7 +45,7 @@ export function BlogCard({ post }: BlogCardProps) {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2 items-center justify-end">
+          <div className="flex flex-wrap gap-2 items-center">
             {post.tags.map((tag) => (
               <Badge variant="secondary" key={tag}>
                 {tag}
@@ -57,6 +62,17 @@ export function BlogCard({ post }: BlogCardProps) {
       {content}
     </a>
   ) : (
-    <Link href={href}>{content}</Link>
+    <a
+      href={href}
+      onClick={(e) => {
+        e.preventDefault();
+        startTransition(() => {
+          addTransitionType("nav-forward");
+          router.push(href);
+        });
+      }}
+    >
+      {content}
+    </a>
   );
 }
