@@ -1,10 +1,9 @@
 "use client";
 
-import type { ReactNode } from "react";
-
 import { Info, MoveLeft } from "lucide-react";
-import { useTheme } from "next-themes";
 import Link from "next/link";
+import { useTheme } from "next-themes";
+import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
 
 import {
@@ -18,7 +17,9 @@ export default function CvLayout({ children }: { children: ReactNode }) {
   const previousThemeRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    previousThemeRef.current = theme;
+    if (previousThemeRef.current === undefined) {
+      previousThemeRef.current = theme;
+    }
     setTheme("light");
 
     return () => {
@@ -37,9 +38,7 @@ export default function CvLayout({ children }: { children: ReactNode }) {
               <MoveLeft />
             </Link>
             <Popover>
-              <PopoverTrigger asChild>
-                <Info className="cursor-pointer" />
-              </PopoverTrigger>
+              <PopoverTrigger render={<Info className="cursor-pointer" />} />
               <PopoverContent className="bg-white w-80 mr-4">
                 <p>
                   This is my interactive CV, which encompasses everything
