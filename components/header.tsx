@@ -14,7 +14,7 @@ import {
 
 export function Header() {
   return (
-    <header className="mb-4 border-b border-primary dark:border-bright">
+    <header className="mb-4 border-b border-primary dark:border-bright" style={{ viewTransitionName: "site-header" }}>
       <div className="hidden md:flex h-full flex-row px-4 md:px-16">
         <div className="px-0 flex flex-row items-center justify-between w-full">
           <HighlightLink label="Home" href="/" />

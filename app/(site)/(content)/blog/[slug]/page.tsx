@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ViewTransition } from "react";
 import { notFound } from "next/navigation";
 import { fetchMdxPosts, fetchPost, postComponents } from "@/lib/fetch-posts";
 
@@ -63,8 +64,22 @@ export default async function BlogPost(props: BlogPostPageParams) {
 
   if (!postComponent) return notFound();
   return (
-    <div className="w-full flex justify-center">
-      <div className="prose">{postComponent()}</div>
-    </div>
+    <ViewTransition
+      enter={{
+        "nav-forward": "nav-forward",
+        "nav-back": "nav-back",
+        default: "none",
+      }}
+      exit={{
+        "nav-forward": "nav-forward",
+        "nav-back": "nav-back",
+        default: "none",
+      }}
+      default="none"
+    >
+      <div className="w-full flex justify-center">
+        <div className="prose">{postComponent()}</div>
+      </div>
+    </ViewTransition>
   );
 }
