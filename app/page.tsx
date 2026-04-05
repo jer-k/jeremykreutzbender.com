@@ -1,10 +1,8 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import { BlogCard } from "@/components/blog-card";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { Hero } from "@/components/hero";
-import { BlogCardSkeleton } from "@/components/skeletons/blog-card-skeleton";
 import { Button } from "@/components/ui/button";
 
 import { fetchPosts } from "@/lib/fetch-posts";
@@ -19,31 +17,21 @@ export default async function HomePage() {
         <section className="flex justify-center w-full">
           <Hero />
         </section>
-        <section className="md:w-full md:flex md:justify-center">
-          <div className="prose w-full">
-            <div className="flex flex-col space-y-4 not-prose w-full">
-              <h2 className="text-3xl font-bold tracking-tighter text-center sm:text-4xl">
+        <section className="md:w-full md:flex">
+          <div className="w-full">
+            <div className="flex flex-col space-y-4 w-full">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
                 Latest Blog Posts
               </h2>
               <div className="flex flex-col mt-8 space-y-6">
-                <Suspense
-                  fallback={
-                    <div className="flex items-center">
-                      <BlogCardSkeleton />
-                      <BlogCardSkeleton />
-                      <BlogCardSkeleton />
-                    </div>
-                  }
-                >
-                  {posts.slice(0, 5).map((post) => (
-                    <BlogCard key={post.slug} post={post} />
-                  ))}
-                  <div className="flex justify-center">
-                    <Link href={"/blog"}>
-                      <Button>Read More...</Button>
-                    </Link>
-                  </div>
-                </Suspense>
+                {posts.slice(0, 5).map((post) => (
+                  <BlogCard key={post.slug} post={post} />
+                ))}
+                <div className="flex justify-center">
+                  <Link href={"/blog"}>
+                    <Button>Read More...</Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
