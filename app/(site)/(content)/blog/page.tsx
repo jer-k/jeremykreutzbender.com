@@ -51,8 +51,8 @@ export default async function Blog(props: BlogProps) {
       : posts;
 
   const page = (searchParams.page && parseInt(searchParams.page)) || 1;
-  const start = (page - 1) * 10;
-  const numPages = Math.ceil(filteredPosts.length / 10);
+  const start = (page - 1) * 25;
+  const numPages = Math.ceil(filteredPosts.length / 25);
 
   return (
     <div className="flex flex-col">
@@ -60,7 +60,7 @@ export default async function Blog(props: BlogProps) {
         <TagSelect tags={tags} />
       </div>
       <div className="flex flex-col divide-y divide-border/30 not-prose w-full max-w-4xl">
-        {filteredPosts.slice(start, start + 10).map((post) => (
+        {filteredPosts.slice(start, start + 25).map((post) => (
           <BlogCard key={post.slug} post={post} />
         ))}
         <Pagination page={page} numPages={numPages} path="blog" />
