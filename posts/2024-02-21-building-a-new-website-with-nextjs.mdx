@@ -14,33 +14,41 @@ tags:
 
 _Published on {frontmatter.date}_
 
-Nearly six years ago I published a similar post [Getting Started - Another Attempt at Blogging](https://jeremykreutzbender.com/blog/getting-started)
-detailing how moved off the old [jeremykreutzbender.com](https://jeremykreutzbender.com) and onto [jer-k.github.io](https://jer-k.github.io). In
-that post I went from having a self-hosted [Ghost](https://ghost.org/) blog to using a [GitHub Pages](https://pages.github.com/) site. Now I've
-come almost full circle except that this time I'm not self-hosting the website, instead using [Vercel](https://vercel.com) to do what it does best.
+Nearly six years ago I published a similar post
+[Getting Started - Another Attempt at Blogging](https://jeremykreutzbender.com/blog/getting-started)
+detailing how moved off the old [jeremykreutzbender.com](https://jeremykreutzbender.com) and onto
+[jer-k.github.io](https://jer-k.github.io). In that post I went from having a self-hosted
+[Ghost](https://ghost.org/) blog to using a [GitHub Pages](https://pages.github.com/) site. Now I've come
+almost full circle except that this time I'm not self-hosting the website, instead using
+[Vercel](https://vercel.com) to do what it does best.
 
 ## Motivation
 
-My primary motivation came down to two things: the first being that I wanted to spend time learning something new and secondly I wanted to be able to
-make changes to the site more efficiently.
+My primary motivation came down to two things: the first being that I wanted to spend time learning
+something new and secondly I wanted to be able to make changes to the site more efficiently.
 
-In terms of learning something new, at work we're in the process of migrating from [Create React App](https://create-react-app.dev/) to [Next.js](https://nextjs.org/).
-However, that effort is all being done on the [Pages Router](https://nextjs.org/docs/pages) because we started before the [App Router](https://nextjs.org/docs/app)
-had been announced. The premise of the App Router resonated with me because I've used [Rails](https://rubyonrails.org/) for so many years and being able
-to fetch data on the server and then render the HTML is not a foreign concept. While that statement is scratching the surface of what the App Router can do,
-I wanted to dive into a project where I had to freedom to tinker and try new things. Is there some new feature that is in a canary Next.js release? I can
-go ahead and bump the version I'm using to try it out
+In terms of learning something new, at work we're in the process of migrating from
+[Create React App](https://create-react-app.dev/) to [Next.js](https://nextjs.org/).
+However, that effort is all being done on the [Pages Router](https://nextjs.org/docs/pages) because we started
+before the [App Router](https://nextjs.org/docs/app) had been announced. The premise of the App Router resonated
+with me because I've used [Rails](https://rubyonrails.org/) for so many years and being able
+to fetch data on the server and then render the HTML is not a foreign concept. While that statement is
+scratching the surface of what the App Router can do, I wanted to dive into a project where I had to freedom
+to tinker and try new things. Is there some new feature that is in a canary Next.js release? I can go ahead
+and bump the version I'm using to try it out
 ([8a828e](https://github.com/jer-k/jeremykreutzbender.com/blob/8a828e3c727d53cf1ec4a070492c750061847fe9/package.json#L28))!
 Can I hook the site up to a database for no reason other than to learn what it's like to use
-[Drizzle](https://orm.drizzle.team/)? Already did that (https://github.com/jer-k/jeremykreutzbender.com/pull/7)!
+[Drizzle](https://orm.drizzle.team/)? Already did that
+([https://github.com/jer-k/jeremykreutzbender.com/pull/7](https://github.com/jer-k/jeremykreutzbender.com/pull/7))!
 
-The want to be able to update the site in a more efficient manner stemmed from the old site being a [Gatsby](https://www.gatsbyjs.com/) starter template. While
-the template was great to get things up and running while looking good from the get go, I had no idea how any of it worked. I remember building out
-a separate tab from the main blog section called "Thinking"; it was meant to be a shorter, more free form content compared to technical blog posts and
-it took me so long to figure out how to piece everything together because I had no idea how any of the initial code in the starter template worked.
-It was frustrating and I don't think I really learned anything by doing it. Thus, I decided I wanted to build up everything on this site from scratch
-so that I know how it all works and if I need to make changes, I understand exactly where to
-go to be able to do it.
+The want to be able to update the site in a more efficient manner stemmed from the old site being a
+[Gatsby](https://www.gatsbyjs.com/) starter template. While the template was great to get things up and running
+while looking good from the get go, I had no idea how any of it worked. I remember building out a separate tab
+from the main blog section called "Thinking"; it was meant to be a shorter, more free form content compared
+to technical blog posts and it took me so long to figure out how to piece everything together because I had no
+idea how any of the initial code in the starter template worked. It was frustrating and I don't think I really
+learned anything by doing it. Thus, I decided I wanted to build up everything on this site from scratch
+so that I know how it all works and if I need to make changes, I understand exactly where to go to be able to do it.
 
 ## Results
 

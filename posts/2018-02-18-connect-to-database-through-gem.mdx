@@ -24,7 +24,7 @@ _Published on {frontmatter.date}_
 I was recently thinking about system design, specifically the monolithic vs microservices approaches and how
 applications can talk to each other. If I needed to connect two applications, I would start by exposing APIs and
 using [Faraday](https://github.com/lostisland/faraday) to write a simple HTTP client to consume the APIs.
-However, APIs can have their own set ofissues (a discussion for another day) and an idea popped into my head to
+However, APIs can have their own set of issues (a discussion for another day) and an idea popped into my head to
 allow applications to connect directly to the database of another application through a gem that exposes the classes.
 I would only consider this approach internal applications and even then, you could totally cripple your system if
 someone starts writing queries without knowing what they are doing. But I was curious and wanted to try this approach
@@ -75,10 +75,11 @@ end
 ```
 
 The [establish_connection](http://api.rubyonrails.org/classes/ActiveRecord/ConnectionHandling.html#method-i-establish_connection)
-call allows us to tell `ActiveRecord` how, and where, we're going to connect to a database. Since this is our base class,
-the connection will only be established once, and all our subclasses will know where their database resides.
-If you would like to read more about why you should only establish a single connection, Sophie DeBenedetto wrote a
-great blog post, [Managing Multiple Databases in a Single Rails Application](http://www.thegreatcodeadventure.com/managing-multiple-databases-in-a-single-rails-application/),
+call allows us to tell `ActiveRecord` how, and where, we're going to connect to a database. Since this is our
+base class, the connection will only be established once, and all our subclasses will know where their
+database resides. If you would like to read more about why you should only establish a single connection,
+Sophie DeBenedetto wrote a great blog post,
+[Managing Multiple Databases in a Single Rails Application](http://www.thegreatcodeadventure.com/managing-multiple-databases-in-a-single-rails-application/),
 going much further in depth on that topic; kudos to her, she provided much of the inspiration for my work on this idea.
 
 Since this is a gem, we want our connection to be configurable for anyone who uses it. The `BOOKS_GEM_DB` constant will
@@ -133,11 +134,12 @@ require 'books_gem/models/book'
 require 'books_gem/models/author'
 ```
 
-That concludes writing the gem. There is an example project located at [https://github.com/jer-k/api_to_gem](https://github.com/jer-k/api_to_gem)
-with instructions in the [README](https://github.com/jer-k/api_to_gem/blob/master/README.md) on how to test out the gem.
-There is one last gotcha, which is ensuring that the environment variables from the Rails application are available when
-the gem loads. I prefer to use [Dotenv](https://github.com/bkeepers/dotenv) and we would install it using the `rails-now`
-preference.
+That concludes writing the gem. There is an example project located at
+[https://github.com/jer-k/api_to_gem](https://github.com/jer-k/api_to_gem) with instructions in the
+[README](https://github.com/jer-k/api_to_gem/blob/master/README.md) on how to test out the gem.
+There is one last gotcha, which is ensuring that the environment variables from the Rails application are
+available when the gem loads. I prefer to use [Dotenv](https://github.com/bkeepers/dotenv) and we would install
+it using the `rails-now` preference.
 
 ```ruby
 gem 'dotenv-rails', require: 'dotenv/rails-now'

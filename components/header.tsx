@@ -5,13 +5,13 @@ import { HighlightLink } from "@/components/highlight-link";
 import { LinkedInIconButton } from "@/components/linkedin-icon-button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { TwitterIconButton } from "@/components/twitter-icon-button";
-import { socialLinks } from "@/lib/constants/social-links";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { socialLinks } from "@/lib/constants/social-links";
 
 export function Header() {
   return (
