@@ -23,7 +23,7 @@ description: |
 
 _Published on {frontmatter.date}_
 
-In my previous [post](https://jeremykreutzbender.com/connect-to-database-through-gem/) I walked through using a
+In my previous [post](https://jeremykreutzbender.com/blog/connect-to-database-through-gem/) I walked through using a
 gem to connect to another Rails application's database, but another use case for connecting a gem to a database
 is for the development of the gem itself. Instead of having to create a Rails application and install the gem
 to connect to the database to test your models, we can create local database for only the gem by adding
@@ -238,7 +238,7 @@ require 'rails/commands'
 
 The code required to get this running is a lot less than I expected and for the sake of brevity I'll just through what
 the code is doing (I do however want to write about the process of figuring all this out. I'll follow this post with
-that information. [Follow up here](https://jeremykreutzbender.com/adding-rails-g-migration-to-a-gem/)).
+that information. [Follow up here](https://jeremykreutzbender.com/blog/adding-rails-g-migration-to-a-gem/)).
 
 The `require rails` is not actually requiring all of Rails (as I mentioned I didn't want to do above) but only the
 [Rails module](https://github.com/rails/rails/blob/6a728491b66340345a91264b5983ad81944ab97a/railties/lib/rails.rb)
@@ -331,6 +331,6 @@ We've successfully added all the ActiveRecord Rake tasks to our gem and have bee
 and query our database! There is a [repository](https://github.com/jer-k/gem_with_database) for I work I did
 while writing this post. Feel free to try it out and be on the lookout for some follow-up posts. I'll be writing
 in more detail about how I figured out what was needed for the `Rails::Engine` (post
-[here](https://jeremykreutzbender.com/adding-rails-g-migration-to-a-gem/)) and then I'll continue working
+[here](https://jeremykreutzbender.com/blog/adding-rails-g-migration-to-a-gem/)) and then I'll continue working
 on this project setting up the testing environment locally and then using Docker for CI purposes,  along with a
 few enhancements to the scripts in `bin/`.
