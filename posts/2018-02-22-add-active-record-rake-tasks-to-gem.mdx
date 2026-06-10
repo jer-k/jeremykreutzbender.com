@@ -41,7 +41,7 @@ bundler gem gem_with_data
 
 First thing we need to do is add the dependencies to `gem_with_data.gemspec`.
 
-```gem_with_data.gemspec
+```ruby:gem_with_data.gemspec
 spec.add_dependency 'activerecord', '~> 5'
 
 spec.add_development_dependency "bundler", "~> 1.15"
@@ -56,7 +56,7 @@ spec.add_development_dependency 'railties', '~> 5'
 Knowing that we're going to need to configure the database, we'll go ahead and create `config/database.yml`
 and `.env` to allow flexibility in the configuration.
 
-```config/database.yml
+```yaml:config/database.yml
 default: &default
   adapter: postgresql
   encoding: unicode
@@ -80,7 +80,7 @@ test:
   database: gem_with_database_test
 ```
 
-```.env
+```shell:.env
 POSTGRES_USER=gem_with_database
 POSTGRES_PASSWORD=password
 ```
@@ -94,7 +94,7 @@ $ psql postgres --command="create role gem_with_database with superuser login pa
 Now we can create `support/active_record_rake_tasks.rb` to configure `ActiveRecord::Tasks::DatabaseTasks`
 and load the rake tasks.
 
-```support/active_record_rake_tasks.rb
+```ruby:support/active_record_rake_tasks.rb
 # Add the ability to run db:create/migrate/drop etc
 require 'yaml'
 require 'erb'
@@ -173,7 +173,7 @@ to make the Rake tasks available.
 
 Now we need to load our `active_record_rake_tasks.rb` file in `Rakefile`.
 
-```Rakefile
+```ruby:Rakefile
 require './support/active_record_rake_tasks'
 # Stub the :environment task for tasks like db:migrate & db:seed. Since this is a Gem we've explicitly required all
 # dependent files in the needed places and we don't have to load the entire environment.
@@ -281,7 +281,7 @@ $ exe/gem_rails g migration create_author name:string age:integer
 
 Success! Let's look at the migration that was created and then migrate our database.
 
-```db/migrate/20180228040040_create_author.rb
+```ruby:db/migrate/20180228040040_create_author.rb
 class CreateAuthor < ActiveRecord::Migration[5.1]
   def change
     create_table :authors do |t|
