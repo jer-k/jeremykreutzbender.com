@@ -29,11 +29,13 @@ _Updated on {frontmatter.updated}_
 
 I've been wanting to figure out how to access the route parameters in a Next.js App Router project for a while and
 I recently came by a tweet from [@fredkisss](https://twitter.com/fredkisss) pointing to a Pull Request that
-had just landed in Next.js.The Pull Request he linked is [support breadcrumb style catch-all parallel routes](https://github.com/vercel/next.js/pull/65063)
+had just landed in Next.js.The Pull Request he linked is
+[support breadcrumb style catch-all parallel routes](https://github.com/vercel/next.js/pull/65063)
 by [ztanner](https://github.com/ztanner), a [Vercel](https://vercel.com) employee and [Next.js](https://nextjs.org/)
 maintainer.
 
-The Pull Request added functionality and demonstrates how to use the [Parallel Routes](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes)
+The Pull Request added functionality and demonstrates how to use the
+[Parallel Routes](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes)
 feature to access the route parameters. I would encourage you to read through that documentation to get a better
 understanding of what Parallel Routes are but I will also summarize concepts as I write this out.
 
@@ -46,7 +48,8 @@ To start on building our breadcrumbs we have to understand what slots are in Par
 > ... Slots are passed as props to the shared parent layout.
 
 What this means is that we can add a folder to our project named `app/@breadcrumbs` to create a slot. To be able to
-build out our breadcrumbs, we'll want to use a [catch-all segment](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#catch-all-segments)
+build out our breadcrumbs, we'll want to use a
+[catch-all segment](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#catch-all-segments)
 such as `app/@breadcrumbs/[...catchAll]`. Finally, we'll add a page which will render the breadcrumbs
 `app/@breadcrumbs/[...catchAll]/page.tsx`. For now, let's add a little placeholder until we're ready to build our
 breadcrumbs.
@@ -67,7 +70,8 @@ The logging statement will print out the array of route parameters that have bee
 
 ### default.tsx
 
-A note when using Parallel Routes is that a [default](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes#defaultjs)
+A note when using Parallel Routes is that a
+[default](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes#defaultjs)
 file is required. The docs say
 
 > On refresh, Next.js will render a default.js for @analytics. If default.js doesn't exist, a 404 is rendered instead.

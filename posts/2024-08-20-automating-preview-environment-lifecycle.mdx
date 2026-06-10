@@ -18,8 +18,8 @@ _Published on {frontmatter.date}_
 
 In my previous post [What Are Preview Environments?](https://jeremykreutzbender.com/blog/what-are-preview-environments)
 we went into detail about what Preview Environments are and briefly touched on the automation aspect. Those few paragraphs
-didn't cover the full lifecycle that a Preview Environment goes through and so I thought it would be beneficial to cover
-the different steps that occur and some choices I think are beneficial to automating this lifecycle the correct way. The
+didn't cover the full life-cycle that a Preview Environment goes through and so I thought it would be beneficial to cover
+the different steps that occur and some choices I think are beneficial to automating this life-cycle the correct way. The
 content of this post is best suited for someone who wants to build a platform to create Preview Environments for themselves
 or others, but I believe anyone who has an interest in Preview Environments could benefit from understanding everything
 that goes into creating them. Also, we will be covering ideas at a high level and leave the specific technology choices up
@@ -64,7 +64,7 @@ we have a finite set of resources.
 
 ### Pull Request Opened
 
-The start of our automation of a Preview Environment's lifecycle will be when a Pull Request is opened on our Repository.
+The start of our automation of a Preview Environment's life-cycle will be when a Pull Request is opened on our Repository.
 We'll go through an initial setup of the resources needed for the environment and then apply the code from the latest commit
 on the branch. This webhook produces a `Create Environment` action.
 
@@ -78,13 +78,14 @@ Environment that matches the branch associated with the push and apply the new c
 
 When a comment is added to a Pull Request we will end up ignoring it. We're illustrating this example a single time to point
 out that GitHub can and will send us a lot of webhooks we won't care about. The settings aren't fine grained enough to be
-able to pick and choose what Pull Request related webhooks we want, we get them all! In those cases where we get things we aren't interested in, we'll accept the request, write the data to the database, and produce no action.
+able to pick and choose what Pull Request related webhooks we want, we get them all! In those cases where we get things we
+aren't interested in, we'll accept the request, write the data to the database, and produce no action.
 
 ### Pull Request Closed
 
 In GitHub terms, they do not distinguish between a Pull Request being merged or closed, both result in an
 `"action": "closed"` attribute being added to the webhook payload. For our system, we'll handle both in the same manner, as
-an indication that the lifecycle of our Preview Environment has come to its end. This webhook produces a
+an indication that the life-cycle of our Preview Environment has come to its end. This webhook produces a
 `Delete Environment` action.
 
 ## Designing a system to turn Webhooks to Actions
@@ -125,7 +126,7 @@ page has everything you'll need to get started.
 Storing the webhook data in the database is entirely up to us as the application developer. We may want to store the entirety
 of the data in a single JSON column and be done with it. That approach can work well if we're only ever receiving webhooks
 form a single source, but if we start supporting webhooks from say GitLab as well as GitHub, we'll want to normalize the data
-into columns. Doing so will prevent us from having to dig through the data in two differen places to find say what branch the
+into columns. Doing so will prevent us from having to dig through the data in two different places to find say what branch the
 the new code was pushed to. A normalized table might start out looking like something like this.
 
 ```sql
@@ -152,7 +153,7 @@ we'll cover a few problems that I've run into while building this exact system.
 The primary problem is the processing of out of order messages. This problem happens when we try to do our processing with a
 queuing system that uses the Competing Consumers pattern. The pattern is that as we scale the consumers which will do the
 processing work, all the consumers will be greedy and attempt to process whatever work is available with no regards to
-ordering. We can imagine a scenario where two Webhooks are received in very quick succession, the first being a Pull Request
+ordering. We can imagine a scenario where two webhooks are received in very quick succession, the first being a Pull Request
 opened for a branch and the second being a push to the same branch. If we process both of the actions in parallel, because
 we have many consumers, and the processing of the action for the push happens just slightly faster then we'll encounter a
 situation where we want to update a Preview Environment that doesn't exist yet. This problem can get even worse if instead
@@ -164,13 +165,13 @@ With a queueing system supports topics and partitions, we can create a topic for
 partitions and use the `repository_id` as a partition key. Using a partition key ensures that we'll send the messages
 to the same partition, which in Kafka are then consumed in order. By doing this we eliminate any out of order problems
 that we previously discussed. Enabling the ability to process our actions in order ensures that we can produce the
-outcomes that we desire for the lifecycle of a Preview Environment.
+outcomes that we desire for the life-cycle of a Preview Environment.
 
 ## Modeling Actions to Outcomes
 
-The outcomes that we're looking for in our Preview Environment lifecycle are the creation of the environment,
+The outcomes that we're looking for in our Preview Environment life-cycle are the creation of the environment,
 continuous updates of new code to that environment via deployments, and finally the deletion of the environment. There
-could be various actions that produce these outcomes, such as the automatic ones we've described from Webhooks or
+could be various actions that produce these outcomes, such as the automatic ones we've described from webhooks or
 possibly manual actions through a UI.
 
 ![webhooks actions preview environments](/post_images/automating-preview-environment-lifecycle/webhook-actions-preview-environments.svg)
@@ -185,7 +186,7 @@ environments manually.
 
 In a scenario where we have a push to the branch that all of the aforementioned environments are tracking we'll create
 an action to update all the environments. When processing that action we would fan a set of new deployments, displayed
-as `Deployment n` above. As with processing the Webhooks, we need to ensure that our deployments are queued and processed
+as `Deployment n` above. As with processing the webhooks, we need to ensure that our deployments are queued and processed
 in order. We can see that one of the environments currently has a deployment, `Deployment m`, in the queue already and thus
 the newly created `Deployment n` is waiting to be processed where as the other two environments will start processing it
 immediately.
@@ -196,14 +197,14 @@ and what the expected load on the system will be. Some things to take into consi
 - We want to run as many deployments in parallel as possible
 - Ensure that we only run a single deployment per environment at a time
 - Deployments can be long running so multiple environments sharing a consumer could lead to delays
-- Decide if retries are appliciable
+- Decide if retries are applicable
 
 ## Conclusion
 
-Hopefully this has provided a conceptual idea on what the lifecycle of a Preview Environment looks like and some technical
-choices that should aid in building the lifecycle. As previously mentioned, the lifecycle may be entirely different based on
+Hopefully this has provided a conceptual idea on what the life-cycle of a Preview Environment looks like and some technical
+choices that should aid in building the life-cycle. As previously mentioned, the life-cycle may be entirely different based on
 what architecture is backing the environments but the concepts should remain quite similar. We start with an input, in the case
 of this article, our input was a Webhook. That input creates an action, such as a creating a Preview Environment, which will
 be executed by the system and produce an outcome. The outcome in this case is a new Preview Environment that is accessible
-over the internet to allow for testing code changes or garnering feedback on new designs. This lifecycle is then repeated
+over the internet to allow for testing code changes or garnering feedback on new designs. This life-cycle is then repeated
 over and over as new product requirements arise.

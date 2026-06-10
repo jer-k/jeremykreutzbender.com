@@ -20,28 +20,31 @@ description: "A look at how we use Action Cable and Redux Toolkit to provide rea
 
 _Published on {frontmatter.date}_
 
-Over the past few weeks at [Release](https://releasehub.com) the Frontend Engineering team has started working on adding Redux to Release.
-We had been making use of [React Context](https://reactjs.org/docs/context.html) but felt that we were starting to stretch its capabilities. In some places
-we were having to add multiple providers to implement new features. After some research on the current state of Redux,
-we decided to go with [Redux Toolkit](https://redux-toolkit.js.org/) and [Redux Saga](https://redux-saga.js.org/). Moving all our data into the Redux store and out of
-local state meant that we were going to have to change our approach with [Action Cable](https://guides.rubyonrails.org/action_cable_overview.html) and how we were going to
-receive the messages, store them, and display changes for the user.
+Over the past few weeks at [Release](https://release.com) the Frontend Engineering team has started working on adding
+Redux to Release. We had been making use of [React Context](https://reactjs.org/docs/context.html) but felt that we were
+starting to stretch its capabilities. In some places we were having to add multiple providers to implement new features.
+After some research on the current state of Redux, we decided to go with [Redux Toolkit](https://redux-toolkit.js.org/) and
+[Redux Saga](https://redux-saga.js.org/). Moving all our data into the Redux store and out of local state meant that we
+were going to have to change our approach with [Action Cable](https://guides.rubyonrails.org/action_cable_overview.html)
+and how we were going to receive the messages, store them, and display changes for the user.
 
 ### Action Cable, Redux, and Release
 
 Release uses Action Cable in a single direction, which is from the backend to the frontend. The frontend is a separate
-React application running as a [Static Service Application](https://docs.releasehub.com/reference-guide/static-service-deployment), not a part of Rails. The backend will send messages to
-the frontend when the state of objects change or to stream logs of deployments and builds. Today I’m going to go through
-the thought process, including code snippets, of how we set up our Redux implementation for Action Cable when Release
-builds a Docker image. If you’re curious about how Release builds Docker images, read about we
-[Cut Build Time In Half with Docker’s Buildx Kubernetes Driver](https://releasehub.com/blog/cutting-build-time-in-half-docker-buildx-kubernetes).
+React application running as a [Static Service Application](https://docs.release.com/reference-guide/static-service-deployment),
+not a part of Rails. The backend will send messages to the frontend when the state of objects change or to stream logs of
+deployments and builds. Today I’m going to go through the thought process, including code snippets, of how we set up our
+Redux implementation for Action Cable when Release builds a Docker image. If you’re curious about how Release builds Docker
+images, read about we
+[Cut Build Time In Half with Docker’s Buildx Kubernetes Driver](https://release.com/blog/cutting-build-time-in-half-docker-buildx-kubernetes).
 
 ### Action Cable Setup
 
 Let’s start off with how we set up the backend to send updates as a `Build` object progresses. We have two `ActiveRecord`
-models to consider in this scenario, `Build`, and `Log`. The `Build` class includes the [aasm](https://github.com/aasm/aasm) gem functionality
-to progress it through the lifecycle of actually creating a Docker build. The following is an extremely pared down version
-of our `Build` class, but has enough information to explain how we’re sending the Action Cable messages.
+models to consider in this scenario, `Build`, and `Log`. The `Build` class includes the
+[aasm](https://github.com/aasm/aasm) gem functionality to progress it through the life-cycle of actually creating a Docker
+build. The following is an extremely pared down version of our `Build` class, but has enough information to explain how
+we’re sending the Action Cable messages.
 
 ```ruby
 class Build < ApplicationRecord
@@ -142,7 +145,7 @@ connected to the channel. With all that covered, we’re ready to dive into the 
 
 ### Redux Setup
 
-![Release Build Screen](/post_images/Release-Build-Page.png)
+![Release Build Screen](/post_images/how-release-uses-action-cable-redux-toolkit/Release-Build-Page.png)
 
 As you’ll recall we’re using Redux Toolkit and we’re not going to cover our entire setup with Toolkit, instead focusing
 only on the portions relevant to updating the `Build` when we receive an Action Cable message. From there we’ll go over
@@ -181,7 +184,8 @@ export default buildsSlice.reducer;
 
 You’ll notice that we import `handleBuildMessageReceived` from a file under `helpers/actionCable`. We wanted to separate
 out the code for the logic of updating the build from the slice itself so that our slice file does not grow too enormous.
-Other than that, the slice itself follows the suggested setup of a slice from the [createSlice](https://redux-toolkit.js.org/api/createslice) documentation.
+Other than that, the slice itself follows the suggested setup of a slice from the
+[createSlice](https://redux-toolkit.js.org/api/createslice) documentation.
 
 Now we need to look at our `handleBuildMessageReceived` function.
 
@@ -338,7 +342,7 @@ room to `ActionCableWrapper` along with `handleMessageReceived` as the `onReceiv
 In the video below I’ll move the build through its different states and we’ll be able to see the frontend receive the
 messages, update the state, and add the logs to the screen.
 
-![Release Demo Build Component](/post_images/Release-Demo-Build-Component.gif)
+![Release Demo Build Component](/post_images/how-release-uses-action-cable-redux-toolkit/Release-Demo-Build-Component.gif)
 
 ### Conclusion
 
@@ -346,4 +350,5 @@ That's a wrap on my adventure into how we set up our Action Cable integration wi
 places in the application we’re going to be adding live updates too so that our users will always be up-to-date on the
 state of their application. I hope you enjoyed taking a peek inside some development work at Release. If you're
 interested in having an ephemeral environment created whenever we receive a Pull Request webhook from your Repository,
-head on over to the [homepage](https://releasehub.com) and sign up! If you’d like to join our awesome team, check out our [job listsings](https://releasehub.com/company).
+head on over to the [homepage](https://release.com) and sign up! If you’d like to join our awesome team, check out our
+[job listsings](https://release.com/company).

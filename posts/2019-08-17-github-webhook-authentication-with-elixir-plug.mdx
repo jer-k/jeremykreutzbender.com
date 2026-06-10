@@ -26,14 +26,14 @@ _Published on {frontmatter.date}_
 Recently, I started working on a new side project in Elixir and I think I've finally found something I'm going to stick
 with! In the past I would either build something like a simple TODO app and not get far enough into the language or I
 would pick a gigantic idea and get nowhere due to how daunting it was. However, one of my co-workers recently implemented
-a feature through the [GitHub Webhooks API](https://developer.github.com/webhooks/) where we are required to add a label to our Pull Requests and a Slack
-channel is notified that the PR is ready to be reviewed. I decided that I wanted to rebuild it in Elixir and in doing so,
-be able to write about what I learn along the way; this is the first in what I hope to be many posts about my journey.
-With that said, if you're unfamiliar with the webhooks API or how to set it up on your repository, please read the link
-above because we're jumping right in!
+a feature through the [GitHub Webhooks API](https://developer.github.com/webhooks/) where we are required to add a label to
+our Pull Requests and a Slack channel is notified that the PR is ready to be reviewed. I decided that I wanted to rebuild
+it in Elixir and in doing so, be able to write about what I learn along the way; this is the first in what I hope to be many
+posts about my journey. With that said, if you're unfamiliar with the webhooks API or how to set it up on your repository,
+please read the link above because we're jumping right in!
 
-We're going to create a [Plug](https://hexdocs.pm/plug/Plug.Router.html) that will read the secret from the webhooks API and halt the connection if the
-request does not authenticate. We'll start off with a basic outline of what we want to do.
+We're going to create a [Plug](https://hexdocs.pm/plug/Plug.Router.html) that will read the secret from the webhooks API
+and halt the connection if the request does not authenticate. We'll start off with a basic outline of what we want to do.
 
 ```elixir
 defmodule MyApp.Plugs.GithubAuthentication do
@@ -68,16 +68,17 @@ The first thing I want to note is that I never understood `with` until now. When
 off and since I wasn't writing much Elixir at the time, it never clicked. However, I'm happy that I understand it now
 because it is the perfect construct for what we want to do.
 
-First, we want to get the signature of the request that GitHub has sent. If we look at the [Payloads](https://developer.github.com/webhooks/#payloads) section of
-the API docs we'll see that GitHub adds a `X-Hub-Signature` header to each request. It is described as
+First, we want to get the signature of the request that GitHub has sent. If we look at the
+[Payloads](https://developer.github.com/webhooks/#payloads) section of the API docs we'll see that GitHub adds a
+`X-Hub-Signature` header to each request. It is described as
 
 > The HMAC hex digest of the response body.
 > This header will be sent if the webhook is configured with a secret.
 > The HMAC hex digest is generated using the sha1 hash function and the secret as the HMAC key.
 
 which we will come back to a little later when we need to build the digest ourselves, but for now let's fill in
-`get_signature_digest` to grab the header from the request. Plug has a function to help us do this [get_req_header/2](https://hexdocs.pm/plug/Plug.Conn.html#get_req_header/2)
-so let's use that.
+`get_signature_digest` to grab the header from the request. Plug has a function to help us do this
+[get_req_header/2](https://hexdocs.pm/plug/Plug.Conn.html#get_req_header/2) so let's use that.
 
 ```elixir
 defp get_signature_digest(conn) do
@@ -97,7 +98,8 @@ X-Hub-Signature: sha1=7d38cdd689735b008b3c702edd92eea23791c5f6
 so what we want to do is pattern match on the header value to ensure it is formed correctly with `sha1=` preceding the
 digest and then return the digest.
 
-Next we need to know the secret that was used to create the digest. For this example I'm going to use [Application.get_env](https://hexdocs.pm/elixir/Application.html#get_env/3).
+Next we need to know the secret that was used to create the digest. For this example I'm going to use
+[Application.get_env](https://hexdocs.pm/elixir/Application.html#get_env/3).
 
 ```elixir
 defp get_secret
@@ -115,8 +117,9 @@ see why needing access to the parsed and raw response bodies matter.
 Now that we have both the digest and the secret in hand, we need to rebuild the digest from the request to see if we
 have a match. Looking back at the description of the `X-Hub-Signature`, it starts off with
 `The HMAC hex digest of the response body.` What we need is access not to the parsed response body, but to the raw response
-body. Thankfully this exact type of functionality was added to Plug in the form of a [Custom body reader](https://hexdocs.pm/plug/Plug.Parsers.html#module-custom-body-reader); we just
-need to copy the docs into our application!
+body. Thankfully this exact type of functionality was added to Plug in the form of a
+[Custom body reader](https://hexdocs.pm/plug/Plug.Parsers.html#module-custom-body-reader); we just need to copy the docs
+into our application!
 
 ```elixir
 defmodule MyApp.Plugs.CacheBodyReader do
@@ -138,8 +141,9 @@ defp valid_request?(digest, secret, conn) do
 end
 ```
 
-We generate the hmac using Erlang's [crypto](http://erlang.org/doc/man/crypto.html#hmac-3) library and then encode it to lowercase to ensure it matches the form
-of Github's signature. At the very bottom of GitHub's [Securing your webhooks](https://developer.github.com/webhooks/securing/) they note
+We generate the hmac using Erlang's [crypto](http://erlang.org/doc/man/crypto.html#hmac-3) library and then encode it to
+lowercase to ensure it matches the form of Github's signature. At the very bottom of GitHub's
+[Securing your webhooks](https://developer.github.com/webhooks/securing/) they note
 
 > Using a plain == operator is not advised.
 > A method like secure_compare performs a "constant time" string comparison,
@@ -209,8 +213,9 @@ so we need to put the `Parsers` plug above the `GithubAuthentication` plug. We n
 `body_reader: {MyApp.Plugs.CacheBodyReader, :read_body, []},` line to ensure that the raw body is also available when
 we're trying to authenticate. Finally, we'll add an endpoint to test the events and we should be good to go.
 
-Let's try it out. I'm going to use [ngrok](https://ngrok.com) to expose a url GitHub can reach and then send over an event to ensure
-everything works. Then I'm going to change the secret in the application to "not_the_secret" and the response should be a 401.
+Let's try it out. I'm going to use [ngrok](https://ngrok.com) to expose a url GitHub can reach and then send over an
+event to ensure everything works. Then I'm going to change the secret in the application to "not_the_secret" and the
+response should be a 401.
 
 ```
 Session Status                online
@@ -230,9 +235,9 @@ POST /events                  401 Unauthorized
 
 We can look at those events in GitHub too.
 
-![successful_event](/post_images/successful_event.png)
+![successful_event](/post_images/github-webhook-authentication-with-elixir-plug/successful_event.png)
 
-![unauthorized_event](/post_images/unauthorized_event.png)
+![unauthorized_event](/post_images/github-webhook-authentication-with-elixir-plug/unauthorized_event.png)
 
 We successfully added a plug to authenticate the GitHub Webhooks API! I'm super excited to keep working on this project
 and I hope that I'll have more to share in the future!

@@ -95,11 +95,12 @@ async function parseMdxFiles() {
 const parsedMdxFiles = cache(parseMdxFiles);
 ```
 
-In `parseMdxFiles` we're reading the checked in blog posts at [./posts](https://github.com/jer-k/jeremykreutzbender.com/tree/main/posts)
-and constructing an array of `Post` objects. Those objects contain the frontmatter, which is extracted using
-[gray-matter](https://github.com/jonschlinkert/gray-matter) and the actual post content. We're also using the new
-[cache](https://react.dev/reference/react/cache) feature from React create `parsedMdxFiles` to ensure that we only ever
-have to parse these files once, which is what we want because we're going to reference them a few more times.
+In `parseMdxFiles` we're reading the checked in blog posts at
+[./posts](https://github.com/jer-k/jeremykreutzbender.com/tree/main/posts) and constructing an array of `Post` objects.
+Those objects contain the frontmatter, which is extracted using [gray-matter](https://github.com/jonschlinkert/gray-matter)
+and the actual post content. We're also using the new [cache](https://react.dev/reference/react/cache) feature from React
+create `parsedMdxFiles` to ensure that we only ever have to parse these files once, which is what we want because we're going
+to reference them a few more times.
 
 The next function is `postComponents`.
 

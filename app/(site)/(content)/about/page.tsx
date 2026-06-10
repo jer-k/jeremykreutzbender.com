@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 
-import AboutMdx from "./about.mdx";
-
 export const metadata: Metadata = {
   title: "About",
   description: "All About Me",
@@ -28,5 +26,10 @@ export const metadata: Metadata = {
 };
 
 export default function About() {
-  return <AboutMdx />;
+  return (
+    <>
+      <h1>About is under construction</h1>
+      <div>Who knew writing about yourself would be that difficult?</div>
+    </>
+  );
 }
