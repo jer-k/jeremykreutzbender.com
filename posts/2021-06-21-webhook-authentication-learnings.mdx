@@ -27,7 +27,8 @@ I was recently tasked with implementing Gitlab support for Release and to comple
 for Gitlab and a way to handle their webhooks. I completed the authentication first and left the webhook implementation for
 another pull request as I wanted to refactor the way we were handling all webhooks.
 
-As I started the webhook work, the state of how Release handled webhooks was that GitHub was using the [github_webhook](https://github.com/ssaunier/github_webhook)
+As I started the webhook work, the state of how Release handled webhooks was that GitHub was using the
+[github_webhook](https://github.com/ssaunier/github_webhook)
 gem and Bitbucket was using some custom-built code that lived in a Controller Concern. With the need to add a third client
 I wanted to align everything into a few classes that allow us to easily onboard more providers if the need ever arose.
 
@@ -84,18 +85,18 @@ actions that could occur in another method, say `pull_request_opened`. I found t
 for a good abstraction and thorough unit testing of all the different action methods.
 
 The outlier is Bitbucket which added the event and the action together in the header. For example, when a Pull Request
-is created, the header contains `pullrequest:created`, when closed `pullrequest:rejected`, and when merged `pullrequest:fulfilled`.
-When using Release for ephemeral environments, closing and merging a Pull Request are considered the same type of action:
-we will destroy that ephemeral environment. But since the header contains two different values, I had to implement two
-different methods: `process_pullrequest_rejected` and `process_pullrequest_fulfilled` which simply call another method.
-While it is a pretty minor inconvenience, I like the code pattern of the action and event separated compared to having
-them combined.
+is created, the header contains `pullrequest:created`, when closed `pullrequest:rejected`, and when merged
+`pullrequest:fulfilled`. When using Release for ephemeral environments, closing and merging a Pull Request are considered
+the same type of action: we will destroy that ephemeral environment. But since the header contains two different values,
+I had to implement two different methods: `process_pullrequest_rejected` and `process_pullrequest_fulfilled` which simply
+call another method. While it is a pretty minor inconvenience, I like the code pattern of the action and event separated
+compared to having them combined.
 
 ## Technical Details
 
-First and foremost I want to acknowledge the great work on the [gitub_webhook](https://github.com/ssaunier/github_webhook) gem as I used a good amount of what
-they had done to create the foundation for the `Authenticator` and `Processor` classes. What follows is the Ruby code
-I wrote to manage the webhooks from the three providers that Release currently supports.
+First and foremost I want to acknowledge the great work on the [gitub_webhook](https://github.com/ssaunier/github_webhook)
+gem as I used a good amount of what they had done to create the foundation for the `Authenticator` and `Processor` classes.
+What follows is the Ruby code I wrote to manage the webhooks from the three providers that Release currently supports.
 
 ### The Authenticator
 
@@ -371,4 +372,4 @@ end
 That's a wrap on my stint in refactoring our webhook code to work with GitHub, Bitbucket, and Gitlab. If we ever have to
 add another provider I think it will be quite straightforward and I hope you enjoyed taking a peek inside some development
 work at Release. If you're interested in having an ephemeral environment created whenever we receive a Pull Request
-webhook from your Repository, head on over to the [homepage](https://releasehub.com) and sign up!
+webhook from your Repository, head on over to the [homepage](https://release.com) and sign up!
