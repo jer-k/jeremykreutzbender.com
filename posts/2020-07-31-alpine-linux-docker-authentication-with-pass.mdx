@@ -22,20 +22,22 @@ description: |
 
 _Published on {frontmatter.date}_
 
-![insecure docker login](/post_images/insecure_docker_login.png)
+![insecure docker login](/post_images/alpine-linux-docker-authentication-with-pass/insecure_docker_login.png)
 
 If you've ever encountered the above message when logging into Docker and thought to yourself
 "Well it’s unencrypted but it works... I'll deal with it another day" then we've got something in common.
 That day finally came when I was working on another blog post but realized that without a secure way to do a `docker login`
-I was never going to achieve a good working example to write about. I came across [docker-credential-helpers](https://github.com/docker/docker-credential-helpers) which
-looked like exactly what I needed. One of the recommended ways to store the encrypted passwords is with [pass](https://www.passwordstore.org/).
+I was never going to achieve a good working example to write about. I came across
+[docker-credential-helpers](https://github.com/docker/docker-credential-helpers) which looked like exactly what I needed.
+One of the recommended ways to store the encrypted passwords is with [pass](https://www.passwordstore.org/).
 However, once I started looking at `pass`, I wasn't really sure where to start on getting everything working. Apparently
 I was not alone because after some googling I came across an issue on the `docker-credential-helpers` GitHub
-titled [Document how to initialize docker-credentials-pass](https://github.com/docker/docker-credential-helpers/issues/102). After reading through all of the discussion I felt
-like I understood enough to set out and figure out once and for all how to get rid of the pesky Docker warning.
+titled [Document how to initialize docker-credentials-pass](https://github.com/docker/docker-credential-helpers/issues/102).
+After reading through all of the discussion I felt like I understood enough to set out and figure out once and for all how
+to get rid of the pesky Docker warning.
 
-If you prefer, you can view the [Dockerfile](https://github.com/jer-k/alpine_docker_pass/blob/master/Dockerfile) on GitHub, otherwise continue reading and I'll show the entire file,
-then break down each piece.
+If you prefer, you can view the [Dockerfile](https://github.com/jer-k/alpine_docker_pass/blob/master/Dockerfile) on GitHub,
+otherwise continue reading and I'll show the entire file, then break down each piece.
 
 ```docker
 # syntax = docker/dockerfile:experimental
@@ -103,12 +105,13 @@ RUN apk --update upgrade && apk add --update  docker \
                                               pass
 ```
 
-First off, I'm using features from Docker's [BuildKit](https://github.com/moby/buildkit) and the first line `# syntax = docker/dockerfile:experimental`
-enables these features. If you haven't read about the experimental features, you can do so [here](https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/experimental.md). I'm going to use
-[Alpine Linux](https://alpinelinux.org/) as my base image, as it has been my go to for building Docker images for quite some time now. I've
-added a user and set up a new home directory so that we can run the image as a non-root user. The last piece here is
-adding the packages we'll need: `docker` because that's what we're trying to log into, `gnupg` to generate a certificate
-for seeding `pass`, and `pass` to securely store our credentials.
+First off, I'm using features from Docker's [BuildKit](https://github.com/moby/buildkit) and the first line
+`# syntax = docker/dockerfile:experimental` enables these features. If you haven't read about the experimental features,
+you can do so [here](https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/experimental.md). I'm going to use
+[Alpine Linux](https://alpinelinux.org/) as my base image, as it has been my go to for building Docker images for quite
+some time now. I've added a user and set up a new home directory so that we can run the image as a non-root user. The last
+piece here is adding the packages we'll need: `docker` because that's what we're trying to log into, `gnupg` to generate
+a certificate for seeding `pass`, and `pass` to securely store our credentials.
 
 ```docker
 # As of 7/10/2020 the latest release of docker-credential-helpers is 0.6.3
@@ -119,8 +122,9 @@ RUN wget https://github.com/docker/docker-credential-helpers/releases/download/v
     && rm docker-credential-pass-v0.6.3-amd64.tar.gz
 ```
 
-Next we'll install `docker-credential-helpers` and one of the first comments on the aforementioned issue [showed](https://github.com/docker/docker-credential-helpers/issues/102#issuecomment-388974092)
-how to do this. I just modified the release number to get the most up-to-date version.
+Next we'll install `docker-credential-helpers` and one of the first comments on the aforementioned issue
+[showed](https://github.com/docker/docker-credential-helpers/issues/102#issuecomment-388974092) how to do this. I just
+modified the release number to get the most up-to-date version.
 
 ```
 # Create the .docker directory, copy in the config.json file which sets the credential store as pass, and set the correct permissions
@@ -180,11 +184,14 @@ Passphrase: gpg_password
 ```
 
 There is a bit to unpack here, but first we set our `WORKDIR` to the `$HOME` directory and change from the root user to
-our `$USER`. Next we copy in the `gpg_file.txt` file shown above, which is a modified example from [gnupg.org](https://www.gnupg.org/documentation//manuals/gnupg/Unattended-GPG-key-generation.html).
+our `$USER`. Next we copy in the `gpg_file.txt` file shown above, which is a modified example from
+[gnupg.org](https://www.gnupg.org/documentation//manuals/gnupg/Unattended-GPG-key-generation.html).
 The `RUN` line can be broken down into a few different pieces so we'll go through it piece by piece.
 
-`--mount=type=secret,id=gpg_password,uid=1001` is taking advantage of using [BuildKit secrets](https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/experimental.md#run---mounttypesecret). If you want to read
-about BuildKit secrets, I would suggest the official Docker documentation [New Docker Build secret information](https://docs.docker.com/develop/develop-images/build_enhancements/#new-docker-build-secret-information),
+`--mount=type=secret,id=gpg_password,uid=1001` is taking advantage of using
+[BuildKit secrets](https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/experimental.md#run---mounttypesecret).
+If you want to read about BuildKit secrets, I would suggest the official Docker documentation
+[New Docker Build secret information](https://docs.docker.com/develop/develop-images/build_enhancements/#new-docker-build-secret-information),
 however the gist of this functionality is that the secret is only supplied to this single `RUN` command and is not left
 behind as an artifact in the layer. The command is saying to make available the mounted secret at `id=gpg_password` and
 access it as user 1001 (which we set when we generated the user).
@@ -208,8 +215,9 @@ Again we've got multiple commands on a single line so let's break those down.
 
 `pass init` is ultimately what we're trying to accomplish which will initialize our password store.
 
-`gpg --list-secret-keys dockertester@docker.com` is how the example from [gnupg.org](https://www.gnupg.org/documentation//manuals/gnupg/Unattended-GPG-key-generation.html) says to see the keys we've generated.
-The example output is as follows
+`gpg --list-secret-keys dockertester@docker.com` is how the example from
+[gnupg.org](https://www.gnupg.org/documentation//manuals/gnupg/Unattended-GPG-key-generation.html) says to see the
+keys we've generated. The example output is as follows
 
 ```bash
 $ gpg --list-secret-keys dockertester@docker.com
@@ -266,8 +274,10 @@ BuildKit enabled arguments to mount text files as secrets in the image. Inside o
 If you to want stop here, I don't blame you. We've covered all the pieces of the `Dockerfile` and the command you'll
 need to properly build the image. What follows is the practical example, which takes a bit of set up. I won't be
 breaking everything down in as much detail to help with conciseness. We're going to set up a `docker-compose.yml` file
-that will use our built image and [dind](https://github.com/docker-library/docker/blob/93c19dff54de9876f736b3aa8026be5ad5987388/19.03/dind/Dockerfile) so we have a daemon to connect to. We'll run the images, exec into the
-container, and then ensure that everything works. Let's get to it!
+that will use our built image and
+[dind](https://github.com/docker-library/docker/blob/93c19dff54de9876f736b3aa8026be5ad5987388/19.03/dind/Dockerfile)
+so we have a daemon to connect to. We'll run the images, exec into the container, and then ensure that everything works.
+Let's get to it!
 
 ```docker
 version: '3'
@@ -299,14 +309,16 @@ volumes:
   certs:
 ```
 
-Awhile ago I came across this article [How to Use the "docker" Docker Image to Run Your Own Docker daemon](https://www.caktusgroup.com/blog/2020/02/25/docker-image/) that
-explained how to set up a compose file with `dind`; it is a very good read and I highly recommend it. I borrowed most of
+Awhile ago I came across this article
+[How to Use the "docker" Docker Image to Run Your Own Docker daemon](https://www.caktusgroup.com/blog/2020/02/25/docker-image/)
+that explained how to set up a compose file with `dind`; it is a very good read and I highly recommend it. I borrowed most of
 the setup from that article, the only interesting thing to note here is `image: localhost:5000/alpine_docker_pass:latest`.
-We need a way to reference our locally built image and we can do that via `docker tag alpine_docker_pass:latest localhost:5000/alpine_docker_pass:latest`.
-The port on localhost can be anything; there does not need to be a real running server on that port. By tagging our image
-this way, we ensure that docker will pull our local image and not try to pull an image from Dockerhub. However, I have
-also pushed the same image to a private repository on my Dockerhub account so that I can test the authentication from
-the container for the purpose of this example. Let's run the compose file.
+We need a way to reference our locally built image and we can do that via
+`docker tag alpine_docker_pass:latest localhost:5000/alpine_docker_pass:latest`. The port on localhost can be anything; there
+does not need to be a real running server on that port. By tagging our image this way, we ensure that docker will pull our
+local image and not try to pull an image from Dockerhub. However, I have also pushed the same image to a private repository
+on my Dockerhub account so that I can test the authentication from the container for the purpose of this example. Let's run
+the compose file.
 
 ```
 $ docker-compose up -d
