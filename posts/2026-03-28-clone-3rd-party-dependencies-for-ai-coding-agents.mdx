@@ -42,7 +42,7 @@ approach, I've written up how I used it to add a feature to the `clickhouse-acti
 At work, we have a handful of monkey patches to the `clickhouse-activerecord` gem and we're currently stuck on
 an older version of the gem due to incompatible changes. I made it a goal for myself to get us onto the latest
 version of the gem and remove as many of the patches as possible. Some of these patches are candidates to be
-upstreamed to the gem and others were added due to issues we ran into. The first one I aimed to tackle was a patch
+up-streamed to the gem and others were added due to issues we ran into. The first one I aimed to tackle was a patch
 in our testing suite to use [database-cleaner](https://github.com/DatabaseCleaner/database_cleaner) to truncate the ClickHouse tables. Using `database-cleaner` works, but we're currently maintaining a hardcoded list of tables in `test_helper.rb` to skip specific tables that cannot be truncated.
 
 ```ruby
@@ -71,11 +71,11 @@ The answer I got pointed me exactly where I needed to go.
 > ...
 
 The entrypoint to the truncation is
-[ActiveRecord::ConnectionAdapters::DatabaseStatements](https://github.com/rails/rails/blob/main/activerecord/lib/active_record/connection_adapters/abstract/database_statements.rb) and it's `#truncate_tables` method.
-My initial approach was to override `#truncate_tables` and add in our special cases. However, as I was reading
-through the code in `#truncate_tables`, I noticed it was calling out to another method, `#build_truncate_statements`.
-A quick search for where `#build_truncate_statements` is defined showed there is a definition in the
-`DatabaseStatements` class as well as an override in
+[ActiveRecord::ConnectionAdapters::DatabaseStatements](https://github.com/rails/rails/blob/main/activerecord/lib/active_record/connection_adapters/abstract/database_statements.rb)
+and it's `#truncate_tables` method. My initial approach was to override `#truncate_tables` and add in our special cases.
+However, as I was reading through the code in `#truncate_tables`, I noticed it was calling out to another method,
+`#build_truncate_statements`. A quick search for where `#build_truncate_statements` is defined showed there is a definition
+in the `DatabaseStatements` class as well as an override in
 [ActiveRecord::ConnectionAdapters::PostgreSQL::DatabaseStatements](https://github.com/rails/rails/blob/main/activerecord/lib/active_record/connection_adapters/postgresql/database_statements.rb)
 class. After taking a look at the Postgres override, it was clear all I needed to do was add my own
 `#build_truncate_statements` to `clickhouse-activerecord` and that is what I did. The full Pull Request for my

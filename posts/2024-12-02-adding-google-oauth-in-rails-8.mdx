@@ -142,10 +142,10 @@ and `scope`.
 Now we've built our `#authorize_client` method and we need to generate our Google url to redirect the user to. We
 use the `OAuth2::Strategy::AuthCode#authorize_url` method which accepts a set of parameters that will fulfill the required
 parameters previously mentioned. For `redirect_uri`, we're using our route helper to generate the route to our `/oauth/callback`
-route. For `scope`, we're requesting the ability to use the Open ID APIs to access to the user's email address and profile information.
-We're also passing an optional parameter for `access_type` and setting it to `online` because we don't need access to the
-Google APIs when the user isn't active on the application. Finally, `response_type` is added for us in `#authorize_url` and the
-value is `code`. The url we end up redirecting to looks like this.
+route. For `scope`, we're requesting the ability to use the Open ID APIs to access to the user's email address and
+profile information. We're also passing an optional parameter for `access_type` and setting it to `online` because we don't
+need access to the Google APIs when the user isn't active on the application. Finally, `response_type` is added for us in
+`#authorize_url` and the value is `code`. The url we end up redirecting to looks like this.
 
 ```
 https://accounts.google.com/o/oauth2/auth/oauthchooseaccount?access_type=online&client_id=<CLIENT_ID>.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth%2Fcallback&response_type=code&scope=openid%20email%20profile&service=lso&o2v=1&ddm=1&flowName=GeneralOAuthFlow

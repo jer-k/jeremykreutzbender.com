@@ -23,7 +23,7 @@ In December 2024, [Rocicorp](https://rocicorp.dev/) opened sourced their new pro
 I had been patiently waiting for this to happen and dove right into adding it to a project I had recently started working on.
 If you've used tools like [Linear](https://linear.app/) or [Superhuman](https://superhuman.com/),
 they are powered sync engines, which in layman's terms means that data to be displayed in the UI is synced from the database
-to a client datastore in the browser. In doing so, the UI becomes extremely fast because there is no latency in waiting for
+to a client data store in the browser. In doing so, the UI becomes extremely fast because there is no latency in waiting for
 API calls to fetch data as you navigate from page to page. There are more than a handful of solutions we as application
 builders can choose from in this space and if you want to know more about those, I suggest taking a look at
 [The Spectrum of Local First Libraries](https://tolin.ski/posts/local-first-options). However, we're here to talk about Zero
@@ -82,7 +82,7 @@ development:
 
 I have changed the default `username` and `password` variables and named the application `blog_application`. The
 main change here is that we've added the `primary` key as a name for this database. If you recall from the Multiple
-Databases documention, it noted that `primary` is a special key.
+Databases documentation, it noted that `primary` is a special key.
 
 > If a primary configuration key is provided, it will be used as the "default" configuration. If there is no configuration
 > named primary, Rails will use the first configuration as default for each environment.

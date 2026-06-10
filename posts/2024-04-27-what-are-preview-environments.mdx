@@ -183,11 +183,11 @@ make the Preview Environment immediately useful.
 ### Masked Production Data
 
 The last option, which is the most complicated, but yields the best results is to use the database backup from the
-Production Environment and apply a [data masking](https://en.wikipedia.org/wiki/Data_masking) approach. We won't go into any great detail on how set this
-up here, but the general idea would be to create a new database which is restored from a production backup. Once
-the new database is available, mask all the data, which is far easier said than done. After the masking is complete,
-create a new backup from that database. Finally, make the new masked backup available for use by the Preview
-Environments. There are companies who offer this data masking a service so it is possible to pay for this service
+Production Environment and apply a [data masking](https://en.wikipedia.org/wiki/Data_masking) approach. We won't go
+into any great detail on how set this up here, but the general idea would be to create a new database which is restored
+from a production backup. Once the new database is available, mask all the data, which is far easier said than done. After
+the masking is complete, create a new backup from that database. Finally, make the new masked backup available for use by
+the Preview Environments. There are companies who offer this data masking a service so it is possible to pay for this service
 instead of having to create and maintain the process. The result of the data masking work would be a dataset that does
 not contain any PII and has all the records and associations available to debug complex bugs.
 
@@ -196,7 +196,8 @@ not contain any PII and has all the records and associations available to debug 
 Now that we understand a lot more about what a Preview Environment is, we need to touch on how we create them. Every
 company, team, and application is going to have different requirements needed for the Preview Environment and that is
 far too broad of a topic us to attempt to cover here. However, I want to introduce the concept of the Golden Path.
-From the Spotify article [How We Use Golden Paths to Solve Fragmentation in Our Software Ecosystem](https://engineering.atspotify.com/2020/08/how-we-use-golden-paths-to-solve-fragmentation-in-our-software-ecosystem/)
+From the Spotify article
+[How We Use Golden Paths to Solve Fragmentation in Our Software Ecosystem](https://engineering.atspotify.com/2020/08/how-we-use-golden-paths-to-solve-fragmentation-in-our-software-ecosystem/)
 we can use their definition.
 
 > The Golden Path — as we define it today — is the ‘opinionated and supported’ path to ‘build something’ (for example,
