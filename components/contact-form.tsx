@@ -1,19 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { processContactForm } from "@/app/actions/contact";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -64,78 +57,64 @@ export function ContactForm() {
   };
 
   return (
-    <Form {...form}>
-      <form
-        id="contact-form"
-        className="space-y-6"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <FormField
-          control={control}
-          name="fullName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="fullName" aria-required={true}>
-                Name
-              </FormLabel>
-              <FormControl>
-                <Input
-                  required
-                  id="fullName"
-                  placeholder="Enter your name"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="emailAddress"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="email" aria-required={true}>
-                Email
-              </FormLabel>
-              <FormControl>
-                <Input
-                  required
-                  id="email"
-                  placeholder="Enter your email"
-                  type="email"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="message"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="message" aria-required={true}>
-                Message
-              </FormLabel>
-              <FormControl>
-                <Textarea
-                  required
-                  className="min-h-[100px]"
-                  id="message"
-                  placeholder="Enter your message"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button form="contact-form" type="submit" aria-disabled={isSubmitting}>
-          Send
-        </Button>
-      </form>
-    </Form>
+    <form
+      id="contact-form"
+      className="space-y-6"
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <Controller
+        control={control}
+        name="fullName"
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor="fullName">Name</FieldLabel>
+            <Input
+              {...field}
+              id="fullName"
+              placeholder="Enter your name"
+              aria-invalid={fieldState.invalid}
+            />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
+        )}
+      />
+      <Controller
+        control={control}
+        name="emailAddress"
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <Input
+              {...field}
+              id="email"
+              placeholder="Enter your email"
+              type="email"
+              aria-invalid={fieldState.invalid}
+            />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
+        )}
+      />
+      <Controller
+        control={control}
+        name="message"
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor="message">Message</FieldLabel>
+            <Textarea
+              {...field}
+              className="min-h-25"
+              id="message"
+              placeholder="Enter your message"
+              aria-invalid={fieldState.invalid}
+            />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
+        )}
+      />
+      <Button form="contact-form" type="submit" aria-disabled={isSubmitting}>
+        Send
+      </Button>
+    </form>
   );
 }
