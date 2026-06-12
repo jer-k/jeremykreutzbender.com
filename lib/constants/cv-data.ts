@@ -76,8 +76,7 @@ export const cvData: Cv = {
       name: "jeremykreutzbender.com",
       url: "https://jeremykreutzbender.com",
       descriptionMarkdown: `
-*   Personal website (you're on it right now!) built with Next.js App Router, React, and Typescript
-*   I'm using this website as a platform for writing blog posts, learning Typescript, and a playground to try out new features in React and Next.js
+*   Personal website built with Next.js App Router, React, and Typescript
       `,
     },
   ],
@@ -87,9 +86,14 @@ export const cvData: Cv = {
       "Ruby on Rails",
       "React",
       "Next.js",
+      "Vue.js",
+      "Inertia.js",
       "GraphQL",
       "Docker",
       "Postgresql",
+      "ClickHouse",
+      "AI SDK",
+      "MCP"
     ],
   },
   schools: [
