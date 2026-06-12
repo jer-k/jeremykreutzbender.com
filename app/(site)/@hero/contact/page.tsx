@@ -1,5 +1,5 @@
-import { PageHero } from "@/components/page-hero";
+import { GenericPageHero } from "@/components/heros/generic-page-hero";
 
 export default function ContactHero() {
-  return <PageHero title="Contact" subtitle="Get in touch" />;
+  return <GenericPageHero title="Contact" subtitle="Get in touch" />;
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { BlogCard } from "@/components/blog-card";
+import { BlogList } from "@/components/blog-list";
 import { Pagination } from "@/components/pagination";
 import { TagSelect } from "@/components/tag-select";
 import { fetchPosts, fetchTags } from "@/lib/fetch-posts";
@@ -59,11 +59,7 @@ export default async function Blog(props: BlogProps) {
       <div className="w-full max-w-4xl">
         <TagSelect tags={tags} />
       </div>
-      <div className="flex flex-col divide-y divide-border w-full">
-        {filteredPosts.slice(start, start + 25).map((post) => (
-          <BlogCard key={post.slug} post={post} />
-        ))}
-      </div>
+      <BlogList posts={filteredPosts.slice(start, start + 25)} />
       <Pagination page={page} numPages={numPages} path="blog" />
     </div>
   );

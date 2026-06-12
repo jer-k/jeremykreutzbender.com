@@ -1,10 +1,7 @@
-import { PageHero } from "@/components/page-hero";
+import { GenericPageHero } from "@/components/heros/generic-page-hero";
 
 export default function OpenSourceHero() {
   return (
-    <PageHero
-      title="Open Source"
-      subtitle="My open source contributions"
-    />
+    <GenericPageHero title="Open Source" subtitle="My open source contributions" />
   );
 }

@@ -40,7 +40,7 @@ export function BlogCard({ post }: BlogCardProps) {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2 items-center justify-end">
+          <div className="flex flex-wrap gap-2 items-center justify-start">
             {post.tags.map((tag) => (
               <Badge variant="secondary" key={tag}>
                 {tag}

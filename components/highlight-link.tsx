@@ -14,8 +14,7 @@ export function HighlightLink({ href, label }: Props) {
   return (
     <Link
       className={clsx("hover:text/70", {
-        "text-shine": pathMatch,
-        "dark:text-cloud": pathMatch,
+        "text-primary": pathMatch,
       })}
       aria-label={label}
       href={href}
