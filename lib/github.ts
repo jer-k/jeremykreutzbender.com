@@ -62,7 +62,7 @@ function pageIterator(query: string) {
 export async function openSourcePullRequests(): Promise<PullRequest[]> {
   let pullRequests: PullRequest[] = [];
   for await (const response of pageIterator(pullRequestsQuery)) {
-    pullRequests = response.viewer.pullRequests.nodes;
+    pullRequests = pullRequests.concat(response.viewer.pullRequests.nodes);
   }
   return pullRequests.filter(
     (pullRequest) => pullRequest.repository.owner.login !== "jer-k",
