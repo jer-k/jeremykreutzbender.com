@@ -2,19 +2,19 @@ import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs";
 
 import { INITIAL_VIEWPORTS } from "storybook/viewport";
 
-import { Header } from "@/components/header";
+import { Navbar } from "@/components/navbar";
 
 const meta = {
-  title: "Header",
-  component: Header,
+  title: "Navbar",
+  component: Navbar,
   parameters: {},
   tags: ["autodocs"],
-} satisfies Meta<typeof Header>;
+} satisfies Meta<typeof Navbar>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const Template: StoryFn<typeof Header> = () => <Header />;
+const Template: StoryFn<typeof Navbar> = () => <Navbar />;
 
 export const Primary: Story = {
   render: Template,

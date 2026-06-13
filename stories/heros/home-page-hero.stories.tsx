@@ -1,18 +1,20 @@
 import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs";
 
-import { Hero } from "@/components/hero";
+import { INITIAL_VIEWPORTS } from "storybook/viewport";
+
+import { HomePageHero } from "@/components/heros/home-page-hero";
 
 const meta = {
-  title: "Hero",
-  component: Hero,
+  title: "Heros/HomePageHero",
+  component: HomePageHero,
   parameters: {},
   tags: ["autodocs"],
-} satisfies Meta<typeof Hero>;
+} satisfies Meta<typeof HomePageHero>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const Template: StoryFn<typeof Hero> = () => <Hero />;
+const Template: StoryFn<typeof HomePageHero> = () => <HomePageHero />;
 
 export const Primary: Story = {
   render: Template,

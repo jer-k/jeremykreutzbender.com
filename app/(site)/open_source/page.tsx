@@ -39,25 +39,18 @@ export default async function OpenSourcePage(props: OpenSourceProps) {
   const pullRequests = await openSourcePullRequests();
 
   const page = (searchParams.page && parseInt(searchParams.page)) || 1;
-  const start = (page - 1) * 10;
-  const numPages = Math.ceil(pullRequests.length / 10);
+  const start = (page - 1) * 25;
+  const numPages = Math.ceil(pullRequests.length / 25);
 
   return (
-    <div className="flex flex-col items-center space-y-6">
-      <h1 className="text-primary dark:text-bright font-bold text-3xl">
-        Open Source Contributions
-      </h1>
-      <div className="prose">
-        <div className="flex flex-col space-y-6 not-prose w-full">
-          {pullRequests.slice(start, start + 10).map((pullRequest) => (
-            <PullRequestCard
-              key={pullRequest.number}
-              pullRequest={pullRequest}
-            />
-          ))}
-          <Pagination page={page} numPages={numPages} path="open_source" />
-        </div>
-      </div>
+    <div className="flex flex-col space-y-6 w-full max-w-4xl mx-auto">
+      {pullRequests.slice(start, start + 25).map((pullRequest) => (
+        <PullRequestCard
+          key={`${pullRequest.repository.name}-${pullRequest.number}`}
+          pullRequest={pullRequest}
+        />
+      ))}
+      <Pagination page={page} numPages={numPages} path="open_source" />
     </div>
   );
 }

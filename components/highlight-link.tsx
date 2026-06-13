@@ -13,13 +13,9 @@ export function HighlightLink({ href, label }: Props) {
   const pathMatch = href === "/" ? pathname === href : pathname.includes(href);
   return (
     <Link
-      className={clsx(
-        "text-primary hover:text-primary/70 dark:text-bright dark:hover:text-bright/70",
-        {
-          "text-shine": pathMatch,
-          "dark:text-cloud": pathMatch,
-        },
-      )}
+      className={clsx("hover:text/70", {
+        "text-primary": pathMatch,
+      })}
       aria-label={label}
       href={href}
     >
