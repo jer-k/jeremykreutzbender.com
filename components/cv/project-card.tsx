@@ -18,7 +18,7 @@ export function ProjectCard({ project }: { project: Project }) {
           {name}
         </a>
       </CardHeader>
-      <CardContent className="prose prose-li:marker:text-black p-0 ps-4 w-full text-xs">
+      <CardContent className="prose dark:prose-invert dark:prose-li:marker:text-white prose-li:marker:text-black p-0 ps-4 w-full text-xs">
         <ReactMarkdown>{descriptionMarkdown}</ReactMarkdown>
       </CardContent>
     </Card>

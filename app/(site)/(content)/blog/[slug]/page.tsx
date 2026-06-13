@@ -64,7 +64,7 @@ export default async function BlogPost(props: BlogPostPageParams) {
   if (!postComponent) return notFound();
   return (
     <div className="w-full flex justify-center">
-      <div className="prose">{postComponent()}</div>
+      <div className="prose dark:prose-invert">{postComponent()}</div>
     </div>
   );
 }

@@ -24,7 +24,7 @@ export function PullRequestCard({ pullRequest }: PullRequestCardProps) {
             </h3>
             {pullRequest.bodyHTML && (
               <div
-                className="text-muted-foreground mt-2 line-clamp-3 prose prose-sm max-w-none"
+                className="mt-2 line-clamp-3 prose prose-sm dark:prose-invert max-w-none"
                 dangerouslySetInnerHTML={{ __html: pullRequest.bodyHTML }}
               />
             )}
