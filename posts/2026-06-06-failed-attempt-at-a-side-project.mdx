@@ -64,10 +64,18 @@ follow another user around the page. If you are interested in any of the impleme
 
 ### Audit Log Tracking
 
+Google Sheet's do have version history, but I found it presented in a way that is not very user friendly when
+viewing my friend's Sheet. I set out to build a full audit log of any change that came through the aforementioned
+connected components. I did this through Zero's [Custom Mutators](https://zero.rocicorp.dev/docs/mutators) feature.
+The premise being that a change happens locally, Zero captures that and sends the change to the server to
+apply it to the database. When the application of the change happens, we're able to run any additional code such
+as creating an audit log record.
+
 ## What I Wrote About
 
 One of my favorite parts about working on this project was that I used it as an opportunity to learn a lot
-and write about what I learned.
+and write about what I learned. The posts were a combination of familiar topics (Rails) and brand new ones
+(Zero) as well as a blending of the two.
 
 ### Rails 8 Blog Posts
 
@@ -97,7 +105,9 @@ long time. Kudos to the Zero team because they laid out all the information on h
 Mutators implementation in any language, but if I had been using Typescript, I would have gotten
 everything for free. I wrote a generic post about how to set up the server side implementation for Custom
 Mutators and planned to follow it up with a detailed post about my Ruby on Rails implementation, but
-I never managed to write that follow up. If you're interested at all, [2804bb7](https://github.com/jer-k/mortgage-weave/commit/2804bb7f3eef6f36c7387351b3a172f902732352) is the merge commit for all the Rails code.
+I never managed to write that follow up. If you're interested at all,
+[2804bb7](https://github.com/jer-k/mortgage-weave/commit/2804bb7f3eef6f36c7387351b3a172f902732352) is the
+merge commit for all the Rails code.
 
 * [Setting up Rocicorp's Zero with Ruby on Rails](https://jeremykreutzbender.com/blog//setting-up-rocicorp-zero-with-rails)
 * [Using PostgreSQL Functions with Rocicorp's Zero and Ruby on Rails](https://jeremykreutzbender.com/blog//using-postgresql-functions-with-rocicorp-zero-and-rails)
@@ -126,12 +136,15 @@ share my progress with my friend because he wouldn't be able to replace his usag
 
 ### Failure To Set Up Agents For Success
 
-You can see the first commits to the repository were [4ccae79](https://github.com/jer-k/mortgage-weave/commit/4ccae79d719a61caa6a96208917f12cedaa2e352) and [c1191f0](https://github.com/jer-k/mortgage-weave/commit/c1191f0be58d07658e22a3fa7020048358d8f55c) on October 21st, 2024. I bring this up because when I first started
-the project, I decided to create two separate repositories, `lending-sheets-ui` and `lending-sheets-backend`.
-I had built projects with separate repositories for years, separating the UI from the backend because they were
-different programming languages and had different concerns. Back in 2024, I had no idea that we were coming
-into an age of programming with agents where having the ability for an agent to verify it's changes end
-to end would open the door to shipping features at a drastically different pace.
+You can see the first commits to the repository were
+[4ccae79](https://github.com/jer-k/mortgage-weave/commit/4ccae79d719a61caa6a96208917f12cedaa2e352) and
+[c1191f0](https://github.com/jer-k/mortgage-weave/commit/c1191f0be58d07658e22a3fa7020048358d8f55c) on
+October 21st, 2024. I bring this up because when I first started the project, I decided to create two separate
+repositories, `lending-sheets-ui` and `lending-sheets-backend`. I had built projects with separate repositories
+for years, separating the UI from the backend because they were different programming languages and had
+different concerns. Back in 2024, I had no idea that we were coming into an age of programming with agents where
+having the ability for an agent to verify it's changes end to end would open the door to shipping features at a
+drastically different pace.
 
 What actually happened was that I would set out to build a feature, build a plan for the UI and
 the backend, and then have two independent streams of work going. At the end of the agents work, I would have
@@ -145,8 +158,9 @@ I eventually converted the two repositories into a single one, `mortgage-weave`,
 opened up the ability to have agents work end to end. However, by the time I did that, I was already burnt
 out and did not make much additional progress. A technique that would have helped me back in 2025 is one that
 I've come to use in my daily work and wrote about in
-[Clone 3rd party dependencies for AI Coding Agents](https://jeremykreutzbender.com/blog//clone-3rd-party-dependencies-for-ai-coding-agents). All I needed to do was give each agent that reference
-to the other side of the implementation and I believe I wouldn't have left so many features unfinished.
+[Clone 3rd party dependencies for AI Coding Agents](https://jeremykreutzbender.com/blog//clone-3rd-party-dependencies-for-ai-coding-agents).
+All I needed to do was give each agent that reference to the other side of the implementation and I believe I
+wouldn't have left so many features unfinished.
 
 ### Thinking Too Large, Allowing Productivity Breadth To Win
 
@@ -164,3 +178,11 @@ I was only working on the project for a few hours a day, I sought out that produ
 applying a disciplined approach to feature development.
 
 ## Conclusion
+
+I wish the conclusion of writing about this project was that I had actually launched the product and generated
+some income, but I thoroughly enjoyed the time I spent building everything. The added bonus of getting to write
+about what I built really solidified the fact that I love building products and sharing what I learned with
+others. I've taken some of the things I learned from this project, like building out a component system and how
+to build up composed components, and directly applied those to projects at work. I'm also looking back at where
+I struggled with this project and making changes to my development process; I don't want to fall back into the trap
+of getting a rush from fake productivity and slowing my progress down on the final hard parts.
