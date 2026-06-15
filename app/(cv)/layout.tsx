@@ -2,15 +2,14 @@
 
 import { Info, MoveLeft } from "lucide-react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
-
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useTheme } from "@/lib/theme-provider";
 
 export default function CvLayout({ children }: { children: ReactNode }) {
   const { theme, setTheme } = useTheme();
@@ -38,7 +37,10 @@ export default function CvLayout({ children }: { children: ReactNode }) {
               <MoveLeft />
             </Link>
             <Popover>
-              <PopoverTrigger nativeButton={false} render={<Info className="cursor-pointer"  />} />
+              <PopoverTrigger
+                nativeButton={false}
+                render={<Info className="cursor-pointer" />}
+              />
               <PopoverContent className="bg-white w-80 mr-4">
                 <p>
                   This is my interactive CV, which encompasses everything
