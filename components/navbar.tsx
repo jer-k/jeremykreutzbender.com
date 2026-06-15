@@ -19,12 +19,12 @@ export function Navbar() {
       <div className="hidden md:flex h-full flex-row max-w-240 mx-auto w-full p-5">
         <div className="flex flex-row items-center justify-between w-full">
           <HighlightLink label="Home" href="/" />
-          <div className="flex flex-row items-center space-x-4">
+          <div className="flex flex-row items-center gap-4">
             <HighlightLink label="Blog" href="/blog" />
             <HighlightLink label="CV" href="/cv" />
             <HighlightLink label="Open Source" href="/open_source" />
             <HighlightLink label="Contact" href="/contact" />
-            <div className="flex flex-row items-center space-x-2">
+            <div className="flex flex-row items-center gap-2">
               <GithubIconButton href={socialLinks.github.repo} />
               <TwitterIconButton href={socialLinks.twitter} />
               <LinkedInIconButton href={socialLinks.linkedin} />

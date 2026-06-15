@@ -7,7 +7,8 @@
       "**",
       "!**/.next/**/*",
       "!**/.next/**/*",
-      "!**/storybook-static/**/*"
+      "!**/storybook-static/**/*",
+      "!**/tmp/**/*"
     ]
   },
   "formatter": {
