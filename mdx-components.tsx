@@ -8,6 +8,7 @@ import { Blockquote } from "@/components/mdx/blockquote";
 import { BlockquoteWithLink } from "@/components/mdx/blockquote-with-link";
 import { CodeblockTitle } from "@/components/mdx/codeblock-title";
 import { H2WithAnchor } from "@/components/mdx/h2-with-anchor";
+import { ImageWithCaption } from "@/components/mdx/image-with-caption";
 import { InlineCodeBlock } from "@/components/mdx/inline-code-block";
 import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
 import { PublishedOnReleaseBlog } from "@/components/mdx/published-on-release-blog";
@@ -27,6 +28,7 @@ export const mdxComponents: MDXComponents = {
   BasicDiv: BasicDiv,
   BlockquoteWithLink: BlockquoteWithLink,
   pre: Code,
+  ImageWithCaption: ImageWithCaption,
   code: ({ children }) => <InlineCodeBlock>{children}</InlineCodeBlock>,
   div: ({ className, children, ...props }) => {
     if (className?.includes("rehype-code-title")) {

@@ -7,6 +7,8 @@ const config: StorybookConfig = {
 
   addons: ["@storybook/addon-links"],
 
+  staticDirs: ["../public"],
+
   framework: {
     name: "@storybook/nextjs",
     options: {},
