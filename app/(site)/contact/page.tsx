@@ -7,8 +7,6 @@ import { LinkedInIconButton } from "@/components/linkedin-icon-button";
 import { TwitterIconButton } from "@/components/twitter-icon-button";
 import { socialLinks } from "@/lib/constants/social-links";
 
-import sunsetPic from "@/public/me/sunset-headshot.png";
-
 export const metadata: Metadata = {
   title: "Contact Me",
   description: "Contact Me",
@@ -43,10 +41,9 @@ export default function Contact() {
             priority
             alt="Contact Image"
             className="rounded-lg object-cover w-48 h-48 md:w-full md:h-auto md:aspect-square"
-            src={sunsetPic}
+            src="/me/sunset-headshot.png"
             width={400}
             height={400}
-            placeholder="blur"
           />
           <p className="text-center md:text-left">
             Feel free to reach out if you have a comment or question about
