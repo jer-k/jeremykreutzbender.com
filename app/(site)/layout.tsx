@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 
 import { Footer } from "@/components/footer";
-import { Navbar } from "@/components/navbar";
 import { Header } from "@/components/header";
+import { Navbar } from "@/components/navbar";
 import { Toaster } from "@/components/ui/sonner";
 
 type Props = {

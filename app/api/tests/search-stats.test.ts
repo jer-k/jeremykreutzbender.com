@@ -44,9 +44,9 @@ vi.mock("@/lib/search-console", () => ({
   }),
 }));
 
-import { GET as getTopQueries } from "@/app/api/search-stats/top-queries/route";
-import { GET as getTopPages } from "@/app/api/search-stats/top-pages/route";
 import { GET as getSummary } from "@/app/api/search-stats/summary/route";
+import { GET as getTopPages } from "@/app/api/search-stats/top-pages/route";
+import { GET as getTopQueries } from "@/app/api/search-stats/top-queries/route";
 
 describe("GET /api/search-stats/top-queries", () => {
   const mockApiKey = "test-secret-key";
