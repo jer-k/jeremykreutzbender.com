@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches-ignore:
+    branches:
       - main
   pull_request:
     branches:
@@ -22,14 +22,11 @@ jobs:
 
       - run: npm ci
 
-      - name: Lint
-        run: npx biome lint
-
-      - name: Format check
-        run: npx biome format
+      - name: Check Biome
+        run: npm run lint
 
       - name: Type check
-        run: npm run type-check
+        run: npm run typecheck
 
       - name: Test
         run: npm test
