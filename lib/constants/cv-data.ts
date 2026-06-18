@@ -93,7 +93,7 @@ export const cvData: Cv = {
       "Postgresql",
       "ClickHouse",
       "AI SDK",
-      "MCP"
+      "MCP",
     ],
   },
   schools: [

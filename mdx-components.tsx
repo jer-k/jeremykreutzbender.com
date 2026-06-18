@@ -57,7 +57,7 @@ export const mdxComponents: MDXComponents = {
       width={450}
       height={450}
       placeholder="blur"
-      blurDataURL={"@/public/post_images/1x1-fafaf07f.png"}
+      blurDataURL="/post_images/1x1-fafaf07f.png"
       {...(props as ImageProps)}
     />
   ),

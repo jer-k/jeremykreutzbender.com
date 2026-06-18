@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [new URL('https://github.com/jer-k*')],
+    remotePatterns: [new URL("https://github.com/jer-k*")],
   },
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   async rewrites() {

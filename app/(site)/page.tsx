@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-
-import { fetchPosts } from "@/lib/fetch-posts";
 import { BlogList } from "@/components/blog-list";
+import { Button } from "@/components/ui/button";
+import { fetchPosts } from "@/lib/fetch-posts";
 
 export default async function HomePage() {
   const posts = await fetchPosts();
