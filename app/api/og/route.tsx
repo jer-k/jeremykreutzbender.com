@@ -26,7 +26,7 @@ export async function GET(request: Request) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(to bottom right, #FAFAF0, #F8E08E)",
+          background: "linear-gradient(to bottom right, #FDFDF4, #FED756)",
           fontFamily: "Geist Sans",
         }}
       >
@@ -70,6 +70,7 @@ export async function GET(request: Request) {
                   fontSize: "24px",
                   color: "#0F0A0A",
                   margin: "0 0 20px 0",
+                  textAlign: "left",
                 }}
               >
                 {description}
