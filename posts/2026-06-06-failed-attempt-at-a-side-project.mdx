@@ -18,11 +18,18 @@ _Published on {frontmatter.date}_
 
 I was recently thinking back on a lot of work I did at the end of 2024 and into 2025 on a side project.
 I had aspirations to turn the project into a SaaS, but attempting to do so while also working
-full-time was using up so much of my days and weekends that I eventually burnt out and haven't picked
+full-time used up so many nights and weekends that I eventually burned out and haven't picked
 the project back up since. I consider the project a "failure" in the sense that I never launched it,
-but in looking back at what I built, I learned a lot of things that guide my development today. Let's walk
-through what the project was, what I learned and wrote about, where I struggled, and why I ended up
-stepping away from the project altogether.
+but that had little to do with the code I wrote. The real failure was that I kept building SaaS
+features before shipping an MVP of the actual product.
+
+Looking back on my time building the project, I can see the traps I fell into: building around missing
+domain expertise, making end-to-end verification too expensive, and chasing the feeling of progress instead
+of finishing the hardest parts. Those traps, and the lessons I learned from them, have helped guide me to
+improve development workflow today.
+
+Let's walk through what the project was, what I learned and wrote about, where I struggled, and why I ended
+up stepping away from the project altogether.
 
 ## What the Project Was
 The project was originally called `lending-sheets`, as it was born from a Google Sheet that my friend,
@@ -43,11 +50,11 @@ undertaking.
 ## What I Built
 
 I eventually renamed the project from `lending-sheets` to [mortgage-weave](https://github.com/jer-k/mortgage-weave)
-and I have open-sourced the repository as I don't plan to continue working on it. The project contains three `apps`:
-a [Next.js](https://nextjs.org/) UI using [Zero](https://zero.rocicorp.dev/) as a sync engine for real-time updates,
-a [Ruby on Rails](https://rubyonrails.org/) backend server, and a [PartyKit](https://www.partykit.io/) server
-for collaboration features. I am happy with the work that I did so I wanted to be able to point to a few examples
-of things I built.
+and I have open-sourced the repository because I don't plan to continue working on it. The project contains
+three `apps`: a [Next.js](https://nextjs.org/) UI using [Zero](https://zero.rocicorp.dev/) as a sync engine
+for real-time updates, a [Ruby on Rails](https://rubyonrails.org/) backend server, and a
+[PartyKit](https://www.partykit.io/) server for collaboration features. There are parts of the codebase I'm
+still proud of, even if the product never launched. These are the pieces that taught me the most.
 
 ### Composed Components Connected to Zero
 
@@ -130,6 +137,13 @@ it visually updated the UI any time a change was made!
   * [Changes](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/components/changes.tsx)
   * [AuditLogMessage](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/components/audit-log-message.tsx)
 
+### Wrapping Up
+
+Looking back, these features were all useful pieces of a polished product, and they were a lot of fun to build.
+However, they were not part of the core product, and they did not answer the most important question: could
+this replace the sheet my friend already used every day? Failing to answer that question led to many of my
+struggles and ultimately to my burnout on the project.
+
 ## What I Wrote About
 
 One of my favorite parts about working on this project was that I used it as an opportunity to learn a lot
@@ -186,12 +200,18 @@ each of them.
 
 I believed I could get far enough on my own understanding of the mortgage lending domain; however,
 that was not true at all. There are so many inputs that go into a mortgage loan, including differences
-at the county level, that I quickly realized I was in way over my head. I did not engage my friend, who had all
-the domain expertise, nearly enough. I also felt that because I was working on this project in my spare time,
-I didn't want to use up his personal time. This led me to build SaaS features like invitations to teams and
-roles for team members, rather than building out core functionality. This ended up being a bit of a spiral
-because the more I built features that the Google Sheet didn't implement, the less I felt like I should
-share my progress with my friend because he wouldn't be able to replace his usage of his sheet.
+at the county level, that I quickly realized I was in way over my head. The answer was to work more closely
+with my friend, who had all the domain expertise, but I did not do that nearly enough.
+
+Part of that was practical. We both had jobs and families, and I was mostly working on this during nights
+and weekends. But part of it was also psychological. I didn't want to use up his personal time until I had
+something more complete to show him. That felt right at the time, but looking back, I realize that decision
+may have derailed the whole project.
+
+This led me to build SaaS features like invitations to teams and roles for team members, rather than building
+out core functionality. In doing so, I created a spiral: the more SaaS features I built, the less I felt
+like I should share my progress with my friend. I kept building without the person who best understood the
+problem I was trying solve.
 
 ### Failure to Set Up Agents for Success
 
@@ -223,23 +243,31 @@ wouldn't have left so many features unfinished.
 ### Thinking Too Large, Allowing Productivity Breadth to Win
 
 Building off that idea that the last little bit is always the hardest to finish and verify, I fell into
-a trap I coined for myself called breadth-first productivity. Instead of finishing the current task and
-moving on to the next feature, I would instead leave a note for myself.
+a trap I started calling breadth-first productivity. Instead of finishing the current task and
+moving on to the next feature, I would leave a note for myself.
+
 * "feature name - edge case - XYZ is not covered; double-check that it works when ABC"
 
-The list kept on growing, but I felt more and more productive because I jumped from the hardest part of
-finishing a feature to the easiest part, having an agent generate most of it. Over and over again,
-I kept building features that were great for a SaaS product, like teams, roles, and marketing pages, but I
-failed to finish the key features. Looking back, I can see how I was getting that dopamine rush from the
-easy part of a feature being done and then avoiding the friction of the harder, manual verification. Since
-I was only working on the project for a few hours a day, I sought out that productivity rush instead of
-applying a disciplined approach to feature development.
+The list kept on growing, but I felt more productive. The project continued to expand in breadth, but there
+was no depth or completeness to each feature. I would go from the hardest part of finishing a feature to
+the easiest part: having an agent generate most of it. Over and over again, I kept building features that
+were great for a SaaS product, like teams, roles, and marketing pages, but I failed to finish anything related
+to the core product.
+
+Looking back, I can see how I was getting a dopamine rush from the easy part of a feature being done
+and then avoiding the friction of the harder, manual verification. Since I was only working on the project for
+a few hours a day, I sought out that productivity instead of applying a disciplined approach to feature
+development. I believe this idea of breadth-first productivity is pervasive throughout programming now; it's
+incredibly easy to start something, like a PR to an open-source repository, but the real difficulty lies
+in ensuring the correctness and completeness of the feature.
 
 ## Conclusion
 
 I wish the conclusion of writing about this project was that I had actually launched the product and generated
-some income, but I thoroughly enjoyed the time I spent building everything. The added bonus of getting to write
-about what I built really solidified the fact that I love building products and sharing what I learned with
-others. I've taken some of the things I learned from this project, like building a component system and composed components, and directly applied those to projects at work. I'm also looking back at where
-I struggled with this project and making changes to my development process. I don't want to fall back into
-the trap of getting a rush from fake productivity and slowing my progress down on the final hard parts.
+some income, but that isn't what happened. I thoroughly enjoyed the time I spent building everything. The added
+bonus of getting to write about what I built really solidified the fact that I love building products and sharing
+what I learned with others.
+
+The project helped me understand component composition, sync engines, Rails authentication, collaborative features, and how to structure work for coding agents. I've directly applied many of those lessons to projects at work. My
+biggest takeaway is to avoid falling into the trap of breadth-first productivity again. The hard parts of building
+a feature need to be completed, not kicked down the road.
