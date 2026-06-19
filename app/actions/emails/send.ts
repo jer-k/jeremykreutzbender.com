@@ -14,10 +14,22 @@ export async function sendEmail(
   formData: ContactSchemaValues,
 ): Promise<SendEmailResponse> {
   const { fullName, emailAddress, message } = formData;
+  const from = process.env.MY_RESEND_ADDRESS;
+  const to = process.env.MY_EMAIL_ADDRESS;
+
+  if (!from || !to) {
+    return {
+      error: {
+        name: "missing_required_field",
+        message:
+          "MY_RESEND_ADDRESS and MY_EMAIL_ADDRESS must be configured to send contact emails.",
+      },
+    };
+  }
 
   const data = await resend.emails.send({
-    from: process.env.MY_RESEND_ADDRESS!,
-    to: [process.env.MY_EMAIL_ADDRESS!],
+    from,
+    to,
     subject: `${fullName} Contacted You`,
     react: ContactEmail({ fullName, emailAddress, message }),
   });
