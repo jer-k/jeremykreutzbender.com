@@ -41,18 +41,15 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error checking contact rate limit:", error);
-    return NextResponse.json(
-      { error: "Unable to check contact rate limit" },
-      { status: 503 },
-    );
   }
-  const rateLimitHeaders = {
-    "RateLimit-Limit": rateLimit.limit.toString(),
-    "RateLimit-Remaining": rateLimit.remaining.toString(),
-    "RateLimit-Reset": Math.ceil(rateLimit.resetAt / 1000).toString(),
-  };
 
-  if (!rateLimit.allowed) {
+  if (rateLimit && !rateLimit.allowed) {
+    const rateLimitHeaders = {
+      "RateLimit-Limit": rateLimit.limit.toString(),
+      "RateLimit-Remaining": rateLimit.remaining.toString(),
+      "RateLimit-Reset": Math.ceil(rateLimit.resetAt / 1000).toString(),
+    };
+
     return NextResponse.json(
       { error: "Too many contact requests. Please try again later." },
       {
