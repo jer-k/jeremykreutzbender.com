@@ -1,0 +1,281 @@
+---
+title: My Failed Attempt at a Side Project
+date: "2026-06-06"
+template: "post"
+draft: false
+slug: "failed-attempt-at-a-side-project"
+description: |
+  I set out to build a side project; instead, I attempted to create a codebase for a startup.
+  I learned a lot along the way, but I ultimately failed to launch anything.
+tags:
+  - "side-project"
+  - "startup"
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+I was recently thinking back on a lot of work I did at the end of 2024 and into 2025 on a side project.
+I had aspirations to turn the project into a SaaS, but attempting to do so while also working
+full-time used up so many nights and weekends that I eventually burned out and haven't picked
+the project back up since. I consider the project a "failure" in the sense that I never launched it,
+but that had little to do with the code I wrote. The real failure was that I kept building SaaS
+features before shipping an MVP of the actual product.
+
+Looking back on my time building the project, I can see the traps I fell into: building around missing
+domain expertise, making end-to-end verification too expensive, and chasing the feeling of progress instead
+of finishing the hardest parts. Those traps, and the lessons I learned from them, have helped guide me to
+improve development workflow today.
+
+Let's walk through what the project was, what I learned and wrote about, where I struggled, and why I ended
+up stepping away from the project altogether.
+
+## What the Project Was
+The project was originally called `lending-sheets`, as it was born from a Google Sheet that my friend,
+who is a mortgage lender, uses with all his clients. I was one of those clients back in 2020 and in
+2024 we discussed the idea of turning his sheet into a SaaS because the feedback he received from clients
+as well as other lenders was always extremely positive.
+
+The sheet is a complex grid of everything that goes into a mortgage lending scenario with the ability to
+adjust each input and see how that affects all the outputs. As an example, I could set my home price, APR,
+and down payment and the sheet will tell me what my monthly payment and cash needed to close are. Then
+I can input my current finances and understand if I have a debt-to-income ratio that a lender
+would accept. The list of features like this goes on and on; my friend has been building this sheet
+over the last 10 years. Needless to say, attempting to replicate it all in my spare time was a massive
+undertaking.
+
+![the-sheet](/post_images/failed-attempt-at-a-side-project/the-sheet.png)
+
+## What I Built
+
+I eventually renamed the project from `lending-sheets` to [mortgage-weave](https://github.com/jer-k/mortgage-weave)
+and I have open-sourced the repository because I don't plan to continue working on it. The project contains
+three `apps`: a [Next.js](https://nextjs.org/) UI using [Zero](https://zero.rocicorp.dev/) as a sync engine
+for real-time updates, a [Ruby on Rails](https://rubyonrails.org/) backend server, and a
+[PartyKit](https://www.partykit.io/) server for collaboration features. There are parts of the codebase I'm
+still proud of, even if the product never launched. These are the pieces that taught me the most.
+
+### Composed Components Connected to Zero
+
+While the idea of using component composition is well known, this project gave me the perfect opportunity
+to put this idea into practice. There were tons of data inputs in the sheet that needed to be accounted for
+and I didn't want to have to rebuild the same logic for every different input type. I used
+[shadcn](https://ui.shadcn.com/) as the base layer of my components and pulled in the
+[Input](https://ui.shadcn.com/docs/components/base/input) and
+[InputGroup](https://ui.shadcn.com/docs/components/base/input-group) components. On top of those, I built
+a `NumberInput`, which could be used for inputs such as the duration of the loan or the down payment percentage.
+Additionally, I needed to capture the purchase price of the home and I built a `CurrencyInput` on top
+of the `NumberInput` to handle the specific cases for formatting currency. Finally at the top level, I built
+a `LoanStructure` component that rendered the above three inputs.
+
+The `LoanStructure` received its data from a [Zero query](https://zero.rocicorp.dev/docs/queries), meaning that
+as any change was written to the database, everyone viewing the page would instantly see those changes.
+`LoanStructure` also received an `onUpdate` prop, which was a [Zero mutator](https://zero.rocicorp.dev/docs/mutators)
+and passed that `onUpdate` into each input. This allowed the inputs to write changes from the UI to the database
+and trigger the aforementioned updates.
+
+<MdxImage
+  src="/post_images/failed-attempt-at-a-side-project/loan-structure.png"
+  alt="LoanStructure component"
+  width={806}
+  height={658}
+  maxWidth={500}
+/>
+
+* [LoanStructure](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/components/loan-structure.tsx)
+* [CurrencyInput](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/components/inputs/currency-input.tsx)
+* [NumberInput](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/components/inputs/number-input.tsx)
+* [Scenario Mutations](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/mutations/lenders/scenario.ts)
+
+### Presence, Shared Highlights, and Cursor Sharing with PartyKit
+
+A big theme I was going for with `mortgage-weave` was the collaborative aspect of a mortgage lender working
+together with their clients remotely, but with tools that allowed them to feel more connected. I achieved
+that by using `PartyKit` and implementing three different ways for people to interactively collaborate. The
+first was a presence feature that displayed the avatar of any user who was currently viewing a page. The second
+was the ability to click a button in the corner of a portion of the application, which would add a highlighted
+border to that section to draw attention to an area. Finally, cursor sharing was implemented to be able to
+follow another user around the page. If you are interested in any of the implementations, they can be found below.
+
+<ImageWithCaption
+  src="/post_images/failed-attempt-at-a-side-project/mortgageweave-partykit.png"
+  alt="Side-by-side browsers showing off PartyKit features"
+  caption="A very early version of MortgageWeave showing off the PartyKit features."
+/>
+
+* PartyKit implementation via [apps/partykit](https://github.com/jer-k/mortgage-weave/tree/main/apps/partykit)
+* Presence via [CollaborationAvatars](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/components/collaboration-avatars.tsx) and [useCollaborationAvatars](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/hooks/use-collaboration-avatars.ts)
+* Shared Highlights via [CollaborationHighlightableSection](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/components/collaboration-highlightable-section.tsx) and [useCollaborationHighlights](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/hooks/use-collaboration-highlights.ts)
+* Cursor Sharing via [Cursor](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/components/cursor.tsx) and [useCollaborationCursors](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/hooks/use-collaboration-cursors.ts)
+
+### Audit Log Tracking
+
+While Google Sheets has a history feature, I found it presented in a way that is not very user-friendly when
+viewing my friend's sheet. I set out to build a full audit log of any change that came through the aforementioned
+connected components. I did this through Zero's [Custom Mutators](https://zero.rocicorp.dev/docs/mutators) feature.
+The premise was that a change would happen in the UI, Zero would capture it and send it to the server to apply
+to the database. When the change was applied, we could run additional code, such as creating an audit log record.
+Let's walk through the high-level implementation; the links to the mentioned code are listed below.
+
+When Zero's mutation is sent from the UI, our Ruby on Rails server would receive the mutation and then
+process it via `ProcessMutation`. The processor validated everything was correct with the mutation and then
+dispatched the change to a class specific to what object was being changed, in this case, it was `UpdateScenario`.
+Once we had validated that the Scenario object was valid, we passed the specific information on to
+`ApplyChanges`, which is a generic class able to apply changes to any object type to the database. Once those
+changes were successfully applied, we would pass the changes into `CreateAuditLog` and the audit log would
+be created.
+
+Next, in the UI, the `Sidebar` was reading from the `Audit Log Queries` and rendering a `Changes` component.
+Since Zero is reactive, this meant that the moment `CreateAuditLog` wrote the new record to the database,
+the query would pick up the new record and start re-rendering the UI. Then a new `AuditLogMessage` would be
+added into the `Changes` component. It was very cool to understand how this data flow worked in the code and how
+it visually updated the UI any time a change was made!
+
+![Audit logs demo](/post_images/failed-attempt-at-a-side-project/audit-logs-vid.gif)
+
+* Server
+  * [ProcessMutation](https://github.com/jer-k/mortgage-weave/blob/main/apps/server/app/interactions/zero/process_mutation.rb)
+  * [UpdateScenario](https://github.com/jer-k/mortgage-weave/blob/main/apps/server/app/interactions/zero/mutators/scenarios/update_scenario.rb)
+  * [ApplyChanges](https://github.com/jer-k/mortgage-weave/blob/main/apps/server/app/interactions/zero/mutators/apply_changes.rb)
+  * [CreateAuditLog](https://github.com/jer-k/mortgage-weave/blob/main/apps/server/app/interactions/audit_logs/create_audit_log.rb)
+* UI
+  * [Sidebar](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/app/(app)/%40rhsSidebar/(lender)/teams/%5BteamId%5D/scenarios/%5BscenarioId%5D/page.tsx)
+  * [Audit Log Queries](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/queries/shared/audit-logs.ts)
+  * [Changes](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/components/changes.tsx)
+  * [AuditLogMessage](https://github.com/jer-k/mortgage-weave/blob/main/apps/web/components/audit-log-message.tsx)
+
+### Wrapping Up
+
+Looking back, these features were all useful pieces of a polished product, and they were a lot of fun to build.
+However, they were not part of the core product, and they did not answer the most important question: could
+this replace the sheet my friend already used every day? Failing to answer that question led to many of my
+struggles and ultimately to my burnout on the project.
+
+## What I Wrote About
+
+One of my favorite parts about working on this project was that I used it as an opportunity to learn a lot
+and write about what I learned. The posts were a combination of familiar topics (Rails) and brand new ones
+(Zero) as well as a blending of the two.
+
+### Rails 8 Blog Posts
+
+As I started work on this project, Rails 8 had just released with its new authentication generator. While
+the generated code isn't large in the number of lines of code added to an app, it provided hands-on
+experience with setting up an authentication layer. My previous experience with authentication was always
+either adding [devise](https://github.com/heartcombo/devise) or someone else had already set the
+authentication up. I hadn't spent the time to understand how an authentication layer worked and
+having all the code checked into my repository really helped solidify everything. However, the generator
+gives us the base layer and any additional features were left to the community. I wrote the following
+three blog posts about new features I added in my app.
+
+* [Adding Email Address Verification in Rails 8](https://jeremykreutzbender.com/blog//adding-email-address-verification-in-rails-8)
+* [Adding Google OAuth in Rails 8](https://jeremykreutzbender.com/blog//adding-google-oauth-in-rails-8)
+* [Controller Tests with RSpec and Rails 8 Authentication](https://jeremykreutzbender.com/blog//controller-tests-with-rspec-and-rails-8-authentication)
+
+### Zero Blog Posts
+
+The project would not have been possible without Zero and I enjoyed documenting parts of my journey
+while building. Zero was very early when I started building, the first version I installed was `0.9`.
+As with any early software, Zero changed a lot and for the better as I was building. I was likely the only
+person at the time combining a UI built with Zero and a Ruby on Rails backend. That choice, while it
+didn't prevent me from building, came at a cost of having to figure a lot of things out on my own
+because the Zero examples were all set up assuming a full-stack TypeScript application. I really felt
+that friction when they released their Custom Mutators feature, which I had been looking forward to for a
+long time. Kudos to the Zero team because they laid out all the information on how to build a Custom
+Mutators implementation in any language, but if I had been using TypeScript, I would have gotten
+everything for free. I wrote a generic post about how to set up the server-side implementation for Custom
+Mutators and planned to follow it up with a detailed post about my Ruby on Rails implementation, but
+I never managed to write that follow-up. If you're interested at all,
+[2804bb7](https://github.com/jer-k/mortgage-weave/commit/2804bb7f3eef6f36c7387351b3a172f902732352) is the
+merge commit for all the Rails code.
+
+* [Setting up Rocicorp's Zero with Ruby on Rails](https://jeremykreutzbender.com/blog//setting-up-rocicorp-zero-with-rails)
+* [Using PostgreSQL Functions with Rocicorp's Zero and Ruby on Rails](https://jeremykreutzbender.com/blog//using-postgresql-functions-with-rocicorp-zero-and-rails)
+* [Server Implementation Plan For Rocicorp's Zero - Custom Mutators](https://jeremykreutzbender.com/blog//server-implementation-plan-rocicorp-zero-custom-mutators)
+
+## Where I Struggled
+
+While I'm very happy with everything that I ended up building, there were a few things I did
+wrong that set me up for failure in the long term. I did not have domain expertise in mortgage lending
+nor did I engage my friend often enough to get his assistance. Additionally, I set up the project as two
+separate repositories, which made it difficult for agents to complete full features. Finally, I
+convinced myself that I was more productive by building more, unfinished features, instead of polishing
+each feature before moving on. These led to my eventual burnout on the project so let's expand on
+each of them.
+
+### Lack of Domain Expertise
+
+I believed I could get far enough on my own understanding of the mortgage lending domain; however,
+that was not true at all. There are so many inputs that go into a mortgage loan, including differences
+at the county level, that I quickly realized I was in way over my head. The answer was to work more closely
+with my friend, who had all the domain expertise, but I did not do that nearly enough.
+
+Part of that was practical. We both had jobs and families, and I was mostly working on this during nights
+and weekends. But part of it was also psychological. I didn't want to use up his personal time until I had
+something more complete to show him. That felt right at the time, but looking back, I realize that decision
+may have derailed the whole project.
+
+This led me to build SaaS features like invitations to teams and roles for team members, rather than building
+out core functionality. In doing so, I created a spiral: the more SaaS features I built, the less I felt
+like I should share my progress with my friend. I kept building without the person who best understood the
+problem I was trying solve.
+
+### Failure to Set Up Agents for Success
+
+You can see the first commits to the repository were
+[4ccae79](https://github.com/jer-k/mortgage-weave/commit/4ccae79d719a61caa6a96208917f12cedaa2e352) and
+[c1191f0](https://github.com/jer-k/mortgage-weave/commit/c1191f0be58d07658e22a3fa7020048358d8f55c) on
+October 21st, 2024. I bring this up because when I first started the project, I decided to create two separate
+repositories, `lending-sheets-ui` and `lending-sheets-backend`. I had built projects with separate repositories
+for years, separating the UI from the backend because they were different programming languages and had
+different concerns. Back in 2024, I had no idea that we were coming into an age of programming with agents where
+having the ability for an agent to verify its changes end-to-end would open the door to shipping features at a
+drastically different pace.
+
+What actually happened was that I would set out to build a feature, build a plan for the UI and
+the backend, and then have two independent streams of work going. At the end of each agent's work, I would have
+to go in and manually verify that everything was wired up correctly because the two agents had no idea what
+the other one was doing. A lot of the work was done in the summer of 2025 with Claude Sonnet 4 and
+back in those days, the outcomes of the agent were nothing like what we're used to today. Put another way,
+there was still a lot of manual work needed to get everything working and catch all the edge cases. That last little bit fell to the wayside, never to be completed.
+
+I eventually converted the two repositories into a single one, `mortgage-weave`, as part of the rename, which
+opened up the ability to have agents work end-to-end. However, by the time I did that, I was already burnt
+out and did not make much additional progress. A technique that would have helped me back in 2025 is one that
+I've come to use in my daily work and wrote about in
+[Clone 3rd party dependencies for AI Coding Agents](https://jeremykreutzbender.com/blog//clone-3rd-party-dependencies-for-ai-coding-agents).
+All I needed to do was give each agent that reference to the other side of the implementation and I believe I
+wouldn't have left so many features unfinished.
+
+### Thinking Too Large, Allowing Productivity Breadth to Win
+
+Building off that idea that the last little bit is always the hardest to finish and verify, I fell into
+a trap I started calling breadth-first productivity. Instead of finishing the current task and
+moving on to the next feature, I would leave a note for myself.
+
+* "feature name - edge case - XYZ is not covered; double-check that it works when ABC"
+
+The list kept on growing, but I felt more productive. The project continued to expand in breadth, but there
+was no depth or completeness to each feature. I would go from the hardest part of finishing a feature to
+the easiest part: having an agent generate most of it. Over and over again, I kept building features that
+were great for a SaaS product, like teams, roles, and marketing pages, but I failed to finish anything related
+to the core product.
+
+Looking back, I can see how I was getting a dopamine rush from the easy part of a feature being done
+and then avoiding the friction of the harder, manual verification. Since I was only working on the project for
+a few hours a day, I sought out that productivity instead of applying a disciplined approach to feature
+development. I believe this idea of breadth-first productivity is pervasive throughout programming now; it's
+incredibly easy to start something, like a PR to an open-source repository, but the real difficulty lies
+in ensuring the correctness and completeness of the feature.
+
+## Conclusion
+
+I wish the conclusion of writing about this project was that I had actually launched the product and generated
+some income, but that isn't what happened. I thoroughly enjoyed the time I spent building everything. The added
+bonus of getting to write about what I built really solidified the fact that I love building products and sharing
+what I learned with others.
+
+The project helped me understand component composition, sync engines, Rails authentication, collaborative features, and how to structure work for coding agents. I've directly applied many of those lessons to projects at work. My
+biggest takeaway is to avoid falling into the trap of breadth-first productivity again. The hard parts of building
+a feature need to be completed, not kicked down the road.

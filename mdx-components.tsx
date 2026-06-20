@@ -1,6 +1,6 @@
 import { Code } from "bright";
 import type { MDXComponents } from "mdx/types";
-import Image, { type ImageProps } from "next/image";
+import type { ImageProps } from "next/image";
 import { Tweet } from "react-tweet";
 import { Aside } from "@/components/mdx/aside";
 import { BasicDiv } from "@/components/mdx/basic-div";
@@ -8,6 +8,8 @@ import { Blockquote } from "@/components/mdx/blockquote";
 import { BlockquoteWithLink } from "@/components/mdx/blockquote-with-link";
 import { CodeblockTitle } from "@/components/mdx/codeblock-title";
 import { H2WithAnchor } from "@/components/mdx/h2-with-anchor";
+import { MdxImage } from "@/components/mdx/image";
+import { ImageWithCaption } from "@/components/mdx/image-with-caption";
 import { InlineCodeBlock } from "@/components/mdx/inline-code-block";
 import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
 import { PublishedOnReleaseBlog } from "@/components/mdx/published-on-release-blog";
@@ -27,6 +29,8 @@ export const mdxComponents: MDXComponents = {
   BasicDiv: BasicDiv,
   BlockquoteWithLink: BlockquoteWithLink,
   pre: Code,
+  ImageWithCaption: ImageWithCaption,
+  MdxImage: MdxImage,
   code: ({ children }) => <InlineCodeBlock>{children}</InlineCodeBlock>,
   div: ({ className, children, ...props }) => {
     if (className?.includes("rehype-code-title")) {
@@ -45,22 +49,7 @@ export const mdxComponents: MDXComponents = {
     </a>
   ),
   blockquote: ({ children }) => <Blockquote>{children}</Blockquote>,
-  img: (props) => (
-    <Image
-      sizes="100vw"
-      style={{
-        width: "100%",
-        height: "auto",
-        marginTop: "16px",
-        marginBottom: "16px",
-      }}
-      width={450}
-      height={450}
-      placeholder="blur"
-      blurDataURL="/post_images/1x1-fafaf07f.png"
-      {...(props as ImageProps)}
-    />
-  ),
+  img: (props) => <MdxImage {...(props as ImageProps)} />,
   Tweet: (props) => (
     <div className="not-prose">
       <Tweet {...props} />
