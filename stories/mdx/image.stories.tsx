@@ -25,6 +25,8 @@ export const AnimatedGif: Story = {
   args: {
     src: "/post_images/failed-attempt-at-a-side-project/audit-logs-vid.gif",
     alt: "Audit log filters being changed",
+    width: 900,
+    height: 492,
   },
 };
 
@@ -32,5 +34,8 @@ export const StaticImage: Story = {
   args: {
     src: "/post_images/failed-attempt-at-a-side-project/loan-structure.png",
     alt: "A loan structure interface",
+    width: 806,
+    height: 658,
+    maxWidth: 500,
   },
 };

@@ -30,6 +30,7 @@ export const mdxComponents: MDXComponents = {
   BlockquoteWithLink: BlockquoteWithLink,
   pre: Code,
   ImageWithCaption: ImageWithCaption,
+  MdxImage: MdxImage,
   code: ({ children }) => <InlineCodeBlock>{children}</InlineCodeBlock>,
   div: ({ className, children, ...props }) => {
     if (className?.includes("rehype-code-title")) {

@@ -1,20 +1,29 @@
 import Image, { type ImageProps } from "next/image";
 
-export function MdxImage(props: ImageProps) {
+export type MdxImageProps = ImageProps & {
+  maxWidth?: number;
+};
+
+export function MdxImage({ maxWidth, style, ...props }: MdxImageProps) {
   const isGif =
     typeof props.src === "string" && /\.gif(?:[?#].*)?$/i.test(props.src);
 
   return (
     <Image
-      sizes="100vw"
+      sizes={
+        props.sizes ??
+        (maxWidth ? `(max-width: ${maxWidth}px) 100vw, ${maxWidth}px` : "100vw")
+      }
       style={{
+        display: "block",
         width: "100%",
+        maxWidth: maxWidth ? `${maxWidth}px` : undefined,
         height: "auto",
-        marginTop: "16px",
-        marginBottom: "16px",
+        margin: "16px auto",
+        ...style,
       }}
-      width={450}
-      height={450}
+      width={props.width ?? 450}
+      height={props.height ?? 450}
       placeholder="blur"
       blurDataURL="/post_images/1x1-fafaf07f.png"
       {...props}
