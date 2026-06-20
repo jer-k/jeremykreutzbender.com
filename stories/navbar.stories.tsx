@@ -1,4 +1,4 @@
-import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs";
+import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs-vite";
 
 import { INITIAL_VIEWPORTS } from "storybook/viewport";
 

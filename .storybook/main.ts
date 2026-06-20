@@ -1,6 +1,4 @@
-import type { StorybookConfig } from "@storybook/nextjs";
-
-import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+import type { StorybookConfig } from "@storybook/nextjs-vite";
 
 const config: StorybookConfig = {
   stories: ["../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
@@ -10,20 +8,8 @@ const config: StorybookConfig = {
   staticDirs: ["../public"],
 
   framework: {
-    name: "@storybook/nextjs",
+    name: "@storybook/nextjs-vite",
     options: {},
-  },
-
-  webpackFinal: async (config) => {
-    if (config.resolve) {
-      config.resolve.plugins = [
-        ...(config.resolve.plugins || []),
-        new TsconfigPathsPlugin({
-          extensions: config.resolve.extensions,
-        }),
-      ];
-    }
-    return config;
   },
 };
 export default config;

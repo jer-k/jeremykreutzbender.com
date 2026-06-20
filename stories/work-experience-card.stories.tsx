@@ -1,4 +1,4 @@
-import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs";
+import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs-vite";
 
 import { WorkExperienceCard } from "@/components/cv/work-experience-card";
 
