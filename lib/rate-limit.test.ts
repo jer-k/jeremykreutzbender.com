@@ -1,16 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  checkRateLimit,
-  checkRateLimitWithRedisCommand,
-} from "@/lib/rate-limit";
+import { checkRateLimit, checkRateLimitWithStore } from "@/lib/rate-limit";
 
 describe("checkRateLimit", () => {
   beforeEach(() => {
     vi.unstubAllEnvs();
   });
 
-  it("fails when redis_url is not configured", async () => {
+  it("fails when REDIS_URL is not configured", async () => {
     await expect(
       checkRateLimit({
         key: "contact:test",
@@ -18,33 +15,24 @@ describe("checkRateLimit", () => {
         windowMs: 60_000,
         now: 61_001,
       }),
-    ).rejects.toThrow("redis_url must be configured for rate limiting.");
+    ).rejects.toThrow("REDIS_URL must be configured for rate limiting.");
   });
 
   it("allows requests until the Redis count exceeds the limit", async () => {
-    const commands: Array<Array<number | string>> = [];
-    const runRedisCommand = vi.fn(async (command: Array<number | string>) => {
-      commands.push(command);
+    const store = {
+      increment: vi.fn().mockResolvedValue(1),
+      expire: vi.fn().mockResolvedValue(1),
+      ttl: vi.fn(),
+    };
 
-      if (command[0] === "INCR") {
-        return 1;
-      }
-
-      if (command[0] === "EXPIRE") {
-        return 1;
-      }
-
-      throw new Error(`Unexpected command: ${command[0]}`);
-    });
-
-    const result = await checkRateLimitWithRedisCommand(
+    const result = await checkRateLimitWithStore(
       {
         key: "contact:203.0.113.10",
         limit: 2,
         windowMs: 60_000,
         now: 1_000,
       },
-      runRedisCommand,
+      store,
     );
 
     expect(result).toEqual({
@@ -54,33 +42,26 @@ describe("checkRateLimit", () => {
       resetAt: 61_000,
       retryAfter: 60,
     });
-    expect(commands).toEqual([
-      ["INCR", "contact:203.0.113.10"],
-      ["EXPIRE", "contact:203.0.113.10", 60],
-    ]);
+    expect(store.increment).toHaveBeenCalledWith("contact:203.0.113.10");
+    expect(store.expire).toHaveBeenCalledWith("contact:203.0.113.10", 60);
+    expect(store.ttl).not.toHaveBeenCalled();
   });
 
   it("blocks requests after the Redis count exceeds the limit", async () => {
-    const runRedisCommand = vi.fn(async (command: Array<number | string>) => {
-      if (command[0] === "INCR") {
-        return 3;
-      }
+    const store = {
+      increment: vi.fn().mockResolvedValue(3),
+      expire: vi.fn(),
+      ttl: vi.fn().mockResolvedValue(42),
+    };
 
-      if (command[0] === "TTL") {
-        return 42;
-      }
-
-      throw new Error(`Unexpected command: ${command[0]}`);
-    });
-
-    const result = await checkRateLimitWithRedisCommand(
+    const result = await checkRateLimitWithStore(
       {
         key: "contact:203.0.113.10",
         limit: 2,
         windowMs: 60_000,
         now: 1_000,
       },
-      runRedisCommand,
+      store,
     );
 
     expect(result).toEqual({
@@ -90,44 +71,32 @@ describe("checkRateLimit", () => {
       resetAt: 43_000,
       retryAfter: 42,
     });
+    expect(store.increment).toHaveBeenCalledWith("contact:203.0.113.10");
+    expect(store.ttl).toHaveBeenCalledWith("contact:203.0.113.10");
+    expect(store.expire).not.toHaveBeenCalled();
   });
 
   it("sets a new expiration when Redis returns no TTL", async () => {
-    const commands: Array<Array<number | string>> = [];
-    const runRedisCommand = vi.fn(async (command: Array<number | string>) => {
-      commands.push(command);
+    const store = {
+      increment: vi.fn().mockResolvedValue(2),
+      expire: vi.fn().mockResolvedValue(1),
+      ttl: vi.fn().mockResolvedValue(-1),
+    };
 
-      if (command[0] === "INCR") {
-        return 2;
-      }
-
-      if (command[0] === "TTL") {
-        return -1;
-      }
-
-      if (command[0] === "EXPIRE") {
-        return 1;
-      }
-
-      throw new Error(`Unexpected command: ${command[0]}`);
-    });
-
-    const result = await checkRateLimitWithRedisCommand(
+    const result = await checkRateLimitWithStore(
       {
         key: "contact:203.0.113.10",
         limit: 2,
         windowMs: 60_000,
         now: 1_000,
       },
-      runRedisCommand,
+      store,
     );
 
     expect(result.allowed).toBe(true);
     expect(result.retryAfter).toBe(60);
-    expect(commands).toEqual([
-      ["INCR", "contact:203.0.113.10"],
-      ["TTL", "contact:203.0.113.10"],
-      ["EXPIRE", "contact:203.0.113.10", 60],
-    ]);
+    expect(store.increment).toHaveBeenCalledWith("contact:203.0.113.10");
+    expect(store.ttl).toHaveBeenCalledWith("contact:203.0.113.10");
+    expect(store.expire).toHaveBeenCalledWith("contact:203.0.113.10", 60);
   });
 });

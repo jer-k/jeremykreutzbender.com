@@ -158,7 +158,7 @@ describe("POST /api/contact", () => {
     expect(mockSendEmail).not.toHaveBeenCalled();
   });
 
-  it("should return 503 when rate limit storage is unavailable", async () => {
+  it("should send a contact email when rate limit storage is unavailable", async () => {
     mockCheckRateLimit.mockRejectedValue(
       new Error("Redis rate limit storage is not configured."),
     );
@@ -172,11 +172,11 @@ describe("POST /api/contact", () => {
     });
 
     const response = await POST(request);
-    expect(response.status).toBe(503);
+    expect(response.status).toBe(200);
 
     const json = await response.json();
-    expect(json).toEqual({ error: "Unable to check contact rate limit" });
-    expect(mockSendEmail).not.toHaveBeenCalled();
+    expect(json).toEqual({ success: true });
+    expect(mockSendEmail).toHaveBeenCalledWith(validPayload);
   });
 
   it("should return 401 without API key", async () => {
