@@ -1,9 +1,9 @@
 "use server";
 
-import { ErrorResponse } from "resend";
+import type { ErrorResponse } from "resend";
 
 import { ContactEmail } from "@/components/email_templates/contact-email";
-import { resend } from "@/lib/resend";
+import { getResend } from "@/lib/resend";
 import { ContactSchemaValues } from "@/lib/schemas/contact-form-schema";
 
 type SendEmailResponse = {
@@ -16,13 +16,14 @@ export async function sendEmail(
   const { fullName, emailAddress, message } = formData;
   const from = process.env.MY_RESEND_ADDRESS;
   const to = process.env.MY_EMAIL_ADDRESS;
+  const resend = getResend();
 
-  if (!from || !to) {
+  if (!from || !to || !resend) {
     return {
       error: {
         name: "missing_required_field",
         message:
-          "MY_RESEND_ADDRESS and MY_EMAIL_ADDRESS must be configured to send contact emails.",
+          "RESEND_API_KEY, MY_RESEND_ADDRESS, and MY_EMAIL_ADDRESS must be configured to send contact emails.",
       },
     };
   }
