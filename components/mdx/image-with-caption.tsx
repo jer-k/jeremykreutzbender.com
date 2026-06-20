@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 export interface ImageWithCaptionProps extends ImageProps {
   as?: "figure" | "span";
-  caption?: string;
+  caption: string;
 }
 
 export function ImageWithCaption({
@@ -15,7 +15,6 @@ export function ImageWithCaption({
   title,
   ...props
 }: ImageWithCaptionProps) {
-  const imageCaption = caption ?? title;
   const image = (
     <Image
       alt={alt}
@@ -37,11 +36,9 @@ export function ImageWithCaption({
   return (
     <figure className="my-4">
       {image}
-      {imageCaption ? (
-        <figcaption className="mt-2 text-center text-sm text-muted-foreground">
-          {imageCaption}
-        </figcaption>
-      ) : null}
+      <figcaption className="mt-2 text-center text-sm text-muted-foreground">
+        {caption}
+      </figcaption>
     </figure>
   );
 }

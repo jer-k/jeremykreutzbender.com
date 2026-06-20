@@ -1,4 +1,4 @@
-import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs";
+import type { Meta, StoryFn, StoryObj } from "@storybook/nextjs-vite";
 
 import { H2WithAnchor } from "@/components/mdx/h2-with-anchor";
 

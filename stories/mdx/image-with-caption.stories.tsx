@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from "@storybook/nextjs";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { ImageWithCaption } from "@/components/mdx/image-with-caption";
 
 const meta = {
-  title: "MDX/Image",
+  title: "MDX/ImageWithCaption",
   component: ImageWithCaption,
   parameters: {
     layout: "centered",
@@ -26,12 +26,5 @@ export const WithCaption: Story = {
     src: "/post_images/cutting-build-time-in-half-docker-buildx-kubernetes/release-builder-architecture.png",
     alt: "A builder architecture diagram",
     caption: "BuildKit builder architecture used for cached Docker builds.",
-  },
-};
-
-export const WithoutCaption: Story = {
-  args: {
-    src: "/cliff.png",
-    alt: "A cliff at sunset",
   },
 };
