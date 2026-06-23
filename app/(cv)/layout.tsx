@@ -2,8 +2,10 @@
 
 import { Info, MoveLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -12,6 +14,7 @@ import {
 import { useTheme } from "@/lib/theme-provider";
 
 export default function CvLayout({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const previousThemeRef = useRef<string | undefined>(undefined);
 
@@ -29,13 +32,18 @@ export default function CvLayout({ children }: { children: ReactNode }) {
   }, [theme, setTheme]);
 
   return (
-    <div className="bg-white">
+    <div className="flex min-h-screen flex-col bg-white">
       <header className="print:hidden">
-        <div className="h-full flex-row px-16 py-2">
-          <div className="px-0 flex flex-row items-center justify-between w-full">
-            <Link aria-label="Home" className="cursor-pointer" href="/">
+        <div className="mx-auto h-full w-full max-w-240 px-5 py-2">
+          <div className="flex w-full flex-row items-center justify-between">
+            <Button
+              aria-label="Back"
+              onClick={() => router.back()}
+              size="icon"
+              variant="ghost"
+            >
               <MoveLeft />
-            </Link>
+            </Button>
             <Popover>
               <PopoverTrigger
                 nativeButton={false}
@@ -68,7 +76,9 @@ export default function CvLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      {children}
+      <div className="mx-auto flex w-full max-w-240 flex-1 flex-col px-5 pt-4 print:px-0 print:pt-0">
+        {children}
+      </div>
     </div>
   );
 }
