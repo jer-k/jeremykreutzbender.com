@@ -11,6 +11,7 @@ import { H2WithAnchor } from "@/components/mdx/h2-with-anchor";
 import { MdxImage } from "@/components/mdx/image";
 import { ImageWithCaption } from "@/components/mdx/image-with-caption";
 import { InlineCodeBlock } from "@/components/mdx/inline-code-block";
+import { Mermaid } from "@/components/mdx/mermaid";
 import { PublishedOnOldBlog } from "@/components/mdx/published-on-old-blog";
 import { PublishedOnReleaseBlog } from "@/components/mdx/published-on-release-blog";
 import { ZeroPosts } from "@/components/mdx/zero-posts";
@@ -28,6 +29,7 @@ export const mdxComponents: MDXComponents = {
   Aside: Aside,
   BasicDiv: BasicDiv,
   BlockquoteWithLink: BlockquoteWithLink,
+  Mermaid: Mermaid,
   pre: Code,
   ImageWithCaption: ImageWithCaption,
   MdxImage: MdxImage,
