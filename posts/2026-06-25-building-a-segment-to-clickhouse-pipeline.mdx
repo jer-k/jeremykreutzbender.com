@@ -1,0 +1,113 @@
+---
+title: Building a Segment to ClickHouse Pipeline
+date: "2026-06-25"
+template: "post"
+draft: false
+slug: "building-a-segment-to-clickhouse-pipeline"
+description: |
+ Blah
+tags:
+  - "segment"
+  - "clickhouse"
+  - "analytics"
+---
+
+* Intro
+* Segment S3 Actions
+  * https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-s3
+* ClickHouse tables
+  * `scout_track_events`
+  * `scout_identify_events`
+  * `scout_identify_latest_state`
+  * `scout_identify_latest_state_mv`
+  * `scout_analytics`
+  * `scout_track_queue`
+  * `scout_identify_queue`
+  * `scout_track_mv`
+  * `scout_identify_mv`
+* Configuration
+* Conclusion
+
+At my day job, I recently had to implement an analytics pipeline that started in our AI agent project,
+built on top of Cloudflare's [agents]() package, exported to [Segment](). Segment has many destinations
+for exporting data and we're heavy users of [ClickHouse]() at my job so it was the clear choice. However,
+Segment has no native destination for ClickHouse so I had to come up with a strategy to get it there.
+Follow along with me as we build an analytics pipeline from Segment to ClickHouse.
+
+## Segment S3 Actions
+
+When I started working on this, Segment's
+[S3 Actions](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-s3) destination
+had recently been released into public beta. It is described as follows
+
+> The AWS S3 (Actions) destination allows you to store event data as objects in a secure, scalable cloud
+> storage solution. Each event is written to your S3 bucket, organized into a customizable folder structure
+> such as by event type or timestamp. This makes it easy to manage, archive, and analyze data using downstream
+> tools or AWS services
+
+This seemed like a great fit for the first step in the pipeline. If we can get the data out of Segment
+and into S3 then we can use ClickHouse's [S3Queue Engine]() to import the data into ClickHouse.
+
+The documentation linked above has all the steps for setting up the S3 Actions destination and authenticating
+it to an S3 bucket so I'm not going to go through those steps here. Instead we'll walk through setting
+up a [Segment Function]() to enable date partitioning of our events and then adding that data to
+our [Mapping]() and export.
+
+### Date Partitioning Function
+
+Segment will natively add the timestamp of the event to the data available, but for storing the
+data in S3 we want to build up a folder structure such as `2026/01/01` so that we can use
+prefixes to easily find the data we're interested in. A Function in Segment allows us to take
+any native datapoint and transform it with Javascript, and add the transformed data into
+every event under a new property. In this case, I've transformed the native timestamp into
+our `YYYY/MM/DD` format and added it to the properties as `date_folder`.
+
+```js
+function generateDateFolder(timestamp, type) {
+	let reformatted = timestamp.split('T')[0].split('T')[0].replace(/-/g, '/');
+	return `${reformatted}/${type}`;
+}
+
+async function onTrack(event) {
+	event.properties = event.properties || {};
+	event.properties.date_folder = generateDateFolder(event.timestamp, 'track');
+	return event;
+}
+
+async function onIdentify(event) {
+	event.traits = event.traits || {};
+	event.traits.date_folder = generateDateFolder(event.timestamp, 'identify');
+	return event;
+}
+```
+
+## ClickHouse S3Queue
+
+<Mermaid
+  label="Segment to ClickHouse pipeline"
+  chart={`
+flowchart TB
+    segment["<strong>Segment</strong>"]
+    s3Track["<strong>S3 CSV files</strong><br/><small>.../track/*.csv</small>"]
+    s3Identify["<strong>S3 CSV files</strong><br/><small>.../identify/*.csv</small>"]
+    trackQueue["<strong>track_queue</strong><br/><small>S3Queue</small>"]
+    identifyQueue["<strong>identify_queue</strong><br/><small>S3Queue</small>"]
+    trackMv["<strong>track_mv</strong><br/><small>materialized view</small>"]
+    identifyMv["<strong>identify_mv</strong><br/><small>materialized view</small>"]
+    trackEvents["<strong>track_events</strong><br/><small>track history</small>"]
+    identifyEvents["<strong>identify_events</strong><br/><small>identify history</small>"]
+    latestMv["<strong>identify_latest_state_mv</strong><br/><small>materialized view</small>"]
+    latestState["<strong>identify_latest_state</strong><br/><small>latest traits state</small>"]
+    analytics["<strong>analytics</strong><br/><small>query view</small>"]
+
+    segment --> s3Track
+    segment --> s3Identify
+
+    s3Track --> trackQueue --> trackMv --> trackEvents
+    s3Identify --> identifyQueue --> identifyMv --> identifyEvents
+    identifyEvents --> latestMv --> latestState
+
+    trackEvents --> analytics
+    latestState --> analytics
+`}
+/>
