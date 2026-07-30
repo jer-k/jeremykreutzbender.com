@@ -5,6 +5,7 @@ vi.mock("@/lib/github", () => ({
   openSourcePullRequests: vi.fn().mockResolvedValue([
     {
       createdAt: "2024-01-15T10:00:00Z",
+      mergedAt: "2024-02-15T10:00:00Z",
       number: 42,
       title: "Fix typo in README",
       bodyHTML: "<p>Fixed a typo</p>",
@@ -18,6 +19,7 @@ vi.mock("@/lib/github", () => ({
     },
     {
       createdAt: "2024-02-20T10:00:00Z",
+      mergedAt: "2024-02-25T10:00:00Z",
       number: 99,
       title: "Add feature flag support",
       bodyHTML: "<p>Added feature flags</p>",
@@ -31,6 +33,7 @@ vi.mock("@/lib/github", () => ({
     },
     {
       createdAt: "2024-03-10T10:00:00Z",
+      mergedAt: "2024-03-15T10:00:00Z",
       number: 150,
       title: "Update dependencies",
       bodyHTML: "<p>Bumped deps</p>",
@@ -86,6 +89,8 @@ describe("GET /api/open-source", () => {
       expect(pr).not.toHaveProperty("bodyHTML");
       expect(pr).toHaveProperty("title");
       expect(pr).toHaveProperty("permalink");
+      expect(pr).toHaveProperty("createdAt");
+      expect(pr).toHaveProperty("mergedAt");
       expect(pr).toHaveProperty("repository");
     }
   });
