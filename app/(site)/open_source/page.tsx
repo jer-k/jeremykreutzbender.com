@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Pagination } from "@/components/pagination";
-import { PullRequestCard } from "@/components/pull-request-card";
+import { OpenSourceGrid } from "@/components/open-source/open-source-grid";
 import { openSourcePullRequests } from "@/lib/github";
+import { groupOpenSourcePullRequests } from "@/lib/open-source";
 
 export const metadata: Metadata = {
   title: "Open Source",
@@ -30,27 +30,19 @@ export const metadata: Metadata = {
 
 type OpenSourceProps = {
   searchParams: Promise<{
-    page?: string;
+    repository?: string;
   }>;
 };
 
 export default async function OpenSourcePage(props: OpenSourceProps) {
   const searchParams = await props.searchParams;
   const pullRequests = await openSourcePullRequests();
-
-  const page = (searchParams.page && parseInt(searchParams.page)) || 1;
-  const start = (page - 1) * 25;
-  const numPages = Math.ceil(pullRequests.length / 25);
+  const repositories = groupOpenSourcePullRequests(pullRequests);
 
   return (
-    <div className="flex flex-col space-y-6 w-full max-w-4xl mx-auto">
-      {pullRequests.slice(start, start + 25).map((pullRequest) => (
-        <PullRequestCard
-          key={`${pullRequest.repository.name}-${pullRequest.number}`}
-          pullRequest={pullRequest}
-        />
-      ))}
-      <Pagination page={page} numPages={numPages} path="open_source" />
-    </div>
+    <OpenSourceGrid
+      repositories={repositories}
+      initialRepository={searchParams.repository}
+    />
   );
 }

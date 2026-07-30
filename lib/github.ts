@@ -10,6 +10,7 @@ const octokit = new MyOctokit({ auth: process.env.GITHUB_API_TOKEN });
 
 export type PullRequest = {
   createdAt: string;
+  mergedAt: string;
   number: number;
   title: string;
   bodyHTML: ReactNode;
@@ -31,6 +32,7 @@ const pullRequestsQuery = `query openSourcePullRequests($cursor: String) {
       nodes {
         id
         createdAt
+        mergedAt
         number
         title
         bodyHTML
