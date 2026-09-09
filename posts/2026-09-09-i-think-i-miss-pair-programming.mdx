@@ -1,0 +1,125 @@
+---
+title: I Think I Miss Pair Programming
+date: "2026-09-09"
+template: "post"
+draft: false
+slug: "i-think-i-miss-pair-programming"
+description: |
+  Agentic engineering has made me more productive, but I miss the human connection I found through pair programming.
+tags:
+  - "ai"
+  - "agents"
+  - "pair-programming"
+---
+
+# {frontmatter.title}
+
+_Published on {frontmatter.date}_
+
+In a recent episode of [NextToken](https://x.com/NextTokenShow),
+[I'm Tired of the Uncertainty of Where This Is Going](https://www.youtube.com/watch?v=2bE93tynluk),
+co-host [Dillon Mulroy](https://x.com/dillon_mulroy) described spending almost 12 hours with coworkers
+working on a production incident that delayed the recording of the podcast.
+
+> We were going to record this episode last Friday, but we had to reschedule because I had a production
+> incident with Artifacts ... It wasn’t like a particularly bad incident. It was just some data we had to
+> clean up. But I spent the day basically almost 12 hours on a call with the other two people on my team.
+
+Later, Mulroy reflected on how those 12 hours made him feel:
+
+> I’m not going to lie, despite it being an incident, I had a great day on Friday. I got to hang out and
+> solve problems with people I love hanging out and working with.
+
+His story made me realize that I haven't had a similar experience in a very long time. Not the incident
+itself, but rather multiple engineers working for a sustained amount of time, struggling with and
+solving a problem together. Agentic engineering has made me more productive than ever, but
+it has removed much of the friction we used encounter and made this collaborative problem-solving
+increasingly rare. For me, pair programming wasn’t just a way to write code; it was where I learned from,
+taught, and collaborated with coworkers.
+
+## Pair Programming
+
+To set the stage, I never did pair programming in the Pivotal Labs practice, where two people were
+pairing 100% of their day. Instead, pair programming was an in-the-moment experience when I
+ran into a bug or had trouble coming up with a solution to a problem. When those scenarios happened,
+I would send a Slack message to a coworker asking if they had a few minutes and then we would hop onto a call
+using whatever screen sharing technology was working best for us at the time. More often than not,
+"got a few minutes?" messages would turn into hour-long stints spent solving problems and bonding
+with coworkers, many of whom have turned into very good friends of mine.
+
+I have many fond memories of pairing but a few stand out in particular: Most recently, and I say recently
+jokingly because it was around 2023, a coworker and I were working on our app's transition to GraphQL. We
+had been fighting with large queries that were slowing down the page load time and degrading the UX. Our
+first approach was to break the single large query into smaller pieces spread across multiple components,
+but we rejected that because it obscured the full shape of the data the page required. Instead, we decided
+to lazy-load the slow portion of the query and looked for a GraphQL feature that would
+allow us to do that; that is when we came across the [@defer](https://graphql.org/blog/2020-12-08-defer-stream/)
+directive. We had that aha moment together when we added the directive to the slow portion of the query, added a
+loading state to the components, and watched the page render instantly while the deferred data flowed in later.
+It was a shared moment of programming joy that has stuck with me.
+
+Another memory comes from early in my career. In 2012, I was transitioning from writing
+iOS applications to working on Ruby on Rails and I was reviewing a coworker's pull request. Ruby is a fun
+language and has a lot of ways to write shorthand expressions. One common shorthand is `array.map(&:foo)`
+which is equivalent to `array.map {|obj| obj.foo }`. Being brand new to Ruby, I looked at this shorthand
+and couldn't comprehend what was going on. I left a comment on the PR asking, "Could you help me understand
+this `(&:foo)` syntax? I can't follow what it is doing." My coworker set up some time for us to review the
+PR together and we spent over an hour looking through the code. We found all the places where I didn't
+understand what the syntax. As he he explained each one, I took notes. By the end of the meeting, I had a
+better understanding of Ruby. Learning the shorthand was great, but knowing that my coworker was willing to
+spend his time helping me grow in my career was what stuck with me.
+
+Software engineering is a collaborative job: we ideate together, we plan together, we celebrate our
+launches together, but we're spending more of our coding time alone. The rise of agentic
+engineering has drastically changed both how we code and how we interact with our coworkers.
+
+_I think I miss pair programming_
+
+## Agentic Engineering
+
+Pull requests and debugging were situations where I routinely worked with engineers in the
+past. While neither was formal pair programming, both of these would turn into moments
+of shared problem-solving. However, agents have made both of these increasingly efficient as
+well as more solitary.
+
+It's funny to say that agentic engineering has affected pull requests and reviews because there
+is a ton of discourse around reviews being the bottleneck in shipping software. With the rise of automated
+code review agents and the ability for coworkers to point their agent at the PR and submit feedback, we've
+lost a bit of human interaction at this layer. The changes we're experiencing are proving extremely
+worthwhile in shipping more robust code, but I have many fond memories of sitting down with coworkers and
+going through their PRs with them. We would discuss what they were doing, consider their approaches and
+the trade-offs involved, spot bugs together, and generally just enjoy the collaboration.
+
+Debugging is another area where I’ve become far more productive while working increasingly in isolation.
+With an agent, I'm able to debug issues with far more certainty and speed than ever before. I'll paste
+in a Sentry URL, explain what tags are relevant to query for in Datadog, and if needed, set up a
+bastion to a read-only replica of the production database. With that amount of data available to the agent,
+it is generally able to diagnose what went wrong and propose a fix in minutes. In the past, these sorts
+of investigations took hours, and the bugs that weren't obvious meant bringing another engineer to help.
+I would explain what the bug was, the steps and data I had collected so far, and then we walked through
+the code a second time, hopeful that another set of eyes would see something that I hadn't before.
+Sometimes my coworkers would spot the issue in a matter of seconds, a problem in plain sight that I was
+overlooking due to all the other context I had gathered. Other times we would spend hours trying to reconcile
+how the data was being transformed and where it was getting into a bad state. Those aha moments, where one of us
+would finally spot the bug, were some of the best feelings knowing that we were able to fix it together.
+
+I'm not advocating for going back to manual PR reviews or debugging sessions. The friction these two
+activities created would often necessitate bringing another engineer into the work and that facilitated
+collaborative moments. Agents haven't fully removed collaboration from our day-to-day lives, but they're doing
+a great job reducing the number of times I reach out to coworkers.
+
+_I think I miss pair programming_
+
+## Conclusion
+
+On the one hand, I am far more productive than I've ever been, but on the other hand I miss the camaraderie
+that I used to build with my coworkers through long pair programming sessions. I don't
+think the answer is quite as simple as "go pair with a coworker while your agents do a bunch of work"
+because the primary force driving the collaboration was two humans working together to solve a problem.
+When work is deferred to an agent, we may still be together, but we aren't solving the problem together.
+
+While I don't want to experience a 12-hour incident like Dillon went through, I understand why he
+felt like it was a great day. Hopefully, we’ll find new ways to preserve that kind of collaboration,
+even as agents make it less necessary.
+
+**I miss pair programming**
